@@ -16,6 +16,12 @@ const ALLOWED_ASSET_EXTENSIONS = [
   '.toml',
   '.ini',
   '.txt',
+  '.cfg',
+  '.yml',
+  '.yaml',
+  '.snbt',
+  '.mcmeta',
+  '.lang',
 ];
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB

@@ -51,16 +51,18 @@ export async function POST(req: NextRequest) {
     }
     const body = await req.json();
 
-    // Verificación de limitación Freemium: solo 1 launcher si es FREE
+    // Verificación de limitación Freemium configurable desde Ajustes Globales
     if (user.plan === 'FREE') {
+      const settings = await prisma.globalSettings.findUnique({ where: { id: 'default' } });
+      const maxAllowed = settings?.freePlanMaxLaunchers ?? 1;
       const count = await prisma.launcherConfig.count({
         where: { userId: user.id },
       });
-      if (count >= 1) {
+      if (count >= maxAllowed) {
         return NextResponse.json(
           {
             success: false,
-            error: 'El plan FREE solo permite 1 launcher activo. Actualiza a PRO para crear ilimitados.',
+            error: `El plan FREE permite hasta ${maxAllowed} launcher${maxAllowed > 1 ? 's' : ''} activo${maxAllowed > 1 ? 's' : ''}. Actualiza a PRO para crear ilimitados.`,
             isUpgradeRequired: true,
           },
           { status: 403 }

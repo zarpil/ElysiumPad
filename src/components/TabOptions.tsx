@@ -200,11 +200,11 @@ export function TabOptions({
         body: JSON.stringify({
           name,
           slug: isPremium && slug ? slug.trim() : undefined,
-          serverIp: serverIp.trim() || undefined,
+          serverIp: serverIp.trim(),
           serverPort: Number(serverPort) || 25565,
           allowOffline,
           recommendedRamGb: Number(ram),
-          jvmArgs: jvmArgs.trim() || undefined,
+          jvmArgs: jvmArgs.trim(),
           primaryColor,
         }),
       });

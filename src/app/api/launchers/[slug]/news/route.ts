@@ -61,7 +61,7 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 });
     }
 
-    if (launcher.user.plan === 'FREE') {
+    if (launcher.user.plan === 'FREE' && user.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: 'La publicación de noticias comunitarias requiere Plan PRO o Lifetime' },
         { status: 403 }

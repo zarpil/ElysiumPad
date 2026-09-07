@@ -97,11 +97,12 @@ export function CustomAssetsManager({
       if (file.name.toLowerCase().includes('shader')) {
         setDestFolder('shaderpacks');
         setAssetType('SHADER');
+        setCustomPath(`shaderpacks/${file.name}`);
       } else {
         setDestFolder('resourcepacks');
         setAssetType('RESOURCEPACK');
+        setCustomPath(`resourcepacks/${file.name}`);
       }
-      setCustomPath(`${destFolder}/${file.name}`);
     } else if (ext === 'jar') {
       setDestFolder('mods');
       setAssetType('MOD');

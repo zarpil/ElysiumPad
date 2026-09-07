@@ -74,57 +74,59 @@ export async function GET(
     // Script de arranque portátil para Windows (.bat)
     const batScript = `@echo off
 chcp 65001 >nul
-title ${launcher.name} — ElysiumPad Launcher
+title ${launcher.name} — ElysiumPad
 color 0A
 cls
 echo =====================================================================
-echo                ${launcher.name} — Launcher Oficial
+echo                ${launcher.name} — Paquete de Conexión
 echo =====================================================================
-echo  * Servidor IP: ${launcher.serverIp || 'Por definir'}:${launcher.serverPort}
-echo  * Version MC:  ${launcher.mcVersion} (${launcher.loader})
-echo  * Mods activos: ${launcher.mods.length}
+echo  * Servidor IP:   ${launcher.serverIp || 'Configurado en el cliente'}:${launcher.serverPort}
+echo  * Version MC:    ${launcher.mcVersion} (${launcher.loader})
+echo  * Mods activos:  ${launcher.mods.length} mods
 echo =====================================================================
 echo.
-echo [1/3] Verificando entorno de ejecucion...
-echo [2/3] Conectando con servidor de manifiesto:
+echo [1/2] Verificando manifiesto de sincronizacion en la nube:
 echo       ${manifestUrl}
 echo.
-echo [3/3] Sincronizando mods y configuraciones con el servidor...
+echo [2/2] Archivo de configuracion cargado: launcher-config.json
 echo.
-echo Para lanzar el juego con interfaz grafica nativa de escritorio,
-echo abre el ejecutable "ElysiumLauncher.exe" incluido en este paquete.
+echo Consulta el archivo LEEME-INSTRUCCIONES.txt para unirte al servidor.
 echo.
 pause
 `;
 
     // Script de arranque para Linux/Mac (.sh)
     const shScript = `#!/usr/bin/env bash
-# ${launcher.name} — ElysiumPad Launcher
+# ${launcher.name} — ElysiumPad
 echo "====================================================================="
-echo "               ${launcher.name} — Launcher Oficial"
+echo "               ${launcher.name} — Paquete de Conexión"
 echo "====================================================================="
-echo "* Servidor: ${launcher.serverIp || 'mc.servidor.com'}:${launcher.serverPort}"
-echo "* Version:  ${launcher.mcVersion} (${launcher.loader})"
+echo "* Servidor:   ${launcher.serverIp || 'Configurado en el cliente'}:${launcher.serverPort}"
+echo "* Version:    ${launcher.mcVersion} (${launcher.loader})"
+echo "* Mods:       ${launcher.mods.length} mods"
 echo "* Manifiesto: ${manifestUrl}"
 echo "====================================================================="
-echo "Sincronizando mods..."
+echo "Paquete verificado. Revisa LEEME-INSTRUCCIONES.txt para jugar."
 `;
 
     // README del launcher para los jugadores
     const readmeText = `# ${launcher.name} — Launcher Oficial del Servidor
 
-Bienvenido al launcher oficial de **${launcher.name}**.
+Bienvenido al paquete oficial de conexión para **${launcher.name}**.
 
-## ¿Cómo entrar a jugar?
-1. Este paquete contiene la configuración directa de conexión para nuestro servidor de Minecraft.
-2. Servidor IP: ${launcher.serverIp || 'No configurada'} (Puerto: ${launcher.serverPort})
-3. Versión de Minecraft: ${launcher.mcVersion} con ${launcher.loader}
-4. Mods incluidos: ${launcher.mods.length} mods optimizados.
+## 📌 Datos de Conexión:
+- **Dirección del Servidor**: ${launcher.serverIp || 'Por definir'}${launcher.serverPort && launcher.serverPort !== 25565 ? `:${launcher.serverPort}` : ''}
+- **Versión de Minecraft**: ${launcher.mcVersion}
+- **Motor / Modloader**: ${launcher.loader}
+- **Mods Sincronizados**: ${launcher.mods.length} mods preconfigurados.
 
-Todos los mods se sincronizan automáticamente con la nube de ElysiumPad cada vez que abres el juego.
-Si el servidor actualiza o añade un mod nuevo, tu launcher lo descargará solo sin que tengas que hacer nada.
+## 🚀 ¿Cómo jugar?
+1. Inicia Minecraft ${launcher.mcVersion} con ${launcher.loader} en tu cliente o launcher habitual (Prism, Modrinth, CurseForge, ATLauncher, etc.).
+2. Introduce la IP del servidor: \`${launcher.serverIp || 'localhost'}\`.
+3. Todos los mods y archivos sincronizados están vinculados automáticamente al manifiesto en la nube:
+   ${manifestUrl}
 
-¡Disfruta del juego!
+¡Disfruta del juego con la comunidad de ${launcher.name}!
 `;
 
     // Generar ZIP dinámico en memoria
