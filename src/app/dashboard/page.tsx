@@ -378,7 +378,7 @@ export default function DashboardPage() {
               />
             )}
 
-            {/* PESTAÑA: ARCHIVOS (R2) */}
+            {/* PESTAÑA: ARCHIVOS Y CONFIGS */}
             {activeTab === 'files' && (
               <CustomAssetsManager
                 launcherSlug={currentLauncher.slug}
@@ -386,6 +386,7 @@ export default function DashboardPage() {
                 assets={currentLauncher.customAssets || []}
                 onAssetChanged={loadData}
                 onUpgradeOpen={() => setIsUpgradeOpen(true)}
+                onGoToMods={() => setActiveTab('mods')}
               />
             )}
 

@@ -62,19 +62,38 @@ export function TabMods({
     setCustomError(null);
 
     try {
+      // 1. Subir archivo a /api/upload para calcular SHA y almacenar
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('type', 'mod');
+      formData.append('slug', launcherSlug);
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const uploadData = await uploadRes.json();
+      if (!uploadData.success) {
+        throw new Error(uploadData.error || 'Error al subir el archivo');
+      }
+
+      // 2. Asociar el mod al launcher
       const res = await fetch(`/api/launchers/${launcherSlug}/custom-assets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fileName: `mods/${selectedFile.name}`,
           assetType: 'MOD',
-          fileSize: selectedFile.size,
+          fileSize: uploadData.fileSize,
+          sha1: uploadData.sha1,
+          contentType: selectedFile.type,
         }),
       });
 
       const data = await res.json();
       if (!data.success) {
-        throw new Error(data.error || 'Error al registrar el archivo en R2');
+        throw new Error(data.error || 'Error al asociar el mod al launcher');
       }
 
       setSelectedFile(null);
