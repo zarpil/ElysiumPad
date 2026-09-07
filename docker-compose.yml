@@ -45,7 +45,7 @@ services:
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
     ports:
-      - "3000:3000"
+      - "${APP_PORT:-38472}:3000"
     volumes:
       # Persistencia de uploads locales (logos, banners y mods si no se usa R2)
       - elysiumpad_uploads:/app/public/uploads
