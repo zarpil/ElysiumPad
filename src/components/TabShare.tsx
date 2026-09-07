@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Share2, Check, Copy, ExternalLink, Sparkles, Lock, Palette, Image as ImageIcon, MessageSquare, Save, Loader2 } from 'lucide-react';
+import { Share2, Check, Copy, ExternalLink, Sparkles, Lock, Palette, Image as ImageIcon, MessageSquare, Save, Loader2, Crown } from 'lucide-react';
 import Link from 'next/link';
 
 interface TabShareProps {
@@ -95,6 +95,31 @@ export function TabShare({ launcher, isFree, onUpdated, onUpgradeOpen }: TabShar
             <span>{copied ? 'Copiado' : 'Copiar'}</span>
           </button>
         </div>
+
+        {/* Banner de Slug Personalizado para usuarios FREE */}
+        {isFree ? (
+          <div className="max-w-lg mx-auto p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+            <div className="flex items-center gap-2.5 text-xs text-amber-200">
+              <Crown className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span>¿Quieres un Slug limpio como <strong>/d/mi-servidor</strong>?</span>
+            </div>
+            {onUpgradeOpen && (
+              <button
+                type="button"
+                onClick={onUpgradeOpen}
+                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-[11px] whitespace-nowrap transition flex items-center gap-1 shadow-sm"
+              >
+                <Sparkles className="w-3 h-3" />
+                Desbloquear con PRO
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-[11px] text-emerald-400 font-semibold">
+            <Crown className="w-3 h-3 text-emerald-400" />
+            Slug URL Personalizado Activo
+          </div>
+        )}
 
         <div className="pt-2 flex items-center justify-center gap-4">
           <Link

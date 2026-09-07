@@ -82,23 +82,55 @@ export async function POST(req: NextRequest) {
       recommendedRamGb,
     } = body;
 
-    if (!name || !slug) {
+    if (!name) {
       return NextResponse.json(
-        { success: false, error: 'Nombre e identificador (slug) son obligatorios' },
+        { success: false, error: 'El nombre del launcher es obligatorio' },
         { status: 400 }
       );
     }
 
-    const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+    const isPremiumUser = user.plan === 'PRO' || user.plan === 'LIFETIME' || user.role === 'ADMIN';
+    let cleanSlug = '';
 
-    const existing = await prisma.launcherConfig.findUnique({
-      where: { slug: cleanSlug },
-    });
-    if (existing) {
-      return NextResponse.json(
-        { success: false, error: 'Ya existe un launcher con ese identificador slug' },
-        { status: 409 }
-      );
+    if (!isPremiumUser) {
+      // Para usuarios FREE, el slug se genera de forma aleatoria (srv-xxxxxx).
+      // Si intentan forzar un slug personalizado sin ser PRO:
+      if (slug && !slug.startsWith('srv-')) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Personalizar el Slug URL es una función exclusiva PRO / LIFETIME. En el plan gratuito se asigna un enlace aleatorio.',
+            isUpgradeRequired: true,
+          },
+          { status: 403 }
+        );
+      }
+      cleanSlug = slug && slug.startsWith('srv-')
+        ? slug.toLowerCase().replace(/[^a-z0-9-]/g, '')
+        : `srv-${Math.random().toString(36).substring(2, 8)}`;
+    } else {
+      if (!slug || slug.trim().length < 2) {
+        return NextResponse.json(
+          { success: false, error: 'El slug URL personalizado es obligatorio (mínimo 2 caracteres)' },
+          { status: 400 }
+        );
+      }
+      cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+    }
+
+    // Asegurar unicidad del slug
+    let attempts = 0;
+    while (await prisma.launcherConfig.findUnique({ where: { slug: cleanSlug } })) {
+      if (!isPremiumUser) {
+        cleanSlug = `srv-${Math.random().toString(36).substring(2, 8)}`;
+        attempts++;
+        if (attempts > 10) break;
+      } else {
+        return NextResponse.json(
+          { success: false, error: 'Ya existe un launcher con ese identificador slug personalizado' },
+          { status: 409 }
+        );
+      }
     }
 
     const newLauncher = await prisma.launcherConfig.create({

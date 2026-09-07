@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, Loader2, Megaphone, X } from 'lucide-react';
+import { Check, Copy, Loader2, Megaphone, X, Crown, Lock, Sparkles } from 'lucide-react';
 import { AternosSidebar, ActiveTab } from '@/components/AternosSidebar';
 import { TabOptions } from '@/components/TabOptions';
 import { TabMods } from '@/components/TabMods';
@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [newServerIp, setNewServerIp] = useState('');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const isPremium = userPlan === 'PRO' || userPlan === 'LIFETIME' || currentUser?.role === 'ADMIN';
 
   async function loadData() {
     try {
@@ -172,7 +173,14 @@ export default function DashboardPage() {
         userPlan={userPlan}
         onSelectLauncher={(l) => setSelectedSlug(l.slug)}
         onTabChange={setActiveTab}
-        onCreateOpen={() => setIsCreateOpen(true)}
+        onCreateOpen={() => {
+          if (!isPremium) {
+            setNewSlug(`srv-${Math.random().toString(36).substring(2, 8)}`);
+          } else {
+            setNewSlug('');
+          }
+          setIsCreateOpen(true);
+        }}
         onLogout={async () => {
           await fetch('/api/auth/logout', { method: 'POST' });
           router.push('/login');
@@ -336,11 +344,18 @@ export default function DashboardPage() {
             {activeTab === 'options' && (
               <TabOptions
                 launcher={currentLauncher}
-                onUpdated={loadData}
+                userPlan={userPlan}
+                onUpdated={(newSlug?: string) => {
+                  if (newSlug && newSlug !== selectedSlug) {
+                    setSelectedSlug(newSlug);
+                  }
+                  loadData();
+                }}
                 onDeleted={() => {
                   setSelectedSlug(null);
                   loadData();
                 }}
+                onUpgradeOpen={() => setIsUpgradeOpen(true)}
               />
             )}
 
@@ -432,7 +447,7 @@ export default function DashboardPage() {
                   value={newName}
                   onChange={(e) => {
                     setNewName(e.target.value);
-                    if (!newSlug) {
+                    if (isPremium && !newSlug) {
                       setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-'));
                     }
                   }}
@@ -441,15 +456,68 @@ export default function DashboardPage() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Slug URL (Único)</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="survival-amigos"
-                  value={newSlug}
-                  onChange={(e) => setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))}
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-semibold text-slate-300">
+                    Slug URL (Página de Descarga)
+                  </label>
+                  {!isPremium && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCreateOpen(false);
+                        setIsUpgradeOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition"
+                    >
+                      <Crown className="w-3 h-3 text-amber-400" />
+                      PRO Exclusivo
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    readOnly={!isPremium}
+                    placeholder={isPremium ? 'survival-amigos' : 'srv-xxxxxx'}
+                    value={newSlug}
+                    onChange={(e) => {
+                      if (isPremium) {
+                        setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'));
+                      }
+                    }}
+                    className={`w-full px-3.5 py-2.5 bg-slate-950 border rounded-xl text-white focus:outline-none font-mono ${
+                      !isPremium
+                        ? 'border-slate-800 text-slate-400 cursor-not-allowed bg-slate-950/80 pr-10'
+                        : 'border-slate-700 focus:border-emerald-500'
+                    }`}
+                  />
+                  {!isPremium && (
+                    <Lock className="w-4 h-4 text-amber-400/80 absolute right-3 top-3 pointer-events-none" />
+                  )}
+                </div>
+
+                {!isPremium ? (
+                  <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+                    <span>En el plan Free se asigna un enlace aleatorio.</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCreateOpen(false);
+                        setIsUpgradeOpen(true);
+                      }}
+                      className="text-amber-400 hover:underline font-semibold flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      Personalizar con PRO
+                    </button>
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Enlace público: <span className="text-emerald-400 font-mono">/d/{newSlug || 'tu-slug'}</span>
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">

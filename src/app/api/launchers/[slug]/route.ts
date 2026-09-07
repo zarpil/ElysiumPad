@@ -55,6 +55,7 @@ export async function PUT(
     const body = await req.json();
     const {
       name,
+      slug: newSlug,
       description,
       mcVersion,
       loader,
@@ -78,9 +79,46 @@ export async function PUT(
       broadcastImage,
     } = body;
 
+    const isPremiumUser = user.plan === 'PRO' || user.plan === 'LIFETIME' || user.role === 'ADMIN';
+    let targetSlug = existing.slug;
+
+    if (newSlug && newSlug !== existing.slug) {
+      if (!isPremiumUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Modificar el Slug URL es una función exclusiva PRO / LIFETIME.',
+            isUpgradeRequired: true,
+          },
+          { status: 403 }
+        );
+      }
+
+      const cleanNewSlug = String(newSlug).toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+      if (cleanNewSlug.length < 2) {
+        return NextResponse.json(
+          { success: false, error: 'El slug debe tener al menos 2 caracteres' },
+          { status: 400 }
+        );
+      }
+
+      const slugTaken = await prisma.launcherConfig.findUnique({
+        where: { slug: cleanNewSlug },
+      });
+      if (slugTaken && slugTaken.id !== existing.id) {
+        return NextResponse.json(
+          { success: false, error: 'Este slug ya está en uso por otro launcher' },
+          { status: 409 }
+        );
+      }
+
+      targetSlug = cleanNewSlug;
+    }
+
     const launcher = await prisma.launcherConfig.update({
       where: { slug },
       data: {
+        slug: targetSlug,
         name,
         description,
         mcVersion,

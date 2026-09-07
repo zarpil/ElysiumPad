@@ -99,6 +99,10 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
               <ul className="space-y-2 text-[11px] text-slate-300 pt-3 border-t border-slate-800/80">
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Slug URL personalizado (ej: /d/mi-servidor)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Launchers ilimitados</span>
                 </li>
                 <li className="flex items-center gap-2">
@@ -138,6 +142,10 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
                 <p className="text-[11px] text-slate-400 mt-1">Todas las funciones PRO para siempre.</p>
               </div>
               <ul className="space-y-2 text-[11px] text-slate-300 pt-3 border-t border-slate-800/80">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Slug URL personalizado para siempre</span>
+                </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
                   <span>Sin pagos mensuales recurrentes</span>
