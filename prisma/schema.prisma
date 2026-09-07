@@ -1,0 +1,153 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String          @id @default(cuid())
+  email            String          @unique
+  name             String?
+  passwordHash     String?
+  role             String          @default("USER") // "USER" | "ADMIN"
+  plan             String          @default("FREE") // "FREE" | "PRO" | "LIFETIME"
+  status           String          @default("ACTIVE") // "ACTIVE" | "SUSPENDED"
+  stripeCustomerId String?
+  subscriptionId   String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  launchers        LauncherConfig[]
+  auditLogs        AuditLog[]
+}
+
+model LauncherConfig {
+  id               String       @id @default(cuid())
+  slug             String       @unique
+  name             String
+  description      String?      @db.Text
+  mcVersion        String       @default("1.20.1")
+  loader           String       @default("FABRIC")
+  loaderVersion    String?
+  
+  primaryColor     String       @default("#10b981")
+  serverIp         String?
+  serverPort       Int          @default(25565)
+  logoUrl          String?
+  bannerUrl        String?
+  windowTitle      String?
+  
+  allowOffline     Boolean      @default(true)
+  minRamGb         Int          @default(2)
+  recommendedRamGb Int          @default(4)
+  jvmArgs          String?      @db.Text
+  
+  downloadCount    Int          @default(0)
+  syncCount        Int          @default(0)
+
+  // Novedades y Anuncios dentro del Launcher (Exclusivo PRO / LIFETIME)
+  broadcastEnabled Boolean      @default(false)
+  broadcastTitle   String?
+  broadcastMessage String?      @db.Text
+  broadcastTag     String?      @default("NOVEDAD")
+  broadcastLink    String?
+  broadcastBtnText String?      @default("Ver Más")
+  broadcastImage   String?
+
+  userId           String
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  mods             ModItem[]
+  customAssets     CustomAsset[]
+  newsItems        LauncherNews[]
+
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model LauncherNews {
+  id          String         @id @default(cuid())
+  title       String
+  content     String         @db.Text
+  tag         String         @default("NOVEDAD")
+  link        String?
+  btnText     String?        @default("Ver Más")
+  imageUrl    String?
+  isPinned    Boolean        @default(false)
+  isActive    Boolean        @default(true)
+
+  launcherId  String
+  launcher    LauncherConfig @relation(fields: [launcherId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ModItem {
+  id            String         @id @default(cuid())
+  modrinthId    String?
+  versionId     String?
+  title         String
+  fileName      String
+  downloadUrl   String
+  fileSize      Int            @default(0)
+  sha1          String?
+  sha512        String?
+  isRequired    Boolean        @default(true)
+  clientSide    Boolean        @default(true)
+  iconUrl       String?
+
+  launcherId    String
+  launcher      LauncherConfig @relation(fields: [launcherId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime       @default(now())
+}
+
+model CustomAsset {
+  id            String         @id @default(cuid())
+  fileName      String
+  r2Path        String
+  downloadUrl   String
+  fileSize      Int            @default(0)
+  sha1          String?
+  sha256        String?
+  assetType     String
+  
+  launcherId    String
+  launcher      LauncherConfig @relation(fields: [launcherId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime       @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  details     String?  @db.Text
+  ipAddress   String?
+  
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime @default(now())
+}
+
+model GlobalSettings {
+  id                String   @id @default("default")
+  maintenanceMode   Boolean  @default(false)
+  registrationsOpen Boolean  @default(true)
+  bannerAnnouncement String? @db.Text
+  bannerType        String   @default("INFO") // "INFO" | "WARNING" | "CRITICAL"
+  freePlanMaxLaunchers Int   @default(1)
+  
+  // Publicidad para Plan FREE (estilo Aternos)
+  adsEnabled        Boolean  @default(true)
+  adBannerImg       String?  // Imagen del anuncio / sponsor
+  adBannerLink      String?  // Link de destino del sponsor
+  adBannerText      String?  @db.Text @default("Alojamiento de Minecraft de alto rendimiento • Patrocinado")
+
+  updatedAt         DateTime @updatedAt
+}
+
