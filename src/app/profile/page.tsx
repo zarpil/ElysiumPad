@@ -52,6 +52,33 @@ export default function ProfilePage() {
   // Copy helper
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
+  // Cancellation state
+  const [cancellingSub, setCancellingSub] = useState(false);
+  const [cancelSuccess, setCancelSuccess] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+  const [isConfirmCancelOpen, setIsConfirmCancelOpen] = useState(false);
+
+  async function handleCancelSubscription() {
+    setCancellingSub(true);
+    setCancelError(null);
+    setCancelSuccess(null);
+
+    try {
+      const res = await fetch('/api/billing/cancel', { method: 'POST' });
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Error al cancelar la suscripción');
+      }
+      setCancelSuccess(data.message);
+      setIsConfirmCancelOpen(false);
+      await loadProfile();
+    } catch (err: any) {
+      setCancelError(err.message);
+    } finally {
+      setCancellingSub(false);
+    }
+  }
+
   useEffect(() => {
     loadProfile();
   }, []);
@@ -627,6 +654,84 @@ export default function ProfilePage() {
                 </div>
               </div>
 
+              {/* Alertas de cancelación */}
+              {cancelSuccess && (
+                <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400" />
+                  <span>{cancelSuccess}</span>
+                </div>
+              )}
+
+              {cancelError && (
+                <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-400" />
+                  <span>{cancelError}</span>
+                </div>
+              )}
+
+              {/* Si es PRO: Gestión de Suscripción Mensual y Cancelación */}
+              {profile.plan === 'PRO' && (
+                <div className="pt-4 border-t border-[#1a2333] space-y-4">
+                  <div className="p-5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-emerald-400" />
+                          Ciclo de Facturación Mensual
+                        </h4>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          Tu suscripción PRO se renueva automáticamente cada mes por <strong>$4.99 USD</strong>.
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 whitespace-nowrap self-start sm:self-auto">
+                        Renovación Activa
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-[#0d121c] border border-slate-800/80 rounded-lg text-[11px] text-slate-400 space-y-1">
+                      <p className="flex items-center gap-1.5 text-slate-300 font-medium">
+                        <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                        Garantía Legal de Cancelación Autónoma:
+                      </p>
+                      <p>
+                        Puedes cancelar la renovación en cualquier momento con 1 solo clic. No hay compromisos de permanencia ni cobros adicionales. Al cancelar, tu cuenta pasará automáticamente al plan gratuito sin penalizaciones.
+                      </p>
+                    </div>
+
+                    <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <p className="text-[11px] text-slate-500">
+                        ¿Deseas interrumpir la renovación del próximo mes?
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsConfirmCancelOpen(true)}
+                        className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-semibold transition flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Cancelar Suscripción</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Si es LIFETIME: Pago único permanente */}
+              {profile.plan === 'LIFETIME' && (
+                <div className="pt-4 border-t border-[#1a2333] space-y-3">
+                  <div className="p-5 bg-amber-950/20 border border-amber-500/30 rounded-xl space-y-2">
+                    <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <span>Licencia Vitalicia Fundador</span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      Tu cuenta está cubierta por un pago único vitalicio. No existen cuotas mensuales, cargos recurrentes ni renovaciones pendientes. Todas las características PRO están activas para siempre.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Si es FREE: Invitación a mejorar */}
               {isFree && (
                 <div className="pt-4 border-t border-[#1a2333] flex flex-col sm:flex-row items-center justify-between gap-4 bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/20">
                   <div>
@@ -643,10 +748,72 @@ export default function ProfilePage() {
                   </button>
                 </div>
               )}
+
+              {/* Transparencia y Cumplimiento Legal Stripe / E-commerce */}
+              <div className="pt-4 border-t border-[#1a2333] flex items-start gap-3 text-[11px] text-slate-500">
+                <CreditCard className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  <strong>Cumplimiento de pagos legales y seguros:</strong> Procesamiento bajo estándar bancario cifrado PCI-DSS Level 1. Facturas con desglose de impuestos disponibles en cada ciclo. El usuario mantiene en todo momento el control total sobre sus métodos de pago y renovaciones.
+                </p>
+              </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* Modal de confirmación de Cancelación Legal */}
+      {isConfirmCancelOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="bg-[#121824] border border-[#1e2739] rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="text-base font-bold text-white">¿Confirmas la cancelación de tu suscripción?</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Tu suscripción mensual PRO se cancelará inmediatamente. No se te volverá a cobrar ninguna mensualidad.
+              </p>
+            </div>
+
+            <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-[11px] text-slate-400 space-y-1">
+              <p className="text-slate-300 font-semibold">Al cancelar:</p>
+              <ul className="list-disc list-inside space-y-0.5 text-slate-400">
+                <li>Tu cuenta pasará al plan Gratuito (FREE).</li>
+                <li>Se mantendrán guardados tus servidores existentes.</li>
+                <li>Podrás volver a reactivar PRO en cualquier momento cuando lo desees.</li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={cancellingSub}
+                onClick={() => setIsConfirmCancelOpen(false)}
+                className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-xl transition"
+              >
+                Mantener mi Plan PRO
+              </button>
+
+              <button
+                type="button"
+                disabled={cancellingSub}
+                onClick={handleCancelSubscription}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm"
+              >
+                {cancellingSub ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Cancelando...</span>
+                  </>
+                ) : (
+                  <span>Sí, Cancelar Suscripción</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Upgrade Modal */}
       <UpgradeModal
