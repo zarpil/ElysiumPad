@@ -27,6 +27,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { UpgradeModal } from '@/components/UpgradeModal';
+import { copyToClipboard } from '@/lib/clipboard';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -156,11 +157,13 @@ export default function ProfilePage() {
     }
   }
 
-  function handleCopyDownloadLink(slug: string) {
+  async function handleCopyDownloadLink(slug: string) {
     const url = `${window.location.origin}/d/${slug}`;
-    navigator.clipboard.writeText(url);
-    setCopiedSlug(slug);
-    setTimeout(() => setCopiedSlug(null), 2000);
+    const success = await copyToClipboard(url);
+    if (success) {
+      setCopiedSlug(slug);
+      setTimeout(() => setCopiedSlug(null), 2000);
+    }
   }
 
   if (loading) {

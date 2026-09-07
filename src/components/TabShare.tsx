@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Share2, Check, Copy, ExternalLink, Sparkles, Lock, Palette, Image as ImageIcon, MessageSquare, Save, Loader2, Crown } from 'lucide-react';
 import Link from 'next/link';
 
+import { copyToClipboard } from '@/lib/clipboard';
+
 interface TabShareProps {
   launcher: any;
   isFree: boolean;
@@ -23,11 +25,13 @@ export function TabShare({ launcher, isFree, onUpdated, onUpgradeOpen }: TabShar
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handleCopy() {
+  async function handleCopy() {
     const url = `${window.location.origin}/d/${launcher.slug}`;
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const success = await copyToClipboard(url);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   }
 
   async function handleSaveCustomization(e: React.FormEvent) {

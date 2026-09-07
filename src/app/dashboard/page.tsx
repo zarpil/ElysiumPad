@@ -12,6 +12,7 @@ import { CustomAssetsManager } from '@/components/CustomAssetsManager';
 import { ModSearchModal } from '@/components/ModSearchModal';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { AdBanner } from '@/components/AdBanner';
+import { copyToClipboard } from '@/lib/clipboard';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -156,11 +157,14 @@ export default function DashboardPage() {
     }
   }
 
-  function copyShareLink() {
+  async function copyShareLink() {
     if (!currentLauncher) return;
-    navigator.clipboard.writeText(`${window.location.origin}/d/${currentLauncher.slug}`);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+    const url = `${window.location.origin}/d/${currentLauncher.slug}`;
+    const success = await copyToClipboard(url);
+    if (success) {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   }
 
   return (
