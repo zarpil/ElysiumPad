@@ -19,7 +19,47 @@ import {
   Activity,
   Play,
   RefreshCw,
+  Zap,
 } from 'lucide-react';
+
+function getRecommendedJava(mcVersion: string) {
+  if (!mcVersion) return { version: 'Java 17', note: 'Estándar moderno' };
+  const v = mcVersion.trim();
+  if (v.startsWith('1.7') || v.startsWith('1.8') || v.startsWith('1.12') || v.startsWith('1.16')) {
+    return { version: 'Java 8', note: 'Requerido para Minecraft ≤ 1.16' };
+  }
+  if (v.startsWith('1.17') || v.startsWith('1.18') || v.startsWith('1.19') || v === '1.20' || v.startsWith('1.20.1') || v.startsWith('1.20.2') || v.startsWith('1.20.3') || v.startsWith('1.20.4')) {
+    return { version: 'Java 17', note: 'Requerido para Minecraft 1.17 - 1.20.4' };
+  }
+  return { version: 'Java 21', note: 'Requerido para Minecraft 1.20.5+' };
+}
+
+const JVM_PROFILES = [
+  {
+    id: 'AIKAR',
+    name: "⚡ Aikar's Flags (FPS Boost)",
+    desc: 'Optimiza el recolector G1GC para eliminar micro-tirones y congelamientos de memoria.',
+    flags: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1',
+  },
+  {
+    id: 'STANDARD',
+    name: '🎮 Estándar / Balanceado',
+    desc: 'Flags equilibradas estándar para cualquier ordenador.',
+    flags: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200',
+  },
+  {
+    id: 'HEAVY',
+    name: '🚀 Modpacks Pesados (100+ mods)',
+    desc: 'Pre-asigna memoria física y compacta cadenas de texto para evitar saturar la RAM.',
+    flags: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=150 -XX:+AlwaysPreTouch -XX:+UseStringDeduplication',
+  },
+  {
+    id: 'CUSTOM',
+    name: '✏️ Flags Manuales',
+    desc: 'Introduce tus propios argumentos de máquina virtual Java.',
+    flags: '',
+  },
+];
 
 interface TabOptionsProps {
   launcher: any;
@@ -77,10 +117,18 @@ export function TabOptions({
 
   const [allowOffline, setAllowOffline] = useState(launcher.allowOffline ?? true);
   const [ram, setRam] = useState(launcher.recommendedRamGb || 4);
+  const [jvmArgs, setJvmArgs] = useState(launcher.jvmArgs || JVM_PROFILES[0].flags);
+  const [jvmProfile, setJvmProfile] = useState(() => {
+    if (!launcher.jvmArgs) return 'AIKAR';
+    const found = JVM_PROFILES.find((p) => p.flags === launcher.jvmArgs);
+    return found ? found.id : 'CUSTOM';
+  });
   const [primaryColor, setPrimaryColor] = useState(launcher.primaryColor || '#10b981');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const recommendedJava = getRecommendedJava(launcher.mcVersion);
 
   // Parsear dirección unificada automáticamente
   function handleAddressChange(value: string) {
@@ -156,6 +204,7 @@ export function TabOptions({
           serverPort: Number(serverPort) || 25565,
           allowOffline,
           recommendedRamGb: Number(ram),
+          jvmArgs: jvmArgs.trim() || undefined,
           primaryColor,
         }),
       });
@@ -414,12 +463,12 @@ export function TabOptions({
         </div>
       </div>
 
-      {/* Tarjeta 3: Rendimiento & RAM Recomendada */}
-      <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 space-y-4">
+      {/* Tarjeta 3: Rendimiento & RAM Recomendada con Optimizador Java */}
+      <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 space-y-5">
         <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <Cpu className="w-4 h-4 text-cyan-400" />
-            <h4 className="text-sm font-bold text-white">Memoria RAM Recomendada para Clientes</h4>
+            <h4 className="text-sm font-bold text-white">Rendimiento, RAM & Optimizador Java</h4>
           </div>
           <span className="text-base font-black text-cyan-400 font-mono bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-xl">
             {ram} GB RAM
@@ -466,6 +515,67 @@ export function TabOptions({
           <p className="text-[11px] text-slate-400">
             El launcher auto-configurará esta cantidad de RAM por defecto en el cliente de tus jugadores para evitar crasheos de memoria.
           </p>
+
+          {/* Sección Optimizador Java & Argumentos JVM */}
+          <div className="pt-3 border-t border-slate-800/80 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span className="font-bold text-white text-xs">Optimizador de Java & Flags de Rendimiento</span>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
+                <span>Versión Recomendada:</span>
+                <strong>{recommendedJava.version}</strong>
+              </span>
+            </div>
+
+            {/* Perfiles JVM */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {JVM_PROFILES.map((profile) => {
+                const isSelected = jvmProfile === profile.id;
+                return (
+                  <button
+                    key={profile.id}
+                    type="button"
+                    onClick={() => {
+                      setJvmProfile(profile.id);
+                      if (profile.id !== 'CUSTOM') {
+                        setJvmArgs(profile.flags);
+                      }
+                    }}
+                    className={`p-3 rounded-xl border text-left transition ${
+                      isSelected
+                        ? 'bg-amber-500/10 border-amber-500/40 text-white shadow-sm'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:bg-slate-900/60 hover:text-slate-300'
+                    }`}
+                  >
+                    <span className="font-bold text-xs block text-slate-200">{profile.name}</span>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">{profile.desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Cuadro de Flags Activas */}
+            <div className="space-y-1">
+              <label className="block text-[10px] uppercase font-bold text-slate-400">
+                Argumentos JVM Activos para el Launcher:
+              </label>
+              <textarea
+                rows={2}
+                value={jvmArgs}
+                onChange={(e) => {
+                  setJvmArgs(e.target.value);
+                  setJvmProfile('CUSTOM');
+                }}
+                placeholder="-XX:+UseG1GC..."
+                className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-xl text-[11px] font-mono text-slate-300 focus:outline-none focus:border-amber-500"
+              />
+              <p className="text-[10px] text-slate-500">
+                Estas flags eliminan micro-congelamientos de FPS gestionando automáticamente la recolección de basura de Java.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

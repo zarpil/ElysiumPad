@@ -108,6 +108,12 @@ export async function GET(
 
       // Reglas de ejecución
       runtime: {
+        javaVersion: (() => {
+          const v = launcher.mcVersion || '';
+          if (v.startsWith('1.7') || v.startsWith('1.8') || v.startsWith('1.12') || v.startsWith('1.16')) return 8;
+          if (v.startsWith('1.17') || v.startsWith('1.18') || v.startsWith('1.19') || v === '1.20' || v.startsWith('1.20.1') || v.startsWith('1.20.2') || v.startsWith('1.20.3') || v.startsWith('1.20.4')) return 17;
+          return 21;
+        })(),
         allowOffline: launcher.allowOffline,
         minRamGb: launcher.minRamGb,
         recommendedRamGb: launcher.recommendedRamGb,

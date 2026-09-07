@@ -15,7 +15,58 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Cupones de descuento
+  const [couponInput, setCouponInput] = useState('');
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountPercent: number;
+    description?: string | null;
+  } | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   if (!isOpen) return null;
+
+  async function handleApplyCoupon(e: React.FormEvent) {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+
+    setValidatingCoupon(true);
+    setCouponError(null);
+
+    try {
+      const res = await fetch('/api/billing/coupon', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponInput }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.valid) {
+        setAppliedCoupon(data.coupon);
+        setCouponInput('');
+      } else {
+        setCouponError(data.error || 'Cupón inválido o caducado.');
+      }
+    } catch (err: any) {
+      setCouponError(err.message || 'Error al validar el cupón.');
+    } finally {
+      setValidatingCoupon(false);
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setAppliedCoupon(null);
+    setCouponError(null);
+  }
+
+  // Precios base
+  const baseProPrice = 4.99;
+  const baseLifetimePrice = 49.0;
+
+  const discountMultiplier = appliedCoupon ? (100 - appliedCoupon.discountPercent) / 100 : 1;
+  const finalProPrice = (baseProPrice * discountMultiplier).toFixed(2);
+  const finalLifetimePrice = (baseLifetimePrice * discountMultiplier).toFixed(2);
 
   async function handleCheckout() {
     setLoading(true);
@@ -24,7 +75,10 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
       const res = await fetch('/api/billing/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: selectedPlan }),
+        body: JSON.stringify({
+          plan: selectedPlan,
+          couponCode: appliedCoupon?.code,
+        }),
       });
 
       const data = await res.json();
@@ -91,9 +145,18 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
                 </span>
               </div>
               <div>
-                <p className="text-2xl font-black text-white">
-                  $4.99 <span className="text-xs font-normal text-slate-400">/mes</span>
-                </p>
+                {appliedCoupon ? (
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-2xl font-black text-emerald-400">
+                      ${finalProPrice} <span className="text-xs font-normal text-slate-400">/mes</span>
+                    </p>
+                    <p className="text-sm font-semibold text-slate-500 line-through">$4.99</p>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-black text-white">
+                    $4.99 <span className="text-xs font-normal text-slate-400">/mes</span>
+                  </p>
+                )}
                 <p className="text-[11px] text-slate-400 mt-1">Cancela en cualquier momento.</p>
               </div>
               <ul className="space-y-2 text-[11px] text-slate-300 pt-3 border-t border-slate-800/80">
@@ -136,9 +199,18 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
                 </span>
               </div>
               <div>
-                <p className="text-2xl font-black text-white">
-                  $49 <span className="text-xs font-normal text-slate-400">pago único</span>
-                </p>
+                {appliedCoupon ? (
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-2xl font-black text-amber-400">
+                      ${finalLifetimePrice} <span className="text-xs font-normal text-slate-400">pago único</span>
+                    </p>
+                    <p className="text-sm font-semibold text-slate-500 line-through">$49</p>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-black text-white">
+                    $49 <span className="text-xs font-normal text-slate-400">pago único</span>
+                  </p>
+                )}
                 <p className="text-[11px] text-slate-400 mt-1">Todas las funciones PRO para siempre.</p>
               </div>
               <ul className="space-y-2 text-[11px] text-slate-300 pt-3 border-t border-slate-800/80">
@@ -163,6 +235,56 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
           </div>
         </div>
 
+        {/* Promo / Discount Coupon Section */}
+        <div className="bg-slate-950/80 border border-slate-800 p-3.5 rounded-2xl">
+          {appliedCoupon ? (
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs">
+                <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold">
+                  ✓
+                </span>
+                <div>
+                  <span className="font-bold text-white font-mono">{appliedCoupon.code}</span>
+                  <span className="text-emerald-400 font-bold ml-1.5">
+                    (-{appliedCoupon.discountPercent}% aplicado)
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveCoupon}
+                className="text-xs text-slate-400 hover:text-rose-400 transition underline font-medium"
+              >
+                Quitar cupón
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleApplyCoupon} className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="¿Tienes un cupón de descuento?"
+                value={couponInput}
+                onChange={(e) => {
+                  setCouponInput(e.target.value.toUpperCase());
+                  if (couponError) setCouponError(null);
+                }}
+                className="flex-1 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs text-white uppercase placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-emerald-500"
+              />
+              <button
+                type="submit"
+                disabled={validatingCoupon || !couponInput.trim()}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition disabled:opacity-50"
+              >
+                {validatingCoupon ? 'Validando...' : 'Aplicar'}
+              </button>
+            </form>
+          )}
+
+          {couponError && (
+            <p className="text-[11px] text-rose-400 mt-2 font-medium">{couponError}</p>
+          )}
+        </div>
+
         {/* CTA Button */}
         <div className="pt-2 flex items-center justify-between gap-4">
           <p className="text-[11px] text-slate-400">
@@ -181,7 +303,9 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
               </>
             ) : (
               <>
-                <span>Activar Plan {selectedPlan}</span>
+                <span>
+                  Activar {selectedPlan} {appliedCoupon && `($${selectedPlan === 'PRO' ? finalProPrice : finalLifetimePrice})`}
+                </span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

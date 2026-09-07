@@ -151,3 +151,17 @@ model GlobalSettings {
   updatedAt         DateTime @updatedAt
 }
 
+model Coupon {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  discountPercent Int       // Porcentaje de descuento (ej: 20, 50, 100)
+  maxUses         Int       @default(100)
+  usedCount       Int       @default(0)
+  expiresAt       DateTime?
+  isActive        Boolean   @default(true)
+  description     String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+

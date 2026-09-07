@@ -15,6 +15,10 @@ import {
   Package,
   AlertTriangle,
   FileCode,
+  Activity,
+  CheckCircle2,
+  Clock,
+  Loader2,
 } from 'lucide-react';
 
 interface LaunchersProps {
@@ -26,9 +30,40 @@ interface LaunchersProps {
 export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [loaderFilter, setLoaderFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'HEALTHY' | 'INACTIVE' | 'WARNINGS'>('ALL');
   const [inspectLauncher, setInspectLauncher] = useState<any | null>(null);
   const [launcherToDelete, setLauncherToDelete] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Health Scanner state
+  const [isScanning, setIsScanning] = useState(false);
+  const [healthResults, setHealthResults] = useState<Record<string, any>>({});
+  const [healthStats, setHealthStats] = useState<{
+    total: number;
+    healthy: number;
+    inactive: number;
+    withWarnings: number;
+  } | null>(null);
+
+  async function handleScanHealth() {
+    setIsScanning(true);
+    try {
+      const res = await fetch('/api/admin/launchers/health');
+      const data = await res.json();
+      if (data.success) {
+        const mapping: Record<string, any> = {};
+        data.results.forEach((r: any) => {
+          mapping[r.launcherId] = r;
+        });
+        setHealthResults(mapping);
+        setHealthStats(data.stats);
+      }
+    } catch (err) {
+      console.error('Error scanning launcher health:', err);
+    } finally {
+      setIsScanning(false);
+    }
+  }
 
   const filteredLaunchers = launchers.filter((l) => {
     const query = searchQuery.toLowerCase();
@@ -41,7 +76,18 @@ export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersPr
 
     const matchesLoader = loaderFilter === '' || l.loader === loaderFilter;
 
-    return matchesQuery && matchesLoader;
+    // Filter by health/inactivity status if scanned
+    const healthInfo = healthResults[l.id];
+    let matchesStatus = true;
+    if (statusFilter === 'HEALTHY') {
+      matchesStatus = healthInfo ? healthInfo.health === 'HEALTHY' && !healthInfo.isInactive : true;
+    } else if (statusFilter === 'INACTIVE') {
+      matchesStatus = healthInfo ? healthInfo.isInactive : (l.downloadCount === 0 && l.syncCount === 0);
+    } else if (statusFilter === 'WARNINGS') {
+      matchesStatus = healthInfo ? (healthInfo.warnings && healthInfo.warnings.length > 0) : false;
+    }
+
+    return matchesQuery && matchesLoader && matchesStatus;
   });
 
   async function handleDeleteLauncher() {
@@ -67,6 +113,101 @@ export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersPr
 
   return (
     <div className="space-y-6">
+      {/* Ecosystem Health & Inactivity Scanner Bar */}
+      <div className="bg-[#111622] border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+            <Activity className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              Auditoría de Salud & Inactividad
+              {healthStats && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  Escaneo activo
+                </span>
+              )}
+            </h3>
+            <p className="text-xs text-slate-400">
+              Verifica enlaces caídos, configs huérfanas y detecta servidores abandonados sin descargas.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleScanHealth}
+            disabled={isScanning}
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-lg shadow-emerald-950/40 disabled:opacity-50"
+          >
+            {isScanning ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Analizando servidores...</span>
+              </>
+            ) : (
+              <>
+                <Activity className="w-4 h-4" />
+                <span>{healthStats ? 'Re-escanear Ecosistema' : 'Escanear Salud del Ecosistema'}</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Stats summary if scanned */}
+      {healthStats && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <button
+            onClick={() => setStatusFilter('ALL')}
+            className={`p-3.5 rounded-xl border text-left transition ${
+              statusFilter === 'ALL'
+                ? 'bg-slate-800/80 border-slate-600'
+                : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
+            }`}
+          >
+            <div className="text-lg font-black text-white">{healthStats.total}</div>
+            <div className="text-xs text-slate-400 font-medium">Total Launchers</div>
+          </button>
+
+          <button
+            onClick={() => setStatusFilter('HEALTHY')}
+            className={`p-3.5 rounded-xl border text-left transition ${
+              statusFilter === 'HEALTHY'
+                ? 'bg-emerald-950/40 border-emerald-500'
+                : 'bg-slate-900/40 border-slate-800 hover:border-emerald-500/40'
+            }`}
+          >
+            <div className="text-lg font-black text-emerald-400">{healthStats.healthy}</div>
+            <div className="text-xs text-slate-400 font-medium">100% Operativos</div>
+          </button>
+
+          <button
+            onClick={() => setStatusFilter('INACTIVE')}
+            className={`p-3.5 rounded-xl border text-left transition ${
+              statusFilter === 'INACTIVE'
+                ? 'bg-amber-950/40 border-amber-500'
+                : 'bg-slate-900/40 border-slate-800 hover:border-amber-500/40'
+            }`}
+          >
+            <div className="text-lg font-black text-amber-400">{healthStats.inactive}</div>
+            <div className="text-xs text-slate-400 font-medium">Inactivos / 0 Descargas</div>
+          </button>
+
+          <button
+            onClick={() => setStatusFilter('WARNINGS')}
+            className={`p-3.5 rounded-xl border text-left transition ${
+              statusFilter === 'WARNINGS'
+                ? 'bg-rose-950/40 border-rose-500'
+                : 'bg-slate-900/40 border-slate-800 hover:border-rose-500/40'
+            }`}
+          >
+            <div className="text-lg font-black text-rose-400">{healthStats.withWarnings}</div>
+            <div className="text-xs text-slate-400 font-medium">Con Advertencias</div>
+          </button>
+        </div>
+      )}
+
       {/* Search and Filters */}
       <div className="bg-slate-900/50 border border-slate-800/90 p-5 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex-1 max-w-md relative">
@@ -128,7 +269,30 @@ export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersPr
                       </div>
                       <div>
                         <p className="font-semibold text-white">{l.name}</p>
-                        <p className="text-[11px] text-slate-400 font-mono">/d/{l.slug}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-[11px] text-slate-400 font-mono">/d/{l.slug}</p>
+                          {healthResults[l.id] && (
+                            healthResults[l.id].isInactive ? (
+                              <span
+                                title={healthResults[l.id].inactivityReason}
+                                className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/30 cursor-help"
+                              >
+                                Inactivo
+                              </span>
+                            ) : healthResults[l.id].health === 'HEALTHY' ? (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                ✓ Operativo
+                              </span>
+                            ) : (
+                              <span
+                                title={healthResults[l.id].warnings?.join('\n')}
+                                className="text-[9px] px-1.5 py-0.2 rounded font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30 cursor-help"
+                              >
+                                ⚠️ Alerta
+                              </span>
+                            )
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>

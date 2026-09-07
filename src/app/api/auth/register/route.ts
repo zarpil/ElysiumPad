@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { signToken, AUTH_COOKIE_NAME } from '@/lib/auth';
+import { sendWelcomeEmail } from '@/lib/resend';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -81,6 +82,11 @@ export async function POST(req: NextRequest) {
         details: `Nuevo usuario registrado: ${user.email} (${user.id})`,
         userId: user.id,
       },
+    });
+
+    // Enviar correo transaccional de bienvenida con Resend (en segundo plano)
+    sendWelcomeEmail({ to: user.email, name: user.name || undefined }).catch((err) => {
+      console.error('[Resend Welcome Error]', err);
     });
 
     const token = signToken({

@@ -13,6 +13,9 @@ import {
   AlertTriangle,
   Info,
   Sparkles,
+  Mail,
+  Send,
+  Loader2,
 } from 'lucide-react';
 
 interface SettingsProps {
@@ -24,6 +27,37 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
   const [settings, setSettings] = useState<any>(initialSettings || {});
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Test email Resend state
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  async function handleSendTestEmail() {
+    if (!testEmail || !testEmail.includes('@')) {
+      alert('Ingresa un correo electrónico válido');
+      return;
+    }
+    setSendingTest(true);
+    setTestResult(null);
+    try {
+      const res = await fetch('/api/admin/resend/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetEmail: testEmail.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTestResult({ success: true, message: data.message });
+      } else {
+        setTestResult({ success: false, message: data.error || 'Error al enviar correo' });
+      }
+    } catch (err: any) {
+      setTestResult({ success: false, message: err.message || 'Error de conexión' });
+    } finally {
+      setSendingTest(false);
+    }
+  }
 
   useEffect(() => {
     if (initialSettings) {
@@ -374,6 +408,85 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Servicio de Correos Transaccionales (Resend.com) */}
+      <div className="p-6 bg-slate-900/40 border border-slate-800/80 rounded-2xl space-y-5">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <Mail className="w-4 h-4 text-cyan-400" />
+            <span>Servicio de Correos Transaccionales (Resend.com)</span>
+          </h4>
+          <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-cyan-400">
+            resend.com
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-400">
+          ElysiumPad envía correos automáticos de bienvenida a nuevos usuarios y confirmaciones de compra premium utilizando la API de Resend.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div className="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-white">Eventos Transaccionales Activos</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <ul className="text-[11px] text-slate-400 space-y-1.5 pt-1">
+              <li className="flex items-center gap-1.5">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Bienvenida tras registro de usuario nuevo</span>
+              </li>
+              <li className="flex items-center gap-1.5">
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Activación de suscripción PRO o LIFETIME</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-white">Probar Envío de Correo</span>
+              <span className="text-[10px] text-slate-500">Prueba en Vivo</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="email"
+                placeholder="tu-correo@ejemplo.com"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                className="flex-1 px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition"
+              />
+              <button
+                type="button"
+                onClick={handleSendTestEmail}
+                disabled={sendingTest || !testEmail}
+                className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-cyan-950/40 disabled:opacity-50 shrink-0"
+              >
+                {sendingTest ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
+                <span>Enviar Test</span>
+              </button>
+            </div>
+
+            {testResult && (
+              <div
+                className={`p-2.5 rounded-lg text-xs flex items-center gap-2 ${
+                  testResult.success
+                    ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                    : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
+                }`}
+              >
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>{testResult.message}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
