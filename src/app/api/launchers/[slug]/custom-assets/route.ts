@@ -131,3 +131,87 @@ export async function DELETE(
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
+    const { slug } = await params;
+    const body = await req.json();
+    const { assetId, newPath } = body;
+
+    if (!assetId || !newPath) {
+      return NextResponse.json(
+        { success: false, error: 'assetId y newPath son requeridos' },
+        { status: 400 }
+      );
+    }
+
+    const launcher = await prisma.launcherConfig.findUnique({
+      where: { slug },
+    });
+
+    if (!launcher) {
+      return NextResponse.json({ success: false, error: 'Launcher no encontrado' }, { status: 404 });
+    }
+
+    if (launcher.userId !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 });
+    }
+
+    const asset = await prisma.customAsset.findFirst({
+      where: { id: assetId, launcherId: launcher.id },
+    });
+
+    if (!asset) {
+      return NextResponse.json({ success: false, error: 'Archivo no encontrado' }, { status: 404 });
+    }
+
+    // Sanitización de la nueva ruta
+    let cleanPath = newPath
+      .replace(/\\/g, '/')
+      .replace(/\/+/g, '/')
+      .replace(/^\/+/, '')
+      .replace(/\.\./g, '')
+      .trim();
+
+    if (!cleanPath) {
+      return NextResponse.json({ success: false, error: 'Ruta no válida' }, { status: 400 });
+    }
+
+    // Auto-detectar assetType según la nueva ruta
+    let updatedType = asset.assetType;
+    if (cleanPath.startsWith('mods/')) {
+      updatedType = 'MOD';
+    } else if (cleanPath.startsWith('config/') || cleanPath.startsWith('defaultconfigs/')) {
+      updatedType = 'CONFIG';
+    } else if (cleanPath.startsWith('shaderpacks/')) {
+      updatedType = 'SHADER';
+    } else if (cleanPath.startsWith('resourcepacks/')) {
+      updatedType = 'RESOURCEPACK';
+    }
+
+    const updatedAsset = await prisma.customAsset.update({
+      where: { id: assetId },
+      data: {
+        fileName: cleanPath,
+        assetType: updatedType,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      asset: updatedAsset,
+      message: `Ruta actualizada a ${cleanPath}`,
+    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
