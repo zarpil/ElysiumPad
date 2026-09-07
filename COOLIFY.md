@@ -11,7 +11,7 @@ Este método levanta automáticamente tanto la aplicación web (`Next.js Standal
 ### Paso 1: Conectar el Repositorio en Coolify
 1. En tu panel de Coolify, entra a tu **Proyecto** y **Entorno** (Environment).
 2. Haz clic en **+ New Resource** > **Git Repository** (GitHub App o Git Público).
-3. Selecciona tu repositorio: `zarpil/ElysiumPad` y la rama `master`.
+3. Selecciona tu repositorio: `zarpil/ElysiumPad` y la rama `main`.
 4. Coolify detectará automáticamente el archivo `docker-compose.yml`.
 
 ### Paso 2: Configurar las Variables de Entorno en Coolify
