@@ -42,11 +42,13 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-[#0c1017] text-slate-200 flex flex-col justify-center items-center p-6">
       <div className="w-full max-w-sm bg-[#121824] border border-[#1e2739] rounded-xl p-8 shadow-xl space-y-6">
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2 mb-2 text-white">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-sm text-white shadow-sm">
-              EP
-            </div>
-            <span className="font-bold text-base tracking-tight text-white">ElysiumPad</span>
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-2 text-white group">
+            <img
+              src="/logo.png"
+              alt="ElysiumPad"
+              className="w-8 h-8 rounded-lg object-contain shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform"
+            />
+            <span className="font-bold text-base tracking-tight text-white group-hover:text-emerald-400 transition">ElysiumPad</span>
           </Link>
           <h1 className="text-xl font-bold text-white tracking-tight">Crear Cuenta</h1>
           <p className="text-xs text-slate-400">

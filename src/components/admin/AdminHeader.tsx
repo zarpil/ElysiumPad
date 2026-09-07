@@ -15,9 +15,11 @@ export function AdminHeader({ loading, onRefresh, maintenanceMode }: AdminHeader
     <header className="h-16 border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md px-6 md:px-8 flex items-center justify-between sticky top-0 z-40">
       <div className="flex items-center gap-3 md:gap-4">
         <Link href="/" className="flex items-center gap-2.5 text-white group">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-sm shadow-md shadow-emerald-500/20 text-white group-hover:scale-105 transition-transform">
-            EP
-          </div>
+          <img
+            src="/logo.png"
+            alt="ElysiumPad"
+            className="w-8 h-8 rounded-lg object-contain shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform"
+          />
           <span className="font-bold text-sm tracking-tight text-white group-hover:text-emerald-400 transition">
             ElysiumPad
           </span>

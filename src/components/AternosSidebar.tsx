@@ -35,9 +35,11 @@ export function AternosSidebar({
     <aside className="w-64 bg-[#111622] border-r border-slate-800/80 flex flex-col justify-between flex-shrink-0">
       <div>
         <div className="p-5 flex items-center gap-3 border-b border-slate-800/60">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center font-black text-slate-950 text-lg shadow-md shadow-emerald-500/20">
-            EP
-          </div>
+          <img
+            src="/logo.png"
+            alt="ElysiumPad"
+            className="w-9 h-9 rounded-xl object-contain shadow-md shadow-emerald-500/20"
+          />
           <div>
             <span className="font-extrabold text-sm tracking-tight text-white block">ElysiumPad</span>
             <span className="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase block">

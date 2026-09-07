@@ -62,12 +62,14 @@ export default function LandingPage() {
       {/* Header / Navbar */}
       <header className="h-16 border-b border-[#1b2333] bg-[#0f141f] sticky top-0 z-50 px-6 lg:px-12 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2.5 text-white">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-sm text-white shadow-sm">
-              EP
-            </div>
+          <Link href="/" className="flex items-center gap-2.5 text-white group">
+            <img
+              src="/logo.png"
+              alt="ElysiumPad"
+              className="w-8 h-8 rounded-lg object-contain shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform"
+            />
             <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight text-white leading-none">
+              <span className="font-bold text-sm tracking-tight text-white leading-none group-hover:text-emerald-400 transition">
                 ElysiumPad
               </span>
               <span className="text-[10px] text-slate-400 font-medium leading-none mt-1">
@@ -652,9 +654,11 @@ export default function LandingPage() {
       <footer className="border-t border-[#1b2333] bg-[#0b0e15] py-10 px-6 lg:px-12 text-xs text-slate-400">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded bg-emerald-600 flex items-center justify-center font-bold text-xs text-white">
-              EP
-            </div>
+            <img
+              src="/logo.png"
+              alt="ElysiumPad"
+              className="w-7 h-7 rounded-lg object-contain shadow-md shadow-emerald-500/20"
+            />
             <div>
               <p className="font-bold text-white text-xs">ElysiumPad</p>
               <p className="text-[11px] text-slate-500">Gestión y distribución de launchers para servidores de Minecraft</p>
