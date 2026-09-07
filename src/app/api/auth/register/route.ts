@@ -3,8 +3,22 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { signToken, AUTH_COOKIE_NAME } from '@/lib/auth';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(req: NextRequest) {
   try {
+    // 1. Verificar si los registros están abiertos en la plataforma
+    const settings = await prisma.globalSettings.findUnique({
+      where: { id: 'default' },
+    });
+
+    if (settings && settings.registrationsOpen === false) {
+      return NextResponse.json(
+        { success: false, error: 'El registro de nuevas cuentas está temporalmente deshabilitado por el administrador.' },
+        { status: 403 }
+      );
+    }
+
     const { name, email, password } = await req.json();
 
     if (!email || !password) {
@@ -14,14 +28,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    const cleanEmail = email.toLowerCase().trim();
+
+    // 2. Validación de formato de email
+    if (!EMAIL_REGEX.test(cleanEmail) || cleanEmail.length > 100) {
       return NextResponse.json(
-        { success: false, error: 'La contraseña debe tener al menos 6 caracteres' },
+        { success: false, error: 'Por favor ingresa un correo electrónico válido' },
         { status: 400 }
       );
     }
 
-    const cleanEmail = email.toLowerCase().trim();
+    // 3. Validación de longitud de contraseña
+    if (password.length < 6 || password.length > 128) {
+      return NextResponse.json(
+        { success: false, error: 'La contraseña debe tener entre 6 y 128 caracteres' },
+        { status: 400 }
+      );
+    }
+
     const existing = await prisma.user.findUnique({
       where: { email: cleanEmail },
     });
@@ -33,19 +57,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // El primer usuario registrado se convierte automáticamente en ADMIN
+    // El primer usuario registrado en una BD vacía se convierte en ADMIN, todos los demás en USER
     const userCount = await prisma.user.count();
     const role = userCount === 0 ? 'ADMIN' : 'USER';
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const cleanName = (name ? String(name).trim() : cleanEmail.split('@')[0]).slice(0, 50);
 
     const user = await prisma.user.create({
       data: {
         email: cleanEmail,
-        name: name || cleanEmail.split('@')[0],
+        name: cleanName,
         passwordHash,
         role,
         plan: 'FREE',
+      },
+    });
+
+    // Registrar en auditoría
+    await prisma.auditLog.create({
+      data: {
+        action: 'USER_REGISTERED',
+        details: `Nuevo usuario registrado: ${user.email} (${user.id})`,
+        userId: user.id,
       },
     });
 
