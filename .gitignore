@@ -30,8 +30,26 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (allow .env.example)
 .env*
+!.env.example
+
+# databases (SQLite local)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+prisma/dev.db
+
+# local user uploads
+public/uploads/*
+!public/uploads/.gitkeep
+
+# agent & ide temporary caches
+.agents/
+.claude/
+.cursor/
+.devin/
 
 # vercel
 .vercel
