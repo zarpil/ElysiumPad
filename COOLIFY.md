@@ -27,6 +27,8 @@ En la pestaña **Environment Variables** de Coolify, introduce tus valores segur
 | `JWT_SECRET` | *(genera 32 bytes con: `openssl rand -hex 32`)* | Clave para firmar sesiones y tokens |
 | `INITIAL_ADMIN_EMAIL` | `admin@tudominio.com` | Correo del administrador inicial |
 | `INITIAL_ADMIN_PASSWORD` | `TuContrasenaAdminSegura123!` | Contraseña inicial del SuperAdmin |
+| `RESEND_API_KEY` | *(opcional: api key de resend.com)* | Para enviar correos de bienvenida y reseteo de clave |
+| `RESEND_FROM_EMAIL` | `ElysiumPad <onboarding@resend.dev>` | Remitente de los correos transaccionales |
 
 *(Opcionales para Cloudflare R2 / S3):*
 * `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_PUBLIC_DOMAIN`. *(Si se dejan vacíos, los archivos se guardan localmente en el volumen persistente de Coolify).*
