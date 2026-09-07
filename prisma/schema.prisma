@@ -17,6 +17,8 @@ model User {
   status           String          @default("ACTIVE") // "ACTIVE" | "SUSPENDED"
   stripeCustomerId String?
   subscriptionId   String?
+  resetPasswordToken String?       @unique
+  resetPasswordExpires DateTime?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 

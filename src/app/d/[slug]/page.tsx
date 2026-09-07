@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import { Download, Server, Cpu, Check, Layers, ExternalLink } from 'lucide-react';
@@ -6,6 +7,64 @@ import { AdBanner } from '@/components/AdBanner';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const launcher = await prisma.launcherConfig.findUnique({
+    where: { slug },
+    include: {
+      mods: { select: { id: true } },
+      user: { select: { plan: true } },
+    },
+  });
+
+  if (!launcher) {
+    return {
+      title: 'Launcher no encontrado — ElysiumPad',
+    };
+  }
+
+  const isFree = launcher.user.plan === 'FREE';
+  const title = (!isFree && launcher.windowTitle)
+    ? launcher.windowTitle
+    : `${launcher.name} — Launcher Oficial Minecraft`;
+
+  const description = (!isFree && launcher.description)
+    ? launcher.description
+    : `Descarga el launcher oficial de ${launcher.name} para Minecraft ${launcher.mcVersion} (${launcher.loader}). ${launcher.mods.length} mods instalados y sincronizados en tiempo real.`;
+
+  const imageUrl = (!isFree && launcher.bannerUrl)
+    ? launcher.bannerUrl
+    : (!isFree && launcher.logoUrl)
+    ? launcher.logoUrl
+    : 'https://elysiumpad.com/icon.png';
+
+  return {
+    title,
+    description,
+    themeColor: launcher.primaryColor || '#10b981',
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      siteName: 'ElysiumPad',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${launcher.name} Launcher`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
+  };
 }
 
 export default async function DownloadLauncherPage({ params }: PageProps) {

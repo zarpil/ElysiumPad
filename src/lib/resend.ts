@@ -192,3 +192,63 @@ export async function sendPlanUpgradedEmail({
     text: `¡Hola ${displayName}! Tu cuenta de ElysiumPad ha sido actualizada al Plan ${plan}. Disfruta de launchers ilimitados, subida de configs y marca blanca completa.`,
   });
 }
+
+/**
+ * Plantilla de Recuperación de Contraseña
+ */
+export async function sendPasswordResetEmail({
+  to,
+  name,
+  resetUrl,
+}: {
+  to: string;
+  name?: string;
+  resetUrl: string;
+}): Promise<SendEmailResult> {
+  const displayName = name || 'Gamer';
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f17; color: #e2e8f0; margin: 0; padding: 24px; }
+    .container { max-width: 580px; margin: 0 auto; background-color: #111622; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .badge { display: inline-block; background-color: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; border: 1px solid rgba(239, 68, 68, 0.3); text-transform: uppercase; margin-bottom: 16px; }
+    h1 { color: #ffffff; font-size: 22px; font-weight: 800; margin-top: 0; }
+    p { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+    .btn { display: inline-block; background-color: #10b981; color: #022c22; font-weight: bold; font-size: 14px; text-decoration: none; padding: 12px 24px; border-radius: 10px; margin: 20px 0; }
+    .note { font-size: 12px; color: #64748b; background-color: #0b0f17; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; margin-top: 20px; }
+    .footer { font-size: 12px; color: #64748b; margin-top: 32px; border-top: 1px solid #1e293b; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">🔒 Seguridad de la Cuenta</div>
+    <h1>Restablecer tu Contraseña</h1>
+    <p>Hola <strong>${displayName}</strong>,</p>
+    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>ElysiumPad</strong>.</p>
+    <p>Haz clic en el siguiente botón para elegir una nueva contraseña:</p>
+    <div style="text-align: center;">
+      <a href="${resetUrl}" class="btn">Restablecer Mi Contraseña</a>
+    </div>
+    <div class="note">
+      <p style="margin: 0;">Este enlace es válido durante <strong>1 hora</strong>. Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña actual continuará siendo segura.</p>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} ElysiumPad • Seguridad y Protección para tu Cuenta.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  return sendEmail({
+    to,
+    subject: '🔐 Restablecer contraseña de ElysiumPad',
+    html,
+    text: `Hola ${displayName}. Para restablecer tu contraseña de ElysiumPad, accede al siguiente enlace (válido por 1 hora): ${resetUrl}`,
+  });
+}
+
