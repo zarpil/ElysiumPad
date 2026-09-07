@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Save,
   Trash2,
@@ -14,6 +14,11 @@ import {
   Palette,
   Globe,
   AlertTriangle,
+  Wifi,
+  WifiOff,
+  Activity,
+  Play,
+  RefreshCw,
 } from 'lucide-react';
 
 interface TabOptionsProps {
@@ -25,12 +30,14 @@ interface TabOptionsProps {
 }
 
 const COLOR_PRESETS = [
-  { name: 'Esmeralda', hex: '#10b981' },
-  { name: 'Diamante', hex: '#06b6d4' },
-  { name: 'Amatista', hex: '#a855f7' },
-  { name: 'Redstone', hex: '#ef4444' },
-  { name: 'Netherita', hex: '#64748b' },
-  { name: 'Oro', hex: '#f59e0b' },
+  { name: 'Esmeralda', hex: '#10b981', desc: 'Minecraft clásico' },
+  { name: 'Diamante', hex: '#06b6d4', desc: 'Cian vibrante' },
+  { name: 'Amatista', hex: '#a855f7', desc: 'Púrpura místico' },
+  { name: 'Redstone', hex: '#ef4444', desc: 'Rojo combate' },
+  { name: 'Oro Puro', hex: '#f59e0b', desc: 'Dorado cálido' },
+  { name: 'Cereza', hex: '#ec4899', desc: 'Rosa sakura' },
+  { name: 'Lima Cyber', hex: '#84cc16', desc: 'Verde flúor' },
+  { name: 'Netherita', hex: '#64748b', desc: 'Gris moderno' },
 ];
 
 const RAM_PRESETS = [
@@ -48,16 +55,89 @@ export function TabOptions({
   onUpgradeOpen,
 }: TabOptionsProps) {
   const isPremium = userPlan === 'PRO' || userPlan === 'LIFETIME' || userPlan === 'ADMIN';
+
   const [name, setName] = useState(launcher.name);
   const [slug, setSlug] = useState(launcher.slug || '');
+
+  // Dirección inteligente (soporta dominio, IP, con o sin puerto ej: mc.aternos.me:12345 o play.servidor.es)
+  const initialAddress = launcher.serverIp
+    ? launcher.serverPort && launcher.serverPort !== 25565
+      ? `${launcher.serverIp}:${launcher.serverPort}`
+      : launcher.serverIp
+    : '';
+
+  const [serverAddress, setServerAddress] = useState(initialAddress);
   const [serverIp, setServerIp] = useState(launcher.serverIp || '');
-  const [serverPort, setServerPort] = useState(launcher.serverPort || 25565);
+  const [serverPort, setServerPort] = useState<number>(launcher.serverPort || 25565);
+  const [showManualPort, setShowManualPort] = useState(false);
+
+  // Ping test
+  const [pinging, setPinging] = useState(false);
+  const [pingResult, setPingResult] = useState<{ online: boolean; pingMs?: number | null } | null>(null);
+
   const [allowOffline, setAllowOffline] = useState(launcher.allowOffline ?? true);
   const [ram, setRam] = useState(launcher.recommendedRamGb || 4);
   const [primaryColor, setPrimaryColor] = useState(launcher.primaryColor || '#10b981');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Parsear dirección unificada automáticamente
+  function handleAddressChange(value: string) {
+    setServerAddress(value);
+    setPingResult(null);
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setServerIp('');
+      setServerPort(25565);
+      return;
+    }
+
+    // Detectar si el usuario pegó host:puerto (ej: mc.aternos.me:34215 o 185.22.45.10:25570)
+    if (trimmed.includes(':')) {
+      const parts = trimmed.split(':');
+      const hostPart = parts[0].trim();
+      const portPart = Number(parts[1]?.trim());
+
+      setServerIp(hostPart);
+      if (!isNaN(portPart) && portPart > 0 && portPart <= 65535) {
+        setServerPort(portPart);
+      }
+    } else {
+      setServerIp(trimmed);
+      // Si no hay puerto en el texto y no se forzó manual, default 25565
+      if (!showManualPort) {
+        setServerPort(25565);
+      }
+    }
+  }
+
+  // Comprobar ping en tiempo real
+  async function testServerConnection() {
+    if (!serverIp) {
+      setError('Por favor indica una dirección de servidor para probar.');
+      return;
+    }
+
+    setPinging(true);
+    setError(null);
+    setPingResult(null);
+
+    try {
+      const res = await fetch(`/api/ping?host=${encodeURIComponent(serverIp)}&port=${serverPort || 25565}`);
+      const data = await res.json();
+      if (data.success) {
+        setPingResult({ online: data.online, pingMs: data.pingMs });
+      } else {
+        setPingResult({ online: false, pingMs: null });
+      }
+    } catch {
+      setPingResult({ online: false, pingMs: null });
+    } finally {
+      setPinging(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -73,7 +153,7 @@ export function TabOptions({
           name,
           slug: isPremium && slug ? slug.trim() : undefined,
           serverIp: serverIp.trim() || undefined,
-          serverPort: Number(serverPort),
+          serverPort: Number(serverPort) || 25565,
           allowOffline,
           recommendedRamGb: Number(ram),
           primaryColor,
@@ -115,9 +195,9 @@ export function TabOptions({
             <Sliders className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-black text-white">Configuración General del Launcher</h3>
+            <h3 className="text-lg font-black text-white">Configuración del Servidor & Launcher</h3>
             <p className="text-xs text-slate-400">
-              Personaliza el nombre, slug público, conexión IP al servidor, memoria RAM recomendada y paleta de color.
+              Personaliza el nombre, dirección del servidor, memoria RAM recomendada y la apariencia visual.
             </p>
           </div>
         </div>
@@ -140,7 +220,7 @@ export function TabOptions({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
           <div>
             <label className="block font-semibold text-slate-300 mb-1.5">
-              Nombre del Servidor / Modpack
+              Nombre del Servidor
             </label>
             <input
               type="text"
@@ -151,7 +231,7 @@ export function TabOptions({
               className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:border-indigo-500 text-xs"
             />
             <p className="text-[11px] text-slate-500 mt-1">
-              Nombre visible en el título del launcher y en la página de descarga.
+              Nombre visible en el título del launcher y página de descarga.
             </p>
           </div>
 
@@ -217,39 +297,120 @@ export function TabOptions({
         </div>
       </div>
 
-      {/* Tarjeta 2: Conexión al Servidor de Minecraft */}
+      {/* Tarjeta 2: Conexión al Servidor de Minecraft (Intuitiva: IP / Dominio y Puerto en un solo campo inteligente) */}
       <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 space-y-4">
-        <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-          <Server className="w-4 h-4 text-emerald-400" />
-          <h4 className="text-sm font-bold text-white">Conexión al Servidor Minecraft</h4>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <Server className="w-4 h-4 text-emerald-400" />
+            <h4 className="text-sm font-bold text-white">Conexión al Servidor Minecraft</h4>
+          </div>
+          <span className="text-[11px] text-slate-400">
+            Pega tu IP o Dominio con o sin puerto
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div className="md:col-span-2">
+        <div className="space-y-3 text-xs">
+          {/* Campo unificado inteligente */}
+          <div>
             <label className="block font-semibold text-slate-300 mb-1.5">
-              IP o Dominio del Servidor
+              Dirección de Conexión del Servidor (IP o Dominio)
             </label>
-            <input
-              type="text"
-              placeholder="play.miservidor.com o 185.22.45.10"
-              value={serverIp}
-              onChange={(e) => setServerIp(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-            />
-            <p className="text-[11px] text-slate-500 mt-1">
-              El launcher comprobará el estado (online/offline) y el ping de este servidor en tiempo real.
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="ej: mc.amigos.es o smp.aternos.me:34215 o 185.22.45.10"
+                  value={serverAddress}
+                  onChange={(e) => handleAddressChange(e.target.value)}
+                  className="w-full pl-3.5 pr-10 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
+                />
+                {serverAddress && (
+                  <button
+                    type="button"
+                    onClick={() => handleAddressChange('')}
+                    className="absolute right-3 top-2.5 text-slate-500 hover:text-slate-300 transition text-xs"
+                    title="Limpiar"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+
+              {/* Botón Probar Conexión */}
+              <button
+                type="button"
+                disabled={pinging || !serverIp}
+                onClick={testServerConnection}
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold transition flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap"
+              >
+                {pinging ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                    <span>Comprobando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Comprobar Estado</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1.5">
+              Detecta automáticamente si incluyes el puerto (ej: <code className="text-slate-400">servidor.aternos.me:12345</code>) o si es un dominio estándar (puerto por defecto 25565).
             </p>
           </div>
 
-          <div>
-            <label className="block font-semibold text-slate-300 mb-1.5">Puerto (Default: 25565)</label>
-            <input
-              type="number"
-              value={serverPort}
-              onChange={(e) => setServerPort(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono text-xs"
-            />
-          </div>
+          {/* Desglose visual de host y puerto */}
+          {serverIp && (
+            <div className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-200">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Dominio / IP:</span>
+                  <span className="font-mono text-emerald-400 font-bold">{serverIp}</span>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold">Puerto:</span>
+                  {showManualPort ? (
+                    <input
+                      type="number"
+                      value={serverPort}
+                      onChange={(e) => setServerPort(Number(e.target.value))}
+                      className="w-16 bg-slate-950 border border-emerald-500 rounded px-1.5 py-0.5 text-xs text-white font-mono"
+                    />
+                  ) : (
+                    <span className="font-mono text-cyan-400 font-bold">{serverPort}</span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowManualPort(!showManualPort)}
+                  className="text-[10px] text-slate-400 hover:text-slate-200 underline transition"
+                >
+                  {showManualPort ? 'Fijar' : 'Cambiar puerto manual'}
+                </button>
+              </div>
+
+              {/* Resultado del Ping */}
+              {pingResult && (
+                <div className="flex items-center gap-2">
+                  {pingResult.online ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Online {pingResult.pingMs ? `(${pingResult.pingMs} ms)` : ''}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold">
+                      <span className="w-2 h-2 rounded-full bg-rose-500" />
+                      No responde o servidor apagado
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -333,48 +494,120 @@ export function TabOptions({
         </label>
       </div>
 
-      {/* Tarjeta 5: Color de Acento Visual */}
-      <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 space-y-4">
-        <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-          <Palette className="w-4 h-4 text-amber-400" />
-          <h4 className="text-sm font-bold text-white">Personalización & Color de Acento</h4>
+      {/* Tarjeta 5: Personalización Visual & Color de Acento con Vista Previa en Vivo */}
+      <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <Palette className="w-4 h-4 text-amber-400" />
+            <h4 className="text-sm font-bold text-white">Personalización & Color de Acento</h4>
+          </div>
+          <span className="text-[11px] text-slate-400">
+            El color principal de los botones y detalles de tu launcher
+          </span>
         </div>
 
-        <div className="space-y-3 text-xs">
-          <p className="text-xs text-slate-400">
-            Selecciona el color temático principal para los botones, badges e interfaz del launcher compilado.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-3">
-            {COLOR_PRESETS.map((color) => (
-              <button
-                key={color.hex}
-                type="button"
-                onClick={() => setPrimaryColor(color.hex)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition ${
-                  primaryColor.toLowerCase() === color.hex.toLowerCase()
-                    ? 'border-white bg-slate-800 text-white shadow-md'
-                    : 'border-slate-800 bg-slate-950 text-slate-400 hover:border-slate-700'
-                }`}
-              >
-                <span
-                  className="w-3.5 h-3.5 rounded-full shadow-sm"
-                  style={{ backgroundColor: color.hex }}
-                />
-                <span className="font-semibold">{color.name}</span>
-              </button>
-            ))}
-
-            {/* Custom Color Input */}
-            <div className="flex items-center gap-2 px-3 py-1 bg-slate-950 border border-slate-800 rounded-xl">
-              <input
-                type="color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                className="w-6 h-6 rounded cursor-pointer bg-transparent border-0"
-              />
-              <span className="font-mono text-slate-300 uppercase">{primaryColor}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Selector de Paletas (8 cols) */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {COLOR_PRESETS.map((color) => {
+                const isSelected = primaryColor.toLowerCase() === color.hex.toLowerCase();
+                return (
+                  <button
+                    key={color.hex}
+                    type="button"
+                    onClick={() => setPrimaryColor(color.hex)}
+                    className={`p-2.5 rounded-xl border text-left transition relative group ${
+                      isSelected
+                        ? 'border-white bg-slate-800/90 shadow-lg'
+                        : 'border-slate-800 bg-slate-950/60 hover:border-slate-700 hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span
+                        className="w-4 h-4 rounded-full shadow-md"
+                        style={{ backgroundColor: color.hex }}
+                      />
+                      {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+                    </div>
+                    <span className="font-bold text-white text-xs block truncate">{color.name}</span>
+                    <span className="text-[10px] text-slate-500 block truncate">{color.desc}</span>
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Selector de Color Libre */}
+            <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between gap-3 text-xs">
+              <span className="font-semibold text-slate-300">¿Quieres otro color específico?</span>
+              <div className="flex items-center gap-2.5">
+                <input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border border-slate-700"
+                />
+                <input
+                  type="text"
+                  value={primaryColor.toUpperCase()}
+                  onChange={(e) => setPrimaryColor(e.target.value)}
+                  className="w-20 px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-white text-center uppercase focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Miniatura de Vista Previa del Launcher en Vivo (5 cols) */}
+          <div className="lg:col-span-5 bg-slate-950/90 border border-slate-800 rounded-2xl p-4 space-y-3.5 shadow-xl relative overflow-hidden">
+            <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-2">
+              <span className="font-bold flex items-center gap-1.5 text-white">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                Vista Previa en el Launcher
+              </span>
+              <span className="font-mono text-[10px] uppercase text-slate-500">Demo en Vivo</span>
+            </div>
+
+            {/* Simulación del botón de juego del launcher */}
+            <div className="bg-[#0f1420] border border-slate-800/80 rounded-xl p-3.5 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-white truncate max-w-[140px]">{name || 'Mi Servidor'}</span>
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                  style={{
+                    color: primaryColor,
+                    borderColor: `${primaryColor}40`,
+                    backgroundColor: `${primaryColor}15`,
+                  }}
+                >
+                  {launcher.loader || 'Fabric'} {launcher.mcVersion || '1.20.1'}
+                </span>
+              </div>
+
+              {/* Botón Principal simulado con el color seleccionado */}
+              <button
+                type="button"
+                className="w-full py-2.5 rounded-xl font-black text-xs text-slate-950 transition flex items-center justify-center gap-2 shadow-lg"
+                style={{
+                  backgroundColor: primaryColor,
+                  boxShadow: `0 8px 20px -4px ${primaryColor}60`,
+                }}
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>JUGAR MINECRAFT</span>
+              </button>
+
+              <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono pt-0.5">
+                <span className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: primaryColor }} />
+                  {serverIp ? `${serverIp}:${serverPort}` : 'Sin IP'}
+                </span>
+                <span>{ram} GB RAM</span>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-slate-500 text-center">
+              Así es como tus jugadores verán el botón y los detalles del launcher.
+            </p>
           </div>
         </div>
       </div>
