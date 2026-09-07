@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+
+async function verifyAdmin() {
+  const authUser = await getCurrentUser();
+  if (!authUser || authUser.role !== 'ADMIN') {
+    return false;
+  }
+  return true;
+}
 
 export async function GET(req: NextRequest) {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q') || '';
     const planFilter = searchParams.get('plan') || undefined;
@@ -53,6 +69,13 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const { userId, plan, status, role } = body;
 
@@ -86,35 +109,32 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('id');
 
     if (!userId) {
-      return NextResponse.json({ success: false, error: 'id es requerido' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'id requerido' }, { status: 400 });
     }
 
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { email: true, role: true },
-    });
-
-    if (!targetUser) {
-      return NextResponse.json({ success: false, error: 'Usuario no encontrado' }, { status: 404 });
-    }
-
-    await prisma.user.delete({
+    const deletedUser = await prisma.user.delete({
       where: { id: userId },
     });
 
-    // Registrar en auditoría
     await prisma.auditLog.create({
       data: {
         action: 'ADMIN_USER_DELETED',
-        details: `Usuario ${targetUser.email} (${targetUser.role}) eliminado permanentemente por el administrador.`,
+        details: `Usuario ${deletedUser.email} (${deletedUser.id}) eliminado por el Administrador`,
       },
     });
 
-    return NextResponse.json({ success: true, message: 'Usuario eliminado correctamente' });
+    return NextResponse.json({ success: true, message: 'Usuario eliminado' });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

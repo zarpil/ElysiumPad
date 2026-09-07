@@ -50,6 +50,11 @@ export default function DashboardPage() {
       const data = await launchersRes.json();
       const settingsData = await settingsRes.json();
 
+      if (launchersRes.status === 401 || (!data.success && data.error?.includes('No autenticado'))) {
+        router.push('/login?redirect=/dashboard');
+        return;
+      }
+
       if (data.success) {
         setLaunchers(data.launchers);
         setUserPlan(data.userPlan);

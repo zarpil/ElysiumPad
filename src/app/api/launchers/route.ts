@@ -2,28 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 
-async function resolveUser() {
-  const authUser = await getCurrentUser();
-  if (authUser) return authUser;
-
-  // Fallback a demo user si no hay sesión para pruebas locales directas
-  let demo = await prisma.user.findFirst();
-  if (!demo) {
-    demo = await prisma.user.create({
-      data: {
-        email: 'admin@elysiumpad.local',
-        name: 'Server Admin',
-        role: 'ADMIN',
-        plan: 'FREE',
-      },
-    });
-  }
-  return demo;
-}
-
 export async function GET() {
   try {
-    const user = await resolveUser();
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'No autenticado. Inicia sesión para continuar.' },
+        { status: 401 }
+      );
+    }
     const launchers = await prisma.launcherConfig.findMany({
       where: { userId: user.id },
       include: {
@@ -55,7 +42,13 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await resolveUser();
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'No autenticado. Inicia sesión para continuar.' },
+        { status: 401 }
+      );
+    }
     const body = await req.json();
 
     // Verificación de limitación Freemium: solo 1 launcher si es FREE

@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+
+async function verifyAdmin() {
+  const authUser = await getCurrentUser();
+  if (!authUser || authUser.role !== 'ADMIN') {
+    return false;
+  }
+  return true;
+}
 
 export async function GET(req: NextRequest) {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q') || '';
     const action = searchParams.get('action') || '';

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   TrendingUp,
   Users,
@@ -18,6 +19,7 @@ import { AdminTabAudit } from '@/components/admin/AdminTabAudit';
 import { AdminTabSettings } from '@/components/admin/AdminTabSettings';
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'launchers' | 'audit' | 'settings'>('analytics');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
@@ -34,6 +36,16 @@ export default function AdminDashboard() {
         fetch('/api/admin/launchers'),
         fetch('/api/admin/settings'),
       ]);
+
+      if (statsRes.status === 401) {
+        router.push('/login?redirect=/admin');
+        return;
+      }
+
+      if (statsRes.status === 403) {
+        router.push('/dashboard');
+        return;
+      }
 
       const [statsData, usersData, launchersData, settingsData] = await Promise.all([
         statsRes.json(),

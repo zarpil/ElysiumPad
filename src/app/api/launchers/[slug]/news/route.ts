@@ -32,6 +32,11 @@ export async function POST(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     const { slug } = await params;
     const body = await req.json();
     const { title, content, tag, link, btnText, imageUrl, isPinned, isActive } = body;
@@ -45,11 +50,15 @@ export async function POST(
 
     const launcher = await prisma.launcherConfig.findUnique({
       where: { slug },
-      include: { user: { select: { plan: true } } },
+      include: { user: { select: { id: true, plan: true } } },
     });
 
     if (!launcher) {
       return NextResponse.json({ success: false, error: 'Launcher no encontrado' }, { status: 404 });
+    }
+
+    if (launcher.userId !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 });
     }
 
     if (launcher.user.plan === 'FREE') {
@@ -84,12 +93,37 @@ export async function PATCH(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     const { slug } = await params;
+    const launcher = await prisma.launcherConfig.findUnique({
+      where: { slug },
+    });
+
+    if (!launcher) {
+      return NextResponse.json({ success: false, error: 'Launcher no encontrado' }, { status: 404 });
+    }
+
+    if (launcher.userId !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 });
+    }
+
     const body = await req.json();
     const { id, title, content, tag, link, btnText, imageUrl, isPinned, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: 'ID de noticia requerido' }, { status: 400 });
+    }
+
+    const existingNews = await prisma.launcherNews.findFirst({
+      where: { id, launcherId: launcher.id },
+    });
+
+    if (!existingNews) {
+      return NextResponse.json({ success: false, error: 'Noticia no encontrada' }, { status: 404 });
     }
 
     const updated = await prisma.launcherNews.update({
@@ -117,11 +151,37 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
+    const { slug } = await params;
+    const launcher = await prisma.launcherConfig.findUnique({
+      where: { slug },
+    });
+
+    if (!launcher) {
+      return NextResponse.json({ success: false, error: 'Launcher no encontrado' }, { status: 404 });
+    }
+
+    if (launcher.userId !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(req.url);
     const newsId = searchParams.get('newsId');
 
     if (!newsId) {
       return NextResponse.json({ success: false, error: 'ID de noticia requerido' }, { status: 400 });
+    }
+
+    const existingNews = await prisma.launcherNews.findFirst({
+      where: { id: newsId, launcherId: launcher.id },
+    });
+
+    if (!existingNews) {
+      return NextResponse.json({ success: false, error: 'Noticia no encontrada' }, { status: 404 });
     }
 
     await prisma.launcherNews.delete({

@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+
+async function verifyAdmin() {
+  const authUser = await getCurrentUser();
+  if (!authUser || authUser.role !== 'ADMIN') {
+    return false;
+  }
+  return true;
+}
 
 export async function GET(req: NextRequest) {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const query = searchParams.get('q') || '';
     const loader = searchParams.get('loader') || '';
@@ -39,10 +55,11 @@ export async function GET(req: NextRequest) {
             isRequired: true,
           },
         },
-        _count: {
+        customAssets: {
           select: {
-            mods: true,
-            customAssets: true,
+            id: true,
+            fileName: true,
+            assetType: true,
           },
         },
       },
@@ -57,11 +74,18 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json({ success: false, error: 'id es requerido' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'ID es requerido' }, { status: 400 });
     }
 
     const launcher = await prisma.launcherConfig.findUnique({

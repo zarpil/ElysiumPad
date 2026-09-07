@@ -25,14 +25,14 @@ export function verifyToken(token: string): TokenPayload | null {
 }
 
 export async function getCurrentUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-  if (!token) return null;
-
-  const payload = verifyToken(token);
-  if (!payload) return null;
-
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+    if (!token) return null;
+
+    const payload = verifyToken(token);
+    if (!payload || !payload.userId) return null;
+
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
       select: {
@@ -48,7 +48,23 @@ export async function getCurrentUser() {
 
     if (!user || user.status === 'SUSPENDED') return null;
     return user;
-  } catch (e) {
+  } catch {
     return null;
   }
+}
+
+export async function requireAuth() {
+  const user = await getCurrentUser();
+  if (!user) {
+    throw new Error('UNAUTHORIZED');
+  }
+  return user;
+}
+
+export async function requireAdmin() {
+  const user = await requireAuth();
+  if (user.role !== 'ADMIN') {
+    throw new Error('FORBIDDEN');
+  }
+  return user;
 }

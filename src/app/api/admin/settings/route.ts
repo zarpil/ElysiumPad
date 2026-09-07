@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getCurrentUser } from '@/lib/auth';
+
+async function verifyAdmin() {
+  const authUser = await getCurrentUser();
+  if (!authUser || authUser.role !== 'ADMIN') {
+    return false;
+  }
+  return true;
+}
 
 export async function GET() {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     let settings = await prisma.globalSettings.findUnique({
       where: { id: 'default' },
     });
@@ -28,6 +44,13 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
+    if (!(await verifyAdmin())) {
+      return NextResponse.json(
+        { success: false, error: 'Acceso denegado. Se requieren privilegios de Administrador.' },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const {
       maintenanceMode,
@@ -41,31 +64,30 @@ export async function PATCH(req: NextRequest) {
       adBannerText,
     } = body;
 
-    const data: any = {};
-    if (typeof maintenanceMode === 'boolean') data.maintenanceMode = maintenanceMode;
-    if (typeof registrationsOpen === 'boolean') data.registrationsOpen = registrationsOpen;
-    if (bannerAnnouncement !== undefined) data.bannerAnnouncement = bannerAnnouncement === '' ? null : bannerAnnouncement;
-    if (bannerType && ['INFO', 'WARNING', 'CRITICAL', 'PROMO'].includes(bannerType)) data.bannerType = bannerType;
-    if (typeof freePlanMaxLaunchers === 'number') data.freePlanMaxLaunchers = Math.max(1, freePlanMaxLaunchers);
-    if (typeof adsEnabled === 'boolean') data.adsEnabled = adsEnabled;
-    if (adBannerImg !== undefined) data.adBannerImg = adBannerImg === '' ? null : adBannerImg;
-    if (adBannerLink !== undefined) data.adBannerLink = adBannerLink === '' ? null : adBannerLink;
-    if (adBannerText !== undefined) data.adBannerText = adBannerText === '' ? null : adBannerText;
-
     const settings = await prisma.globalSettings.upsert({
       where: { id: 'default' },
-      update: data,
+      update: {
+        ...(typeof maintenanceMode === 'boolean' ? { maintenanceMode } : {}),
+        ...(typeof registrationsOpen === 'boolean' ? { registrationsOpen } : {}),
+        ...(bannerAnnouncement !== undefined ? { bannerAnnouncement } : {}),
+        ...(bannerType ? { bannerType } : {}),
+        ...(freePlanMaxLaunchers ? { freePlanMaxLaunchers: Number(freePlanMaxLaunchers) } : {}),
+        ...(typeof adsEnabled === 'boolean' ? { adsEnabled } : {}),
+        ...(adBannerImg !== undefined ? { adBannerImg } : {}),
+        ...(adBannerLink !== undefined ? { adBannerLink } : {}),
+        ...(adBannerText !== undefined ? { adBannerText } : {}),
+      },
       create: {
         id: 'default',
-        ...data,
-      },
-    });
-
-    // Registrar en auditoría
-    await prisma.auditLog.create({
-      data: {
-        action: 'GLOBAL_SETTINGS_UPDATED',
-        details: `Ajustes globales actualizados: Mantenimiento=${settings.maintenanceMode}, Registros=${settings.registrationsOpen}, Banner=${settings.bannerAnnouncement || 'Ninguno'}`,
+        maintenanceMode: maintenanceMode ?? false,
+        registrationsOpen: registrationsOpen ?? true,
+        bannerAnnouncement: bannerAnnouncement ?? null,
+        bannerType: bannerType ?? 'INFO',
+        freePlanMaxLaunchers: Number(freePlanMaxLaunchers) || 1,
+        adsEnabled: adsEnabled ?? true,
+        adBannerImg: adBannerImg ?? null,
+        adBannerLink: adBannerLink ?? null,
+        adBannerText: adBannerText ?? 'Alojamiento de Minecraft de alto rendimiento • Patrocinado',
       },
     });
 

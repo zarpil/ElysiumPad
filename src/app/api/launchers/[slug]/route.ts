@@ -34,9 +34,25 @@ export async function PUT(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
-    const body = await req.json();
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
 
+    const { slug } = await params;
+    const existing = await prisma.launcherConfig.findUnique({ where: { slug } });
+    if (!existing) {
+      return NextResponse.json({ success: false, error: 'Launcher no encontrado' }, { status: 404 });
+    }
+
+    if (existing.userId !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'No tienes permiso para modificar este launcher' },
+        { status: 403 }
+      );
+    }
+
+    const body = await req.json();
     const {
       name,
       description,
@@ -101,7 +117,24 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'No autorizado' }, { status: 401 });
+    }
+
     const { slug } = await params;
+    const existing = await prisma.launcherConfig.findUnique({ where: { slug } });
+    if (!existing) {
+      return NextResponse.json({ success: false, error: 'Launcher no encontrado' }, { status: 404 });
+    }
+
+    if (existing.userId !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'No tienes permiso para eliminar este launcher' },
+        { status: 403 }
+      );
+    }
+
     await prisma.launcherConfig.delete({
       where: { slug },
     });
