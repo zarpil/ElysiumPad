@@ -383,8 +383,9 @@ export default function DashboardPage() {
               <CustomAssetsManager
                 launcherSlug={currentLauncher.slug}
                 isFree={userPlan === 'FREE'}
-                assets={currentLauncher.customAssets}
+                assets={currentLauncher.customAssets || []}
                 onAssetChanged={loadData}
+                onUpgradeOpen={() => setIsUpgradeOpen(true)}
               />
             )}
 
