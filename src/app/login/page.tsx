@@ -29,11 +29,13 @@ export default function LoginPage() {
         throw new Error(data.error || 'Error al iniciar sesión');
       }
 
-      router.push('/dashboard');
-      router.refresh();
+      // Redirección completa para asegurar que la cookie sea leída por el navegador
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectUrl = searchParams.get('redirect');
+      const target = redirectUrl && redirectUrl.startsWith('/') ? redirectUrl : (data.user?.role === 'ADMIN' ? '/admin' : '/dashboard');
+      window.location.href = target;
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   }

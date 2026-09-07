@@ -2,7 +2,10 @@ import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { prisma } from './prisma';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'elysiumpad-super-secret-key-change-in-prod-12345';
+function getJwtSecret(): string {
+  return process.env.JWT_SECRET || 'elysiumpad-super-secret-key-change-in-prod-12345';
+}
+
 export const AUTH_COOKIE_NAME = 'elysium_token';
 
 export interface TokenPayload {
@@ -13,12 +16,12 @@ export interface TokenPayload {
 }
 
 export function signToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: '7d' });
 }
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return jwt.verify(token, getJwtSecret()) as TokenPayload;
   } catch {
     return null;
   }

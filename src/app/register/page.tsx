@@ -30,11 +30,10 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Error al registrarse');
       }
 
-      router.push('/dashboard');
-      router.refresh();
+      // Redirección completa para asegurar que la cookie sea leída por el navegador
+      window.location.href = data.user?.role === 'ADMIN' ? '/admin' : '/dashboard';
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   }

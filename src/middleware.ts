@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClientIp, checkRateLimit, RateLimitPolicies } from '@/lib/rate-limit';
 
-const AUTH_COOKIE_NAME = 'elysium_token';
-const JWT_SECRET = process.env.JWT_SECRET || 'elysiumpad-super-secret-key-change-in-prod-12345';
+function getJwtSecret(): string {
+  return process.env.JWT_SECRET || 'elysiumpad-super-secret-key-change-in-prod-12345';
+}
 
 interface DecodedToken {
   userId: string;
@@ -32,8 +33,11 @@ async function verifyJwt(token: string, secret: string): Promise<DecodedToken | 
     );
 
     const data = encoder.encode(`${headerB64}.${payloadB64}`);
-    const normalizedSig = signatureB64.replace(/-/g, '+').replace(/_/g, '/');
-    const binarySig = atob(normalizedSig);
+
+    // Normalizar base64url a base64 estándar con padding
+    const base64Sig = signatureB64.replace(/-/g, '+').replace(/_/g, '/');
+    const paddedSig = base64Sig.padEnd(base64Sig.length + (4 - (base64Sig.length % 4)) % 4, '=');
+    const binarySig = atob(paddedSig);
     const signature = new Uint8Array(binarySig.length);
     for (let i = 0; i < binarySig.length; i++) {
       signature[i] = binarySig.charCodeAt(i);
@@ -42,8 +46,15 @@ async function verifyJwt(token: string, secret: string): Promise<DecodedToken | 
     const isValid = await crypto.subtle.verify('HMAC', key, signature, data);
     if (!isValid) return null;
 
-    const normalizedPayload = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
-    const payloadStr = atob(normalizedPayload);
+    // Normalizar payload base64url con padding y decodificar UTF-8
+    const base64Payload = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
+    const paddedPayload = base64Payload.padEnd(base64Payload.length + (4 - (base64Payload.length % 4)) % 4, '=');
+    const binaryPayload = atob(paddedPayload);
+    const payloadBytes = new Uint8Array(binaryPayload.length);
+    for (let i = 0; i < binaryPayload.length; i++) {
+      payloadBytes[i] = binaryPayload.charCodeAt(i);
+    }
+    const payloadStr = new TextDecoder().decode(payloadBytes);
     const payload: DecodedToken = JSON.parse(payloadStr);
 
     if (payload.exp && Date.now() >= payload.exp * 1000) {
@@ -110,8 +121,9 @@ export async function middleware(req: NextRequest) {
   // =========================================================================
   // 2. CONTROL DE ACCESO Y AUTENTICACIÓN (RBAC)
   // =========================================================================
+  const AUTH_COOKIE_NAME = 'elysium_token';
   const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
-  const user = token ? await verifyJwt(token, JWT_SECRET) : null;
+  const user = token ? await verifyJwt(token, getJwtSecret()) : null;
   const isAuthenticated = Boolean(user && user.userId);
   const isAdmin = Boolean(user && user.role === 'ADMIN');
 
@@ -126,7 +138,11 @@ export async function middleware(req: NextRequest) {
       }
       const loginUrl = new URL('/login', req.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      const res = NextResponse.redirect(loginUrl);
+      if (token && !isAuthenticated) {
+        res.cookies.delete(AUTH_COOKIE_NAME);
+      }
+      return res;
     }
 
     if (!isAdmin) {
@@ -155,7 +171,11 @@ export async function middleware(req: NextRequest) {
       }
       const loginUrl = new URL('/login', req.url);
       loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      const res = NextResponse.redirect(loginUrl);
+      if (token && !isAuthenticated) {
+        res.cookies.delete(AUTH_COOKIE_NAME);
+      }
+      return res;
     }
   }
 

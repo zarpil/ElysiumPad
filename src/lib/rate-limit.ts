@@ -110,7 +110,7 @@ export function checkRateLimit(key: string, config: RateLimitConfig): RateLimitR
 export const RateLimitPolicies = {
   // 1. Autenticación Crítica (Login y Registro) - Previene Fuerza Bruta
   auth: {
-    maxRequests: 5, // Máx 5 intentos
+    maxRequests: 10, // Máx 10 intentos
     windowSeconds: 60, // por minuto
   },
   // 2. Subida de Archivos y Ping - Previene saturación de disco y escaneo de puertos

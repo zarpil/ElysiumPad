@@ -14,8 +14,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const cleanEmail = email.toLowerCase().trim();
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
+      where: { email: cleanEmail },
     });
 
     if (!user || !user.passwordHash) {
@@ -58,11 +59,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Solo marcar secure si la petición realmente vino por HTTPS (evita que navegadores descarten la cookie en conexiones HTTP)
+    const isHttps = req.headers.get('x-forwarded-proto') === 'https' || req.nextUrl.protocol === 'https:';
+
     response.cookies.set({
       name: AUTH_COOKIE_NAME,
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isHttps,
       sameSite: 'lax',
       path: '/',
       maxAge: 60 * 60 * 24 * 7, // 7 días
