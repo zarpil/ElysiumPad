@@ -358,12 +358,12 @@ export function CustomAssetsManager({
                     </span>
                   ) : (
                     <span className="text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase font-extrabold tracking-wider flex items-center gap-1">
-                      <CheckCircle2 className="w-2.5 h-2.5" /> Sincronización R2 Activa
+                      <CheckCircle2 className="w-2.5 h-2.5" /> Sincronización Automática Activa
                     </span>
                   )}
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Sincroniza archivos en el directorio del cliente Minecraft con caché inmutable y verificación criptográfica SHA-1.
+                  Sube mods propios, configuraciones y texturas para que se descarguen automáticamente en el Minecraft de tus amigos.
                 </p>
               </div>
             </div>
@@ -374,7 +374,7 @@ export function CustomAssetsManager({
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-400 flex items-center gap-1.5 font-medium">
                 <HardDrive className="w-3.5 h-3.5 text-emerald-400" />
-                Almacenamiento Cloud R2
+                Espacio en la Nube
               </span>
               <span className="font-bold text-white font-mono">{formatBytes(totalBytes)}</span>
             </div>
@@ -400,7 +400,7 @@ export function CustomAssetsManager({
           </div>
 
           <div className="max-w-md mx-auto space-y-2">
-            <h4 className="text-lg font-black text-white">Desbloquea la Sincronización Cloud R2</h4>
+            <h4 className="text-lg font-black text-white">Desbloquea la Sincronización Automática</h4>
             <p className="text-xs text-slate-300 leading-relaxed">
               Permite a tus jugadores descargar automáticamente tus mods privados, archivos de configuración
               personalizados (como menús, botones, binds, voice chat) y shaders directamente desde el launcher.
@@ -707,12 +707,12 @@ export function CustomAssetsManager({
                   {uploading ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Calculando Hash SHA-1 y Subiendo a R2...</span>
+                      <span>Subiendo y sincronizando archivo...</span>
                     </>
                   ) : (
                     <>
                       <UploadCloud className="w-4 h-4" />
-                      <span>Subir y Sincronizar en R2</span>
+                      <span>Subir y Sincronizar con el Launcher</span>
                     </>
                   )}
                 </button>
@@ -815,7 +815,7 @@ export function CustomAssetsManager({
               </p>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                 {isFree
-                  ? 'Pasa a PRO para sincronizar tus archivos y mods propios en Cloudflare R2.'
+                  ? 'Pasa a PRO para sincronizar tus archivos y mods propios con tus jugadores.'
                   : 'Arrastra un archivo en la sección superior para añadirlo a la distribución.'}
               </p>
             </div>
@@ -855,24 +855,13 @@ export function CustomAssetsManager({
                         </span>
 
                         {asset.sha1 && (
-                          <button
-                            type="button"
-                            onClick={() => copySha(asset.sha1!, asset.id)}
-                            className="inline-flex items-center gap-1 text-[10px] text-slate-500 hover:text-emerald-400 font-mono transition"
-                            title="Copiar Hash SHA-1 de verificación"
+                          <span
+                            className="inline-flex items-center gap-1 text-[10px] text-slate-500"
+                            title="Archivo verificado"
                           >
-                            {copiedId === asset.id ? (
-                              <>
-                                <Check className="w-2.5 h-2.5 text-emerald-400" />
-                                <span className="text-emerald-400">¡SHA Copiado!</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-2.5 h-2.5" />
-                                <span>sha1:{asset.sha1.substring(0, 7)}...</span>
-                              </>
-                            )}
-                          </button>
+                            <Check className="w-2.5 h-2.5 text-emerald-500" />
+                            <span>Verificado</span>
+                          </span>
                         )}
                       </div>
                     </div>

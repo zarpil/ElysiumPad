@@ -136,7 +136,7 @@ export function TabMods({
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-400" />
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-              Mods Personalizados (Cloudflare R2)
+              Mods Propios del Servidor
             </h4>
             <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold">
               PRO
@@ -156,7 +156,7 @@ export function TabMods({
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-white truncate font-mono">{asset.fileName}</p>
                     <p className="text-[10px] text-amber-400/80">
-                      {(asset.fileSize / 1024).toFixed(0)} KB • Cloudflare R2
+                      {(asset.fileSize / 1024).toFixed(0)} KB • Servidor
                     </p>
                   </div>
                 </div>
@@ -291,7 +291,7 @@ export function TabMods({
                   </div>
                   <h4 className="font-extrabold text-sm text-white">Función Exclusiva PRO</h4>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Sube mods propios arrastrando tu archivo .jar y almacénalo en la nube de alta velocidad con Cloudflare R2.
+                    Sube mods propios arrastrando tu archivo .jar para que todos tus jugadores lo descarguen automáticamente.
                   </p>
                 </div>
 
@@ -403,7 +403,7 @@ export function TabMods({
                     className="px-5 py-2 bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-white rounded-xl font-bold transition flex items-center gap-2"
                   >
                     {customUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <UploadCloud className="w-3.5 h-3.5" />}
-                    <span>{customUploading ? 'Subiendo a R2...' : 'Subir Mod'}</span>
+                    <span>{customUploading ? 'Subiendo mod...' : 'Subir Mod'}</span>
                   </button>
                 </div>
               </form>

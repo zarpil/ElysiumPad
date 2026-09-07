@@ -648,7 +648,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="flex items-center gap-2.5 text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span>Subida de mods .jar propios: {isFree ? 'Solo catálogo Modrinth' : 'Habilitado (R2 Cloud)'}</span>
+                    <span>Subida de mods .jar propios: {isFree ? 'Solo catálogo Modrinth' : 'Habilitado (En la Nube)'}</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-slate-200">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
