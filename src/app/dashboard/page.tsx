@@ -534,12 +534,12 @@ export default function DashboardPage() {
                     onChange={(e) => setNewMcVersion(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="1.20.1">1.20.1 (Recomendada)</option>
-                    <option value="1.20.4">1.20.4</option>
-                    <option value="1.21">1.21</option>
-                    <option value="1.21.1">1.21.1</option>
-                    <option value="1.19.2">1.19.2</option>
-                    <option value="1.16.5">1.16.5</option>
+                    <option className="bg-[#111622] text-slate-100" value="1.20.1">1.20.1 (Recomendada)</option>
+                    <option className="bg-[#111622] text-slate-100" value="1.20.4">1.20.4</option>
+                    <option className="bg-[#111622] text-slate-100" value="1.21">1.21</option>
+                    <option className="bg-[#111622] text-slate-100" value="1.21.1">1.21.1</option>
+                    <option className="bg-[#111622] text-slate-100" value="1.19.2">1.19.2</option>
+                    <option className="bg-[#111622] text-slate-100" value="1.16.5">1.16.5</option>
                   </select>
                 </div>
 
@@ -550,10 +550,10 @@ export default function DashboardPage() {
                     onChange={(e) => setNewLoader(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="FABRIC">Fabric (Rápido)</option>
-                    <option value="FORGE">Forge</option>
-                    <option value="NEOFORGE">NeoForge</option>
-                    <option value="QUILT">Quilt</option>
+                    <option className="bg-[#111622] text-slate-100" value="FABRIC">Fabric (Rápido)</option>
+                    <option className="bg-[#111622] text-slate-100" value="FORGE">Forge</option>
+                    <option className="bg-[#111622] text-slate-100" value="NEOFORGE">NeoForge</option>
+                    <option className="bg-[#111622] text-slate-100" value="QUILT">Quilt</option>
                   </select>
                 </div>
               </div>

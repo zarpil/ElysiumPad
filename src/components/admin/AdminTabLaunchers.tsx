@@ -227,11 +227,11 @@ export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersPr
             onChange={(e) => setLoaderFilter(e.target.value)}
             className="px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
           >
-            <option value="">Todos los Modloaders</option>
-            <option value="FABRIC">Fabric</option>
-            <option value="FORGE">Forge</option>
-            <option value="NEOFORGE">NeoForge</option>
-            <option value="QUILT">Quilt</option>
+            <option className="bg-[#111622] text-slate-100" value="">Todos los Modloaders</option>
+            <option className="bg-[#111622] text-slate-100" value="FABRIC">Fabric</option>
+            <option className="bg-[#111622] text-slate-100" value="FORGE">Forge</option>
+            <option className="bg-[#111622] text-slate-100" value="NEOFORGE">NeoForge</option>
+            <option className="bg-[#111622] text-slate-100" value="QUILT">Quilt</option>
           </select>
 
           <span className="text-xs font-mono text-slate-500 px-2 py-1 bg-slate-950/60 rounded-lg border border-slate-800">

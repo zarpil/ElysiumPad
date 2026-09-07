@@ -236,10 +236,10 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
                 onChange={(e) => setSettings({ ...settings, bannerType: e.target.value })}
                 className="w-full px-3 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
               >
-                <option value="INFO">Información (Azul / Cyan)</option>
-                <option value="WARNING">Advertencia (Ámbar / Amarillo)</option>
-                <option value="CRITICAL">Urgente / Crítico (Rojo / Rose)</option>
-                <option value="PROMO">Promoción / Éxito (Verde Esmeralda)</option>
+                <option className="bg-[#111622] text-slate-100" value="INFO">Información (Azul / Cyan)</option>
+                <option className="bg-[#111622] text-slate-100" value="WARNING">Advertencia (Ámbar / Amarillo)</option>
+                <option className="bg-[#111622] text-slate-100" value="CRITICAL">Urgente / Crítico (Rojo / Rose)</option>
+                <option className="bg-[#111622] text-slate-100" value="PROMO">Promoción / Éxito (Verde Esmeralda)</option>
               </select>
             </div>
 

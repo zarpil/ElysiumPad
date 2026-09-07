@@ -93,11 +93,11 @@ export function AdminTabAudit() {
             onChange={(e) => setActionFilter(e.target.value)}
             className="px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
           >
-            <option value="">Todas las Acciones</option>
-            <option value="ADMIN_USER_UPDATED">ADMIN_USER_UPDATED</option>
-            <option value="ADMIN_USER_DELETED">ADMIN_USER_DELETED</option>
-            <option value="ADMIN_LAUNCHER_DELETED">ADMIN_LAUNCHER_DELETED</option>
-            <option value="GLOBAL_SETTINGS_UPDATED">GLOBAL_SETTINGS_UPDATED</option>
+            <option className="bg-[#111622] text-slate-100" value="">Todas las Acciones</option>
+            <option className="bg-[#111622] text-slate-100" value="ADMIN_USER_UPDATED">ADMIN_USER_UPDATED</option>
+            <option className="bg-[#111622] text-slate-100" value="ADMIN_USER_DELETED">ADMIN_USER_DELETED</option>
+            <option className="bg-[#111622] text-slate-100" value="ADMIN_LAUNCHER_DELETED">ADMIN_LAUNCHER_DELETED</option>
+            <option className="bg-[#111622] text-slate-100" value="GLOBAL_SETTINGS_UPDATED">GLOBAL_SETTINGS_UPDATED</option>
           </select>
 
           <button

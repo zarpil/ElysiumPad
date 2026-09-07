@@ -139,10 +139,10 @@ export function AdminTabUsers({ users, loading, onRefresh }: UsersProps) {
             onChange={(e) => setFilterPlan(e.target.value)}
             className="px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
           >
-            <option value="">Todos los Planes</option>
-            <option value="FREE">Plan FREE</option>
-            <option value="PRO">Plan PRO</option>
-            <option value="LIFETIME">Plan LIFETIME</option>
+            <option className="bg-[#111622] text-slate-100" value="">Todos los Planes</option>
+            <option className="bg-[#111622] text-slate-100" value="FREE">Plan FREE</option>
+            <option className="bg-[#111622] text-slate-100" value="PRO">Plan PRO</option>
+            <option className="bg-[#111622] text-slate-100" value="LIFETIME">Plan LIFETIME</option>
           </select>
 
           {/* Status filter */}
@@ -151,9 +151,9 @@ export function AdminTabUsers({ users, loading, onRefresh }: UsersProps) {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
           >
-            <option value="">Todos los Estados</option>
-            <option value="ACTIVE">Activos</option>
-            <option value="SUSPENDED">Suspendidos</option>
+            <option className="bg-[#111622] text-slate-100" value="">Todos los Estados</option>
+            <option className="bg-[#111622] text-slate-100" value="ACTIVE">Activos</option>
+            <option className="bg-[#111622] text-slate-100" value="SUSPENDED">Suspendidos</option>
           </select>
 
           {/* Role filter */}
@@ -162,9 +162,9 @@ export function AdminTabUsers({ users, loading, onRefresh }: UsersProps) {
             onChange={(e) => setFilterRole(e.target.value)}
             className="px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-emerald-500"
           >
-            <option value="">Todos los Roles</option>
-            <option value="USER">Rol USER</option>
-            <option value="ADMIN">Rol ADMIN</option>
+            <option className="bg-[#111622] text-slate-100" value="">Todos los Roles</option>
+            <option className="bg-[#111622] text-slate-100" value="USER">Rol USER</option>
+            <option className="bg-[#111622] text-slate-100" value="ADMIN">Rol ADMIN</option>
           </select>
 
           <button
@@ -235,8 +235,8 @@ export function AdminTabUsers({ users, loading, onRefresh }: UsersProps) {
                               : 'bg-slate-950 text-slate-300 border-slate-700'
                           }`}
                         >
-                          <option value="USER">USER</option>
-                          <option value="ADMIN">ADMIN 🛡️</option>
+                          <option className="bg-[#111622] text-slate-100" value="USER">USER</option>
+                          <option className="bg-[#111622] text-slate-100" value="ADMIN">ADMIN 🛡️</option>
                         </select>
                       </td>
 
@@ -254,9 +254,9 @@ export function AdminTabUsers({ users, loading, onRefresh }: UsersProps) {
                               : 'bg-slate-950 text-slate-400 border-slate-700'
                           }`}
                         >
-                          <option value="FREE">Plan FREE</option>
-                          <option value="PRO">Plan PRO ($4.99)</option>
-                          <option value="LIFETIME">Plan LIFETIME ($49)</option>
+                          <option className="bg-[#111622] text-slate-100" value="FREE">Plan FREE</option>
+                          <option className="bg-[#111622] text-slate-100" value="PRO">Plan PRO ($4.99)</option>
+                          <option className="bg-[#111622] text-slate-100" value="LIFETIME">Plan LIFETIME ($49)</option>
                         </select>
                       </td>
 
