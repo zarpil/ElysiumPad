@@ -1,7 +1,21 @@
-'use client';
-
-import React, { useState } from 'react';
-import { Share2, Check, Copy, ExternalLink, Sparkles, Lock, Palette, Image as ImageIcon, MessageSquare, Save, Loader2, Crown } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import {
+  Share2,
+  Check,
+  Copy,
+  ExternalLink,
+  Sparkles,
+  Lock,
+  Palette,
+  Image as ImageIcon,
+  MessageSquare,
+  Save,
+  Loader2,
+  Crown,
+  Upload,
+  Trash2,
+  AlertCircle,
+} from 'lucide-react';
 import Link from 'next/link';
 
 import { copyToClipboard } from '@/lib/clipboard';
@@ -24,6 +38,49 @@ export function TabShare({ launcher, isFree, onUpdated, onUpgradeOpen }: TabShar
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Estados de subida directa de archivos
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileUpload(file: File, type: 'banner' | 'logo') {
+    if (!file) return;
+    if (type === 'banner') setUploadingBanner(true);
+    if (type === 'logo') setUploadingLogo(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', type);
+      formData.append('slug', launcher.slug);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Error al subir la imagen');
+      }
+
+      if (type === 'banner') {
+        setBannerUrl(data.url);
+      } else {
+        setLogoUrl(data.url);
+      }
+    } catch (err: any) {
+      setUploadError(err.message);
+    } finally {
+      if (type === 'banner') setUploadingBanner(false);
+      if (type === 'logo') setUploadingLogo(false);
+    }
+  }
 
   async function handleCopy() {
     const url = `${window.location.origin}/d/${launcher.slug}`;
@@ -208,37 +265,142 @@ export function TabShare({ launcher, isFree, onUpdated, onUpgradeOpen }: TabShar
         ) : (
           /* FORMULARIO DE PERSONALIZACIÓN PARA USUARIOS PRO */
           <form onSubmit={handleSaveCustomization} className="space-y-5 text-xs">
+            {uploadError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{uploadError}</span>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1.5">
-                  URL del Banner / Fondo (1920x1080 recomendado)
-                </label>
-                <div className="relative">
-                  <ImageIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-2.5" />
-                  <input
-                    type="url"
-                    value={bannerUrl}
-                    onChange={(e) => setBannerUrl(e.target.value)}
-                    placeholder="https://i.imgur.com/banner-minecraft.jpg"
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
-                  />
+              {/* Banner de Fondo */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-semibold text-slate-300">
+                    Banner de Fondo (1920x1080)
+                  </label>
+                  {bannerUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setBannerUrl('')}
+                      className="text-slate-400 hover:text-rose-400 flex items-center gap-1 text-[11px] transition"
+                    >
+                      <Trash2 className="w-3 h-3" /> Quitar
+                    </button>
+                  )}
                 </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <ImageIcon className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+                    <input
+                      type="url"
+                      value={bannerUrl}
+                      onChange={(e) => setBannerUrl(e.target.value)}
+                      placeholder="https://... o sube una imagen"
+                      className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-xs"
+                    />
+                  </div>
+
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, 'banner');
+                    }}
+                  />
+
+                  <button
+                    type="button"
+                    disabled={uploadingBanner}
+                    onClick={() => bannerInputRef.current?.click()}
+                    className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-semibold flex items-center gap-1.5 transition flex-shrink-0 cursor-pointer disabled:opacity-50"
+                    title="Subir archivo desde tu ordenador"
+                  >
+                    {uploadingBanner ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                    ) : (
+                      <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                    )}
+                    <span>{uploadingBanner ? 'Subiendo...' : 'Subir'}</span>
+                  </button>
+                </div>
+
+                {bannerUrl && (
+                  <div className="relative h-20 w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950/80">
+                    <img src={bannerUrl} alt="Vista previa banner" className="w-full h-full object-cover" />
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-300 mb-1.5">
-                  URL del Logo del Servidor (Cuadrado recomendado)
-                </label>
-                <div className="relative">
-                  <ImageIcon className="w-4 h-4 text-slate-500 absolute left-3.5 top-2.5" />
-                  <input
-                    type="url"
-                    value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    placeholder="https://i.imgur.com/server-icon.png"
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
-                  />
+              {/* Logo del Servidor */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-semibold text-slate-300">
+                    Logo del Servidor (Cuadrado 512x512)
+                  </label>
+                  {logoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setLogoUrl('')}
+                      className="text-slate-400 hover:text-rose-400 flex items-center gap-1 text-[11px] transition"
+                    >
+                      <Trash2 className="w-3 h-3" /> Quitar
+                    </button>
+                  )}
                 </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <ImageIcon className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+                    <input
+                      type="url"
+                      value={logoUrl}
+                      onChange={(e) => setLogoUrl(e.target.value)}
+                      placeholder="https://... o sube una imagen"
+                      className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-xs"
+                    />
+                  </div>
+
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, 'logo');
+                    }}
+                  />
+
+                  <button
+                    type="button"
+                    disabled={uploadingLogo}
+                    onClick={() => logoInputRef.current?.click()}
+                    className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-semibold flex items-center gap-1.5 transition flex-shrink-0 cursor-pointer disabled:opacity-50"
+                    title="Subir logo desde tu ordenador"
+                  >
+                    {uploadingLogo ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                    ) : (
+                      <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                    )}
+                    <span>{uploadingLogo ? 'Subiendo...' : 'Subir'}</span>
+                  </button>
+                </div>
+
+                {logoUrl && (
+                  <div className="flex items-center gap-3 p-2 bg-slate-950/80 border border-slate-800 rounded-xl">
+                    <img src={logoUrl} alt="Vista previa logo" className="w-12 h-12 rounded-lg object-contain border border-slate-700" />
+                    <div className="text-[11px] text-slate-400 truncate">
+                      <span className="text-white font-medium block">Logo cargado correctamente</span>
+                      <span className="font-mono text-[10px] text-slate-500 truncate block">{logoUrl}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

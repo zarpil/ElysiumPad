@@ -665,7 +665,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-slate-400">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400">
             <Link href="/dashboard" className="hover:text-white transition">
               Panel de Servidores
             </Link>
@@ -675,8 +675,11 @@ export default function LandingPage() {
             <Link href="/login" className="hover:text-white transition">
               Iniciar Sesión
             </Link>
-            <Link href="/register" className="hover:text-white transition">
-              Registro
+            <Link href="/terms" className="hover:text-white transition text-slate-500 hover:text-slate-300">
+              Términos de Servicio
+            </Link>
+            <Link href="/privacy" className="hover:text-white transition text-slate-500 hover:text-slate-300">
+              Privacidad y Cookies
             </Link>
           </div>
 
