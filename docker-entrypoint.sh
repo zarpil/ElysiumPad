@@ -8,7 +8,7 @@ echo "⏳ [ElysiumPad] Verificando conexión con la base de datos..."
 MAX_RETRIES=30
 RETRY_COUNT=0
 
-until prisma db push --skip-generate || npx prisma db push --skip-generate; do
+until prisma db push --skip-generate --accept-data-loss || npx prisma db push --skip-generate --accept-data-loss; do
   RETRY_COUNT=$((RETRY_COUNT+1))
   if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
     echo "❌ [ElysiumPad] No se pudo conectar a la base de datos después de $MAX_RETRIES intentos."
