@@ -47,6 +47,8 @@ services:
       # Correos Transaccionales (Resend.com)
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - RESEND_FROM_EMAIL=${RESEND_FROM_EMAIL:-ElysiumPad <onboarding@resend.dev>}
+      # Clave Secreta Exclusiva para Publicar y Modificar Actualizaciones (.EXE)
+      - LAUNCHER_RELEASE_KEY=${LAUNCHER_RELEASE_KEY:-elysiumpad-launcher-release-key-secret}
     ports:
       - "${APP_PORT:-38472}:3000"
     volumes:

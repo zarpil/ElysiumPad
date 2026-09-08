@@ -91,10 +91,30 @@ export async function GET() {
   }
 }
 
+// Helper para validar de forma estricta la Release Key configurada en las variables de entorno
+function checkReleaseKey(providedKey: string | null | undefined): { ok: boolean; error?: string } {
+  const configuredKey = process.env.LAUNCHER_RELEASE_KEY?.trim();
+  if (!configuredKey) {
+    return {
+      ok: false,
+      error: 'La variable de entorno LAUNCHER_RELEASE_KEY no está configurada en el servidor (docker-compose o .env). Defínela para habilitar operaciones en el canal de actualizaciones.',
+    };
+  }
+
+  if (!providedKey || providedKey.trim() !== configuredKey) {
+    return {
+      ok: false,
+      error: 'Release Key inválida o no proporcionada. Se requiere la clave secreta LAUNCHER_RELEASE_KEY configurada en el entorno del servidor para autorizar operaciones de actualización.',
+    };
+  }
+
+  return { ok: true };
+}
+
 // POST /api/launcher/updates - Subir nuevo archivo de actualización
 // SEGURIDAD REFORZADA:
 // 1. Verificación DB del usuario autenticado (SuperAdmin no suspendido).
-// 2. Doble factor de autorización: Contraseña actual del Admin o token LAUNCHER_RELEASE_KEY.
+// 2. Autorización exclusiva mediante LAUNCHER_RELEASE_KEY del entorno del servidor.
 // 3. Whitelist estricta de nombres y extensiones permitidas (.yml, .exe, .blockmap, .zip).
 // 4. Inspección de Magic Bytes para ejecutables PE de Windows (cabecera MZ obligatoria).
 // 5. Límite estricto de tamaño (250 MB).
@@ -126,37 +146,24 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
-    const adminPassword = (formData.get('adminPassword') as string) || req.headers.get('x-admin-password');
-    const releaseKey = (formData.get('releaseKey') as string) || req.headers.get('x-release-key');
+    const releaseKey =
+      (formData.get('releaseKey') as string) ||
+      (formData.get('adminPassword') as string) ||
+      req.headers.get('x-release-key');
 
-    // 2. Verificación de segundo factor de seguridad para el canal de distribución de software
-    let isAuthorized = false;
-    const configuredKey = process.env.LAUNCHER_RELEASE_KEY;
-
-    if (configuredKey && releaseKey && releaseKey === configuredKey) {
-      isAuthorized = true;
-    } else if (adminPassword && dbUser.passwordHash) {
-      const passwordValid = await bcrypt.compare(adminPassword, dbUser.passwordHash);
-      if (passwordValid) isAuthorized = true;
-    }
-
-    if (!isAuthorized) {
+    // 2. Verificación exclusiva de la Release Key configurada en el entorno
+    const authCheck = checkReleaseKey(releaseKey);
+    if (!authCheck.ok) {
       // Registrar intento no autorizado en auditoría
       await prisma.auditLog.create({
         data: {
           action: 'SECURITY_ALERT_UNAUTHORIZED_LAUNCHER_UPDATE',
-          details: `Intento de subir archivos al canal del launcher rechazado por falta de confirmación de clave/contraseña desde IP: ${clientIp} (Usuario: ${dbUser.email})`,
+          details: `Intento de subir archivos al canal del launcher rechazado por Release Key inválida desde IP: ${clientIp} (Usuario: ${dbUser.email})`,
           userId: dbUser.id,
         },
       });
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Confirmación de seguridad requerida: Para proteger a los jugadores contra ataques a la cadena de suministro, debes introducir tu contraseña de administrador o el token LAUNCHER_RELEASE_KEY.',
-        },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: authCheck.error }, { status: 403 });
     }
 
     if (!file) {
@@ -274,24 +281,23 @@ export async function DELETE(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const fileName = searchParams.get('fileName');
-    const adminPassword = searchParams.get('adminPassword') || req.headers.get('x-admin-password');
-    const releaseKey = searchParams.get('releaseKey') || req.headers.get('x-release-key');
+    const releaseKey =
+      searchParams.get('releaseKey') ||
+      searchParams.get('adminPassword') ||
+      req.headers.get('x-release-key');
 
-    // Confirmación de seguridad
-    let isAuthorized = false;
-    const configuredKey = process.env.LAUNCHER_RELEASE_KEY;
-    if (configuredKey && releaseKey && releaseKey === configuredKey) {
-      isAuthorized = true;
-    } else if (adminPassword && dbUser.passwordHash) {
-      const passwordValid = await bcrypt.compare(adminPassword, dbUser.passwordHash);
-      if (passwordValid) isAuthorized = true;
-    }
+    // Confirmación de seguridad mediante Release Key exclusiva
+    const authCheck = checkReleaseKey(releaseKey);
+    if (!authCheck.ok) {
+      await prisma.auditLog.create({
+        data: {
+          action: 'SECURITY_ALERT_UNAUTHORIZED_LAUNCHER_DELETE',
+          details: `Intento de eliminar archivos del canal rechazado por Release Key inválida desde IP: ${clientIp} (Usuario: ${dbUser.email})`,
+          userId: dbUser.id,
+        },
+      });
 
-    if (!isAuthorized) {
-      return NextResponse.json(
-        { success: false, error: 'Se requiere confirmar tu contraseña de administrador para eliminar binarios del canal.' },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: authCheck.error }, { status: 403 });
     }
 
     if (!fileName) {
