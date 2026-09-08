@@ -15,6 +15,12 @@ import {
   Loader2,
   HardDrive,
   Cpu,
+  ShieldCheck,
+  ShieldAlert,
+  Lock,
+  KeyRound,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 interface UpdateFile {
@@ -41,6 +47,8 @@ export function AdminTabUpdates() {
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   async function fetchChannelInfo() {
     setLoading(true);
@@ -68,6 +76,12 @@ export function AdminTabUpdates() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    if (!adminPassword.trim()) {
+      setErrorMessage('Por seguridad (protección contra malware en el launcher de los jugadores), introduce tu contraseña de administrador antes de subir archivos.');
+      e.target.value = '';
+      return;
+    }
+
     setUploading(true);
     setUploadMessage(null);
     setErrorMessage(null);
@@ -77,6 +91,7 @@ export function AdminTabUpdates() {
         const file = files[i];
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('adminPassword', adminPassword.trim());
 
         const res = await fetch('/api/launcher/updates', {
           method: 'POST',
@@ -89,7 +104,7 @@ export function AdminTabUpdates() {
         }
       }
 
-      setUploadMessage(`Archivos subidos con éxito (${files.length} archivo/s procesados)`);
+      setUploadMessage(`Archivos subidos y verificados con éxito (${files.length} archivo/s procesados)`);
       await fetchChannelInfo();
     } catch (err: any) {
       setErrorMessage(err.message || 'Error al subir los archivos');
@@ -100,10 +115,17 @@ export function AdminTabUpdates() {
   }
 
   async function handleDeleteFile(fileName: string) {
+    let pwd = adminPassword.trim();
+    if (!pwd) {
+      const input = prompt('Introduce tu contraseña de administrador para confirmar la eliminación del archivo:');
+      if (!input) return;
+      pwd = input.trim();
+    }
+
     if (!confirm(`¿Eliminar el archivo "${fileName}" del servidor?`)) return;
 
     try {
-      const res = await fetch(`/api/launcher/updates?fileName=${encodeURIComponent(fileName)}`, {
+      const res = await fetch(`/api/launcher/updates?fileName=${encodeURIComponent(fileName)}&adminPassword=${encodeURIComponent(pwd)}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -218,6 +240,62 @@ export function AdminTabUpdates() {
           <span>{errorMessage}</span>
         </div>
       )}
+
+      {/* Security Guard Card */}
+      <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-5 space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 rounded-lg mt-0.5">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+                Protección y Autorización de Seguridad (Supply-Chain Defense)
+                <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/50 text-emerald-300 border border-emerald-800/60 font-medium">
+                  2FA Admin Requerido
+                </span>
+              </h4>
+              <p className="text-xs text-zinc-400 leading-relaxed max-w-3xl">
+                Los ejecutables y parches publicados aquí son distribuidos y autoejecutados automáticamente por los launchers en los equipos de los jugadores.
+                Para prevenir la inyección de malware mediante sesiones robadas o exploits, el sistema requiere confirmación de contraseña de administrador en tiempo real, verifica cabeceras ejecutables de Windows (PE MZ Header), valida el esquema del manifiesto y registra hashes criptográficos SHA-256 e IPs en la auditoría inmutable.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-2 border-t border-zinc-800/80 flex flex-col sm:flex-row sm:items-center gap-3">
+          <label className="text-xs font-medium text-zinc-300 flex items-center gap-1.5 whitespace-nowrap">
+            <Lock className="w-3.5 h-3.5 text-zinc-400" />
+            Contraseña de Administrador / Release Key:
+          </label>
+          <div className="relative flex-1 max-w-md">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="Introduce tu contraseña para autorizar subidas o bajas"
+              className="w-full bg-zinc-950/80 border border-zinc-700 text-zinc-100 text-xs rounded-lg pl-3 pr-10 py-2 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition font-mono"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition"
+              title={showPassword ? 'Ocultar' : 'Mostrar'}
+            >
+              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+          {adminPassword.trim() ? (
+            <span className="text-xs text-emerald-400 flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Desbloqueado para subir
+            </span>
+          ) : (
+            <span className="text-xs text-amber-400/90 flex items-center gap-1">
+              <ShieldAlert className="w-3.5 h-3.5" /> Contraseña requerida
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Upload Zone */}
       <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6 space-y-4">

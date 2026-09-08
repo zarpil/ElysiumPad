@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# Asegurar directorios de escritura y permisos incluso con volúmenes montados por el host (Coolify/Docker/VPS)
+mkdir -p /app/public/uploads /app/public/updates
+chown -R nextjs:nodejs /app/public /app/prisma 2>/dev/null || true
+chmod -R 777 /app/public/uploads /app/public/updates 2>/dev/null || true
+
 echo "🚀 [ElysiumPad] Iniciando contenedor de producción..."
 
 # Esperar a que la base de datos esté accesible
@@ -25,4 +30,10 @@ echo "🌱 [ElysiumPad] Ejecutando seed de datos iniciales..."
 node prisma/seed.mjs || echo "⚠️ Advertencia: El seed retornó un estado no cero, continuando..."
 
 echo "⚡ [ElysiumPad] Arrancando servidor Next.js..."
-exec "$@"
+# Si se ejecuta como root, pasar ejecución al usuario seguro 'nextjs'
+if [ "$(id -u)" = '0' ]; then
+  exec su-exec nextjs "$@"
+else
+  exec "$@"
+fi
+

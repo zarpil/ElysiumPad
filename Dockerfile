@@ -28,27 +28,28 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Instalar CLI de Prisma global para migraciones ligeras sin arrastrar devDependencies
+# Instalar su-exec para degradación segura de privilegios y CLI de Prisma
+RUN apk add --no-cache su-exec
 RUN npm install -g prisma@6.19.3
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Crear directorio de subidas locales con permisos
-RUN mkdir -p /app/public/uploads && chown -R nextjs:nodejs /app/public/uploads
-
-# Copiar artefactos optimizados del build standalone
-COPY --from=builder /app/public ./public
+# Copiar artefactos optimizados del build standalone con propiedad de nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 
-# Script de inicio automatizado (Migración + Seed + Next Server)
+# Crear y conceder permisos iniciales en directorios de escritura (uploads y updates)
+RUN mkdir -p /app/public/uploads /app/public/updates && \
+    chmod -R 777 /app/public/uploads /app/public/updates && \
+    chown -R nextjs:nodejs /app/public
+
+# Script de inicio automatizado (Permisos + Migración + Seed + Next Server)
 COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
-
-USER nextjs
 
 EXPOSE 3000
 

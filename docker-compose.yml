@@ -52,6 +52,8 @@ services:
     volumes:
       # Persistencia de uploads locales (logos, banners y mods si no se usa R2)
       - elysiumpad_uploads:/app/public/uploads
+      # Persistencia de ejecutables y parches de actualización del launcher
+      - elysiumpad_updates:/app/public/updates
     depends_on:
       elysiumpad-db:
         condition: service_healthy
@@ -77,6 +79,7 @@ services:
 volumes:
   postgres_data:
   elysiumpad_uploads:
+  elysiumpad_updates:
 
 networks:
   elysium-network:
