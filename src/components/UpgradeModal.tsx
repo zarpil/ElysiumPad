@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Sparkles, CheckCircle2, Crown, Zap, Shield, ArrowRight, Loader2, X } from 'lucide-react';
+import { Sparkles, CheckCircle2, Crown, Loader2, X, ArrowRight } from 'lucide-react';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -96,85 +96,85 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-2xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden text-zinc-100">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+          className="absolute top-5 right-5 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-zinc-800 transition"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
 
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
-            <Sparkles className="w-3.5 h-3.5" /> Potencia tu Servidor de Minecraft
+        <div className="text-left space-y-1.5">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-zinc-800 text-zinc-300 text-[11px] font-medium border border-zinc-700">
+            <Sparkles className="w-3 h-3" /> ElysiumPad Pro & Lifetime
           </div>
-          <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-            Desbloquea Todas las Funciones PRO
+          <h2 className="text-xl font-bold text-white tracking-tight">
+            Planes y Funciones Avanzadas
           </h2>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
+          <p className="text-xs text-zinc-400">
             Sube tus propios mods .jar, personaliza el launcher sin marcas de agua y crea servidores ilimitados.
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl text-center">
+          <div className="p-3 bg-zinc-950 border border-red-800/60 text-red-300 text-xs rounded-lg text-left">
             {error}
           </div>
         )}
 
         {/* Plan Cards Selection */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {/* Option PRO */}
           <div
             onClick={() => setSelectedPlan('PRO')}
-            className={`p-5 rounded-2xl border-2 cursor-pointer transition relative flex flex-col justify-between ${
+            className={`p-4 rounded-xl border cursor-pointer transition flex flex-col justify-between ${
               selectedPlan === 'PRO'
-                ? 'bg-emerald-950/20 border-emerald-500 shadow-lg shadow-emerald-500/10'
-                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                ? 'bg-zinc-950 border-white text-white'
+                : 'bg-zinc-950/60 border-zinc-800 hover:border-zinc-700 text-zinc-400'
             }`}
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-white uppercase tracking-wider">
                   Plan PRO
                 </span>
-                <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded-full text-[10px] font-bold">
-                  Suscripción
+                <span className="px-2 py-0.5 bg-zinc-800 text-zinc-300 rounded text-[10px] font-medium border border-zinc-700">
+                  Mensual
                 </span>
               </div>
               <div>
                 {appliedCoupon ? (
                   <div className="flex items-baseline gap-2">
-                    <p className="text-2xl font-black text-emerald-400">
-                      ${finalProPrice} <span className="text-xs font-normal text-slate-400">/mes</span>
+                    <p className="text-xl font-bold text-white">
+                      ${finalProPrice} <span className="text-xs font-normal text-zinc-400">/mes</span>
                     </p>
-                    <p className="text-sm font-semibold text-slate-500 line-through">$4.99</p>
+                    <p className="text-xs font-medium text-zinc-500 line-through">$4.99</p>
                   </div>
                 ) : (
-                  <p className="text-2xl font-black text-white">
-                    $4.99 <span className="text-xs font-normal text-slate-400">/mes</span>
+                  <p className="text-xl font-bold text-white">
+                    $4.99 <span className="text-xs font-normal text-zinc-400">/mes</span>
                   </p>
                 )}
-                <p className="text-[11px] text-slate-400 mt-1">Cancela en cualquier momento.</p>
+                <p className="text-[11px] text-zinc-500 mt-0.5">Cancela en cualquier momento.</p>
               </div>
-              <ul className="space-y-2 text-[11px] text-slate-300 pt-3 border-t border-slate-800/80">
+              <ul className="space-y-1.5 text-[11px] text-zinc-300 pt-3 border-t border-zinc-800">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Slug URL personalizado (ej: /d/mi-servidor)</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Slug URL personalizado</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Launchers ilimitados</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Subida de mods .jar y configs</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Subida de .jar y configs</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>100% White-Label (Sin marcas)</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>100% Sin publicidad</span>
                 </li>
               </ul>
             </div>
@@ -183,52 +183,52 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
           {/* Option LIFETIME */}
           <div
             onClick={() => setSelectedPlan('LIFETIME')}
-            className={`p-5 rounded-2xl border-2 cursor-pointer transition relative flex flex-col justify-between ${
+            className={`p-4 rounded-xl border cursor-pointer transition flex flex-col justify-between ${
               selectedPlan === 'LIFETIME'
-                ? 'bg-amber-950/20 border-amber-500 shadow-lg shadow-amber-500/10'
-                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                ? 'bg-zinc-950 border-white text-white'
+                : 'bg-zinc-950/60 border-zinc-800 hover:border-zinc-700 text-zinc-400'
             }`}
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-white uppercase tracking-wider">
                   LIFETIME
                 </span>
-                <span className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded-full text-[10px] font-bold flex items-center gap-1">
-                  <Crown className="w-3 h-3 text-amber-400" /> Acceso De Por Vida
+                <span className="px-2 py-0.5 bg-amber-950/50 text-amber-300 rounded text-[10px] font-medium border border-amber-800/60 flex items-center gap-1">
+                  <Crown className="w-3 h-3" /> Vitalicio
                 </span>
               </div>
               <div>
                 {appliedCoupon ? (
                   <div className="flex items-baseline gap-2">
-                    <p className="text-2xl font-black text-amber-400">
-                      ${finalLifetimePrice} <span className="text-xs font-normal text-slate-400">pago único</span>
+                    <p className="text-xl font-bold text-white">
+                      ${finalLifetimePrice} <span className="text-xs font-normal text-zinc-400">pago único</span>
                     </p>
-                    <p className="text-sm font-semibold text-slate-500 line-through">$49</p>
+                    <p className="text-xs font-medium text-zinc-500 line-through">$49</p>
                   </div>
                 ) : (
-                  <p className="text-2xl font-black text-white">
-                    $49 <span className="text-xs font-normal text-slate-400">pago único</span>
+                  <p className="text-xl font-bold text-white">
+                    $49 <span className="text-xs font-normal text-zinc-400">pago único</span>
                   </p>
                 )}
-                <p className="text-[11px] text-slate-400 mt-1">Todas las funciones PRO para siempre.</p>
+                <p className="text-[11px] text-zinc-500 mt-0.5">Todas las funciones PRO para siempre.</p>
               </div>
-              <ul className="space-y-2 text-[11px] text-slate-300 pt-3 border-t border-slate-800/80">
+              <ul className="space-y-1.5 text-[11px] text-zinc-300 pt-3 border-t border-zinc-800">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Slug URL personalizado para siempre</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Slug permanente garantizado</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Sin pagos mensuales recurrentes</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Sin cuotas mensuales</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Insignia VIP Fundador</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Insignia Fundador</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Soporte prioritario 24/7</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>Soporte prioritario</span>
                 </li>
               </ul>
             </div>
@@ -236,16 +236,16 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
         </div>
 
         {/* Promo / Discount Coupon Section */}
-        <div className="bg-slate-950/80 border border-slate-800 p-3.5 rounded-2xl">
+        <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-lg">
           {appliedCoupon ? (
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-xs">
-                <span className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold">
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded bg-zinc-800 text-zinc-200 flex items-center justify-center font-bold text-[11px]">
                   ✓
                 </span>
                 <div>
-                  <span className="font-bold text-white font-mono">{appliedCoupon.code}</span>
-                  <span className="text-emerald-400 font-bold ml-1.5">
+                  <span className="font-semibold text-white font-mono">{appliedCoupon.code}</span>
+                  <span className="text-zinc-400 ml-1.5">
                     (-{appliedCoupon.discountPercent}% aplicado)
                   </span>
                 </div>
@@ -253,7 +253,7 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
               <button
                 type="button"
                 onClick={handleRemoveCoupon}
-                className="text-xs text-slate-400 hover:text-rose-400 transition underline font-medium"
+                className="text-xs text-zinc-400 hover:text-red-400 transition underline font-medium"
               >
                 Quitar cupón
               </button>
@@ -268,12 +268,12 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
                   setCouponInput(e.target.value.toUpperCase());
                   if (couponError) setCouponError(null);
                 }}
-                className="flex-1 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs text-white uppercase placeholder-slate-500 font-mono tracking-wider focus:outline-none focus:border-emerald-500"
+                className="flex-1 bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-lg text-xs text-white uppercase placeholder-zinc-500 font-mono tracking-wider focus:outline-none focus:border-zinc-600"
               />
               <button
                 type="submit"
                 disabled={validatingCoupon || !couponInput.trim()}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition disabled:opacity-50"
+                className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-medium rounded-lg transition disabled:opacity-50"
               >
                 {validatingCoupon ? 'Validando...' : 'Aplicar'}
               </button>
@@ -281,24 +281,24 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
           )}
 
           {couponError && (
-            <p className="text-[11px] text-rose-400 mt-2 font-medium">{couponError}</p>
+            <p className="text-[11px] text-red-400 mt-2 font-medium">{couponError}</p>
           )}
         </div>
 
         {/* CTA Button */}
         <div className="pt-2 flex items-center justify-between gap-4">
-          <p className="text-[11px] text-slate-400">
-            Activación inmediata • Soporte garantizado
+          <p className="text-[11px] text-zinc-500">
+            Activación inmediata • Facturación segura
           </p>
 
           <button
             onClick={handleCheckout}
             disabled={loading}
-            className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition active:scale-95 flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2.5 bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs rounded-lg transition flex items-center gap-2 disabled:opacity-50 shadow-sm cursor-pointer"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 <span>Activando plan...</span>
               </>
             ) : (
@@ -306,7 +306,7 @@ export function UpgradeModal({ isOpen, onClose, onSuccess, currentPlan }: Upgrad
                 <span>
                   Activar {selectedPlan} {appliedCoupon && `($${selectedPlan === 'PRO' ? finalProPrice : finalLifetimePrice})`}
                 </span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </>
             )}
           </button>

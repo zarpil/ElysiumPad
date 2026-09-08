@@ -168,8 +168,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0f17] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 text-zinc-400 animate-spin" />
       </div>
     );
   }
@@ -179,30 +179,30 @@ export default function ProfilePage() {
   const isFree = profile.plan === 'FREE';
 
   return (
-    <div className="min-h-screen bg-[#0b0f17] text-slate-100 font-sans selection:bg-emerald-500 selection:text-slate-950 flex flex-col">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans flex flex-col">
       {/* Top Navbar */}
-      <header className="h-16 border-b border-slate-800/80 bg-[#111622] px-6 lg:px-12 flex items-center justify-between sticky top-0 z-40">
+      <header className="h-14 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md px-6 lg:px-12 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700"
+            className="flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white transition px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Volver al Panel</span>
           </Link>
 
-          <div className="h-4 w-px bg-slate-800" />
+          <div className="h-4 w-px bg-zinc-800" />
 
-          <span className="font-extrabold text-sm tracking-tight text-white">Mi Perfil y Ajustes</span>
+          <span className="text-sm font-semibold text-zinc-200 tracking-tight">Mi Perfil y Ajustes</span>
         </div>
 
         <div className="flex items-center gap-3">
           {profile.role === 'ADMIN' && (
             <Link
               href="/admin"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-xs font-bold rounded-lg transition"
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-medium rounded-lg transition"
             >
-              <ShieldAlert className="w-3.5 h-3.5" />
+              <ShieldAlert className="w-3.5 h-3.5 text-zinc-400" />
               <span>SuperAdmin</span>
             </Link>
           )}
@@ -212,7 +212,7 @@ export default function ProfilePage() {
               await fetch('/api/auth/logout', { method: 'POST' });
               router.push('/login');
             }}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-rose-400 transition px-3 py-1.5 rounded-lg hover:bg-slate-900"
+            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition px-2.5 py-1.5 rounded-lg hover:bg-zinc-900"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Cerrar Sesión</span>
@@ -221,37 +221,37 @@ export default function ProfilePage() {
       </header>
 
       {/* Main Container */}
-      <div className="flex-1 max-w-6xl w-full mx-auto p-6 md:p-10 space-y-8">
+      <div className="flex-1 max-w-5xl w-full mx-auto p-6 md:p-10 space-y-6">
         {/* User Identity Header Card */}
-        <div className="bg-[#121824] border border-[#1e2739] rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
-          <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center font-black text-slate-950 text-2xl shadow-lg shadow-emerald-500/20">
+        <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center font-semibold text-zinc-200 text-lg flex-shrink-0">
               {(profile.name || profile.email || 'U').slice(0, 2).toUpperCase()}
             </div>
             <div className="space-y-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="text-xl font-bold text-white tracking-tight">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg font-semibold text-white tracking-tight">
                   {profile.name || 'Usuario de ElysiumPad'}
                 </h1>
                 <span
-                  className={`text-[10px] font-black px-2 py-0.5 rounded border uppercase tracking-wider flex items-center gap-1 ${
+                  className={`text-[11px] font-medium px-2 py-0.5 rounded-md border flex items-center gap-1 ${
                     profile.plan === 'LIFETIME'
-                      ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                      ? 'bg-amber-950/50 text-amber-300 border-amber-800/60'
                       : profile.plan === 'PRO'
-                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                      : 'bg-slate-800 text-slate-300 border-slate-700'
+                      ? 'bg-emerald-950/50 text-emerald-300 border-emerald-800/60'
+                      : 'bg-zinc-800 text-zinc-400 border-zinc-700'
                   }`}
                 >
                   <Sparkles className="w-3 h-3" /> Plan {profile.plan}
                 </span>
                 {profile.role === 'ADMIN' && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700">
                     Administrador
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 font-mono">{profile.email}</p>
-              <div className="flex items-center gap-4 text-[11px] text-slate-500 pt-1">
+              <p className="text-xs text-zinc-400 font-mono">{profile.email}</p>
+              <div className="flex items-center gap-3 text-[11px] text-zinc-500 pt-0.5">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" /> Miembro desde:{' '}
                   {new Date(profile.createdAt).toLocaleDateString()}
@@ -265,108 +265,108 @@ export default function ProfilePage() {
           {isFree && (
             <button
               onClick={() => setIsUpgradeOpen(true)}
-              className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs rounded-xl transition shadow-lg shadow-emerald-500/20 flex items-center gap-2 cursor-pointer flex-shrink-0"
+              className="px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-950 font-semibold text-xs rounded-lg transition flex items-center gap-2 cursor-pointer flex-shrink-0 shadow-sm"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-3.5 h-3.5" />
               <span>Mejorar a Plan PRO</span>
             </button>
           )}
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 border-b border-[#1b2333] pb-px overflow-x-auto">
+        <div className="flex items-center gap-1 border-b border-zinc-800 overflow-x-auto pb-px">
           <button
             onClick={() => setActiveTab('servers')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs font-bold transition flex items-center gap-2 flex-shrink-0 border-b-2 ${
+            className={`px-4 py-2.5 text-xs font-medium transition flex items-center gap-2 flex-shrink-0 rounded-t-lg border-b-2 ${
               activeTab === 'servers'
-                ? 'border-emerald-500 text-emerald-400 bg-[#121824]'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-white text-white bg-zinc-900/40'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <Server className="w-4 h-4" />
+            <Server className="w-3.5 h-3.5" />
             <span>Mis Servidores ({profile.launchers?.length || 0})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('account')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs font-bold transition flex items-center gap-2 flex-shrink-0 border-b-2 ${
+            className={`px-4 py-2.5 text-xs font-medium transition flex items-center gap-2 flex-shrink-0 rounded-t-lg border-b-2 ${
               activeTab === 'account'
-                ? 'border-emerald-500 text-emerald-400 bg-[#121824]'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-white text-white bg-zinc-900/40'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <User className="w-4 h-4" />
+            <User className="w-3.5 h-3.5" />
             <span>Datos de la Cuenta</span>
           </button>
 
           <button
             onClick={() => setActiveTab('security')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs font-bold transition flex items-center gap-2 flex-shrink-0 border-b-2 ${
+            className={`px-4 py-2.5 text-xs font-medium transition flex items-center gap-2 flex-shrink-0 rounded-t-lg border-b-2 ${
               activeTab === 'security'
-                ? 'border-emerald-500 text-emerald-400 bg-[#121824]'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-white text-white bg-zinc-900/40'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <KeyRound className="w-4 h-4" />
+            <KeyRound className="w-3.5 h-3.5" />
             <span>Seguridad y Contraseña</span>
           </button>
 
           <button
             onClick={() => setActiveTab('billing')}
-            className={`px-4 py-2.5 rounded-t-xl text-xs font-bold transition flex items-center gap-2 flex-shrink-0 border-b-2 ${
+            className={`px-4 py-2.5 text-xs font-medium transition flex items-center gap-2 flex-shrink-0 rounded-t-lg border-b-2 ${
               activeTab === 'billing'
-                ? 'border-emerald-500 text-emerald-400 bg-[#121824]'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-white text-white bg-zinc-900/40'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
-            <CreditCard className="w-4 h-4" />
+            <CreditCard className="w-3.5 h-3.5" />
             <span>Plan y Suscripción</span>
           </button>
         </div>
 
         {/* TAB CONTENT: SERVERS */}
         {activeTab === 'servers' && (
-          <div className="space-y-6 animate-fadeIn">
+          <div className="space-y-6">
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-[#121824] border border-[#1e2739] p-5 rounded-2xl flex items-center justify-between">
+              <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-xl flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-slate-400 uppercase font-semibold">Servidores Activos</span>
-                  <p className="text-2xl font-black text-white mt-1">{profile.stats?.totalLaunchers || 0}</p>
+                  <span className="text-[11px] text-zinc-400 uppercase font-medium">Servidores Activos</span>
+                  <p className="text-2xl font-bold text-white mt-1">{profile.stats?.totalLaunchers || 0}</p>
                 </div>
-                <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl">
-                  <Server className="w-5 h-5" />
+                <div className="p-2.5 bg-zinc-800/80 text-zinc-300 rounded-lg">
+                  <Server className="w-4 h-4" />
                 </div>
               </div>
 
-              <div className="bg-[#121824] border border-[#1e2739] p-5 rounded-2xl flex items-center justify-between">
+              <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-xl flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-slate-400 uppercase font-semibold">Descargas Totales</span>
-                  <p className="text-2xl font-black text-white mt-1">{profile.stats?.totalDownloads || 0}</p>
+                  <span className="text-[11px] text-zinc-400 uppercase font-medium">Descargas Totales</span>
+                  <p className="text-2xl font-bold text-white mt-1">{profile.stats?.totalDownloads || 0}</p>
                 </div>
-                <div className="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl">
-                  <Download className="w-5 h-5" />
+                <div className="p-2.5 bg-zinc-800/80 text-zinc-300 rounded-lg">
+                  <Download className="w-4 h-4" />
                 </div>
               </div>
 
-              <div className="bg-[#121824] border border-[#1e2739] p-5 rounded-2xl flex items-center justify-between">
+              <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-xl flex items-center justify-between">
                 <div>
-                  <span className="text-[11px] text-slate-400 uppercase font-semibold">Mods Sincronizados</span>
-                  <p className="text-2xl font-black text-white mt-1">{profile.stats?.totalMods || 0}</p>
+                  <span className="text-[11px] text-zinc-400 uppercase font-medium">Mods Sincronizados</span>
+                  <p className="text-2xl font-bold text-white mt-1">{profile.stats?.totalMods || 0}</p>
                 </div>
-                <div className="p-3 bg-teal-500/10 text-teal-400 rounded-xl">
-                  <Layers className="w-5 h-5" />
+                <div className="p-2.5 bg-zinc-800/80 text-zinc-300 rounded-lg">
+                  <Layers className="w-4 h-4" />
                 </div>
               </div>
             </div>
 
             {/* Server List */}
-            <div className="bg-[#121824] border border-[#1e2739] rounded-2xl p-6 space-y-4">
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-white">Listado de Servidores Creados</h3>
+                <h3 className="text-sm font-semibold text-white">Listado de Servidores Creados</h3>
                 <Link
                   href="/dashboard"
-                  className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1"
+                  className="text-xs text-zinc-300 hover:text-white font-medium flex items-center gap-1.5 transition"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Crear Nuevo Servidor en Panel</span>
@@ -374,12 +374,12 @@ export default function ProfilePage() {
               </div>
 
               {profile.launchers.length === 0 ? (
-                <div className="p-8 text-center border border-dashed border-[#1e2739] rounded-xl space-y-2">
-                  <Server className="w-8 h-8 text-slate-600 mx-auto" />
-                  <p className="text-xs text-slate-400">Aún no tienes ningún launcher creado.</p>
+                <div className="p-8 text-center border border-dashed border-zinc-800 rounded-xl space-y-2">
+                  <Server className="w-7 h-7 text-zinc-600 mx-auto" />
+                  <p className="text-xs text-zinc-400">Aún no tienes ningún launcher creado.</p>
                   <Link
                     href="/dashboard"
-                    className="inline-block mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition"
+                    className="inline-block mt-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg text-xs font-medium transition"
                   >
                     Ir al Panel a Crear Servidor
                   </Link>
@@ -389,42 +389,42 @@ export default function ProfilePage() {
                   {profile.launchers.map((l: any) => (
                     <div
                       key={l.id}
-                      className="bg-[#0f1420] border border-[#1a2333] hover:border-[#27364f] p-5 rounded-xl transition space-y-4 text-left"
+                      className="bg-zinc-900/30 border border-zinc-800 hover:border-zinc-700 p-5 rounded-xl transition space-y-4 text-left"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-slate-950 text-sm shadow-sm flex-shrink-0"
-                            style={{ backgroundColor: l.primaryColor || '#10b981' }}
+                            className="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-zinc-950 text-xs shadow-sm flex-shrink-0"
+                            style={{ backgroundColor: l.primaryColor || '#ffffff' }}
                           >
                             {l.name.slice(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <h4 className="text-sm font-bold text-white">{l.name}</h4>
-                            <p className="text-[11px] text-slate-400 font-mono">/{l.slug}</p>
+                            <h4 className="text-sm font-semibold text-white">{l.name}</h4>
+                            <p className="text-[11px] text-zinc-500 font-mono">/{l.slug}</p>
                           </div>
                         </div>
 
                         <div className="text-right">
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-[#162030] text-emerald-400 font-mono font-bold">
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 font-mono font-medium">
                             {l.mcVersion} {l.loader}
                           </span>
                         </div>
                       </div>
 
                       {/* Stats */}
-                      <div className="grid grid-cols-3 gap-2 py-2 border-y border-[#182030] text-center text-xs">
+                      <div className="grid grid-cols-3 gap-2 py-2 border-y border-zinc-800/80 text-center text-xs">
                         <div>
-                          <span className="text-[10px] text-slate-500 block">Mods</span>
-                          <span className="font-bold text-white">{l.mods.length}</span>
+                          <span className="text-[10px] text-zinc-500 block">Mods</span>
+                          <span className="font-semibold text-white">{l.mods.length}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-slate-500 block">Descargas</span>
-                          <span className="font-bold text-white">{l.downloadCount}</span>
+                          <span className="text-[10px] text-zinc-500 block">Descargas</span>
+                          <span className="font-semibold text-white">{l.downloadCount}</span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-slate-500 block">Noticias</span>
-                          <span className="font-bold text-white">{l.newsItems?.length || 0}</span>
+                          <span className="text-[10px] text-zinc-500 block">Noticias</span>
+                          <span className="font-semibold text-white">{l.newsItems?.length || 0}</span>
                         </div>
                       </div>
 
@@ -432,7 +432,7 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-2 pt-1">
                         <Link
                           href={`/dashboard`}
-                          className="flex-1 py-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-semibold transition text-center"
+                          className="flex-1 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/60 rounded-lg text-xs font-medium transition text-center"
                         >
                           Gestionar en Panel
                         </Link>
@@ -440,9 +440,9 @@ export default function ProfilePage() {
                         <button
                           onClick={() => handleCopyDownloadLink(l.slug)}
                           title="Copiar link de descarga pública"
-                          className="px-3 py-2 bg-[#162030] hover:bg-[#1d2b40] text-slate-300 rounded-lg text-xs font-semibold transition flex items-center gap-1"
+                          className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs font-medium transition flex items-center gap-1"
                         >
-                          {copiedSlug === l.slug ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedSlug === l.slug ? <Check className="w-3.5 h-3.5 text-zinc-100" /> : <Copy className="w-3.5 h-3.5" />}
                           <span>{copiedSlug === l.slug ? 'Copiado' : 'Link'}</span>
                         </button>
 
@@ -451,7 +451,7 @@ export default function ProfilePage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           title="Ver página pública de descarga"
-                          className="p-2 bg-[#162030] hover:bg-[#1d2b40] text-slate-300 rounded-lg text-xs transition"
+                          className="p-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs transition"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                         </a>
@@ -466,49 +466,49 @@ export default function ProfilePage() {
 
         {/* TAB CONTENT: ACCOUNT */}
         {activeTab === 'account' && (
-          <div className="bg-[#121824] border border-[#1e2739] rounded-2xl p-6 md:p-8 space-y-6 max-w-2xl animate-fadeIn">
+          <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6 md:p-8 space-y-6 max-w-xl">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Datos de la Cuenta</h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <h3 className="text-sm font-semibold text-white">Datos de la Cuenta</h3>
+              <p className="text-xs text-zinc-400 mt-1">
                 Actualiza tu nombre visible en la plataforma y consulta los detalles de acceso.
               </p>
             </div>
 
             {profileSuccess && (
-              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-xs text-zinc-200 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>Nombre actualizado correctamente.</span>
               </div>
             )}
 
             {profileError && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
+              <div className="p-3 bg-zinc-900 border border-red-800/60 rounded-lg text-xs text-red-300 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400" />
                 <span>{profileError}</span>
               </div>
             )}
 
             <form onSubmit={handleUpdateName} className="space-y-4 text-left">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Nombre Completo o Nickname</label>
+                <label className="text-xs font-medium text-zinc-300">Nombre Completo o Nickname</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tu nombre o apodo"
-                  className="w-full px-4 py-2.5 bg-[#0e131d] border border-[#1b2333] rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"
+                  className="w-full px-3.5 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Correo Electrónico</label>
+                <label className="text-xs font-medium text-zinc-300">Correo Electrónico</label>
                 <input
                   type="email"
                   value={profile.email}
                   disabled
-                  className="w-full px-4 py-2.5 bg-[#0a0e16] border border-[#161d2b] rounded-xl text-xs text-slate-400 cursor-not-allowed font-mono"
+                  className="w-full px-3.5 py-2 bg-zinc-950 border border-zinc-800/60 rounded-lg text-xs text-zinc-500 cursor-not-allowed font-mono"
                 />
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[11px] text-zinc-500">
                   El correo electrónico está vinculado a tus compras y licencias.
                 </p>
               </div>
@@ -517,9 +517,9 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-950 rounded-lg text-xs font-medium transition flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm"
                 >
-                  {savingProfile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {savingProfile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                   <span>Guardar Cambios</span>
                 </button>
               </div>
@@ -529,45 +529,45 @@ export default function ProfilePage() {
 
         {/* TAB CONTENT: SECURITY */}
         {activeTab === 'security' && (
-          <div className="bg-[#121824] border border-[#1e2739] rounded-2xl p-6 md:p-8 space-y-6 max-w-2xl animate-fadeIn">
+          <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6 md:p-8 space-y-6 max-w-xl">
             <div>
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <KeyRound className="w-4 h-4 text-emerald-400" /> Seguridad y Cambio de Contraseña
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <KeyRound className="w-4 h-4 text-zinc-400" /> Seguridad y Cambio de Contraseña
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-zinc-400 mt-1">
                 Mantén protegida tu cuenta actualizando periódicamente tu clave de acceso.
               </p>
             </div>
 
             {passwordSuccess && (
-              <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="p-3 bg-zinc-900 border border-zinc-700 rounded-lg text-xs text-zinc-200 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 <span>¡Contraseña cambiada con éxito!</span>
               </div>
             )}
 
             {passwordError && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
+              <div className="p-3 bg-zinc-900 border border-red-800/60 rounded-lg text-xs text-red-300 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400" />
                 <span>{passwordError}</span>
               </div>
             )}
 
             <form onSubmit={handleChangePassword} className="space-y-4 text-left">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Contraseña Actual</label>
+                <label className="text-xs font-medium text-zinc-300">Contraseña Actual</label>
                 <input
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Introduce tu contraseña actual"
                   required
-                  className="w-full px-4 py-2.5 bg-[#0e131d] border border-[#1b2333] rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"
+                  className="w-full px-3.5 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Nueva Contraseña</label>
+                <label className="text-xs font-medium text-zinc-300">Nueva Contraseña</label>
                 <input
                   type="password"
                   value={newPassword}
@@ -575,12 +575,12 @@ export default function ProfilePage() {
                   placeholder="Mínimo 6 caracteres"
                   required
                   minLength={6}
-                  className="w-full px-4 py-2.5 bg-[#0e131d] border border-[#1b2333] rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"
+                  className="w-full px-3.5 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Confirmar Nueva Contraseña</label>
+                <label className="text-xs font-medium text-zinc-300">Confirmar Nueva Contraseña</label>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -588,7 +588,7 @@ export default function ProfilePage() {
                   placeholder="Repite la nueva contraseña"
                   required
                   minLength={6}
-                  className="w-full px-4 py-2.5 bg-[#0e131d] border border-[#1b2333] rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"
+                  className="w-full px-3.5 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition"
                 />
               </div>
 
@@ -596,9 +596,9 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={savingPassword}
-                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/20 flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-950 rounded-lg text-xs font-medium transition flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-sm"
                 >
-                  {savingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+                  {savingPassword ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <KeyRound className="w-3.5 h-3.5" />}
                   <span>Actualizar Contraseña</span>
                 </button>
               </div>
@@ -608,20 +608,20 @@ export default function ProfilePage() {
 
         {/* TAB CONTENT: BILLING */}
         {activeTab === 'billing' && (
-          <div className="space-y-6 animate-fadeIn max-w-3xl">
-            <div className="bg-[#121824] border border-[#1e2739] rounded-2xl p-6 md:p-8 space-y-6">
+          <div className="space-y-6 max-w-3xl">
+            <div className="bg-zinc-900/40 border border-zinc-800 rounded-xl p-6 md:p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Plan Actual</span>
-                  <h3 className="text-2xl font-black text-white mt-1">Plan {profile.plan}</h3>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">Plan Actual</span>
+                  <h3 className="text-2xl font-bold text-white mt-1">Plan {profile.plan}</h3>
                 </div>
                 <span
-                  className={`text-xs font-bold px-3 py-1 rounded-lg border ${
+                  className={`text-xs font-medium px-3 py-1 rounded-lg border ${
                     profile.plan === 'LIFETIME'
-                      ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                      ? 'bg-amber-950/50 text-amber-300 border-amber-800/60'
                       : profile.plan === 'PRO'
-                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                      : 'bg-slate-800 text-slate-400 border-slate-700'
+                      ? 'bg-emerald-950/50 text-emerald-300 border-emerald-800/60'
+                      : 'bg-zinc-800 text-zinc-400 border-zinc-700'
                   }`}
                 >
                   {profile.plan === 'LIFETIME'
@@ -633,25 +633,25 @@ export default function ProfilePage() {
               </div>
 
               {/* Feature comparison / active perks */}
-              <div className="pt-4 border-t border-[#1a2333] space-y-3 text-xs">
-                <h4 className="font-bold text-slate-300 uppercase tracking-wider text-[11px]">
+              <div className="pt-4 border-t border-zinc-800 space-y-3 text-xs">
+                <h4 className="font-semibold text-zinc-300 uppercase tracking-wider text-[11px]">
                   Beneficios y Estado de la Cuenta
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2.5 text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <div className="flex items-center gap-2.5 text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-zinc-400" />
                     <span>Límite de servidores: {isFree ? '1 Servidor' : 'Ilimitados'}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <div className="flex items-center gap-2.5 text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-zinc-400" />
                     <span>Publicidad: {isFree ? 'Con anuncios estándar' : '100% Sin anuncios (Ad-free)'}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <div className="flex items-center gap-2.5 text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-zinc-400" />
                     <span>Subida de mods .jar propios: {isFree ? 'Solo catálogo Modrinth' : 'Habilitado (En la Nube)'}</span>
                   </div>
-                  <div className="flex items-center gap-2.5 text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <div className="flex items-center gap-2.5 text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-zinc-400" />
                     <span>Tablón de noticias en launcher: {isFree ? 'No disponible' : 'Múltiples comunicados activos'}</span>
                   </div>
                 </div>
@@ -659,41 +659,41 @@ export default function ProfilePage() {
 
               {/* Alertas de cancelación */}
               {cancelSuccess && (
-                <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400" />
+                <div className="p-4 bg-zinc-900 border border-zinc-700 rounded-lg text-xs text-zinc-200 flex items-center gap-3">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-400" />
                   <span>{cancelSuccess}</span>
                 </div>
               )}
 
               {cancelError && (
-                <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-400" />
+                <div className="p-4 bg-zinc-900 border border-red-800/60 rounded-lg text-xs text-red-300 flex items-center gap-3">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
                   <span>{cancelError}</span>
                 </div>
               )}
 
               {/* Si es PRO: Gestión de Suscripción Mensual y Cancelación */}
               {profile.plan === 'PRO' && (
-                <div className="pt-4 border-t border-[#1a2333] space-y-4">
-                  <div className="p-5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+                <div className="pt-4 border-t border-zinc-800 space-y-4">
+                  <div className="p-5 bg-zinc-950/60 border border-zinc-800 rounded-xl space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
-                        <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-emerald-400" />
+                        <h4 className="text-xs font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+                          <Calendar className="w-3.5 h-3.5 text-zinc-400" />
                           Ciclo de Facturación Mensual
                         </h4>
-                        <p className="text-[11px] text-slate-400 mt-1">
+                        <p className="text-[11px] text-zinc-400 mt-1">
                           Tu suscripción PRO se renueva automáticamente cada mes por <strong>$4.99 USD</strong>.
                         </p>
                       </div>
-                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 whitespace-nowrap self-start sm:self-auto">
+                      <span className="text-[10px] font-medium px-2.5 py-1 rounded-md bg-emerald-950/50 text-emerald-300 border border-emerald-800/60 whitespace-nowrap self-start sm:self-auto">
                         Renovación Activa
                       </span>
                     </div>
 
-                    <div className="p-3 bg-[#0d121c] border border-slate-800/80 rounded-lg text-[11px] text-slate-400 space-y-1">
-                      <p className="flex items-center gap-1.5 text-slate-300 font-medium">
-                        <Shield className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="p-3 bg-zinc-900/60 border border-zinc-800 rounded-lg text-[11px] text-zinc-400 space-y-1">
+                      <p className="flex items-center gap-1.5 text-zinc-300 font-medium">
+                        <Shield className="w-3.5 h-3.5 text-zinc-400" />
                         Garantía Legal de Cancelación Autónoma:
                       </p>
                       <p>
@@ -702,14 +702,14 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-zinc-500">
                         ¿Deseas interrumpir la renovación del próximo mes?
                       </p>
 
                       <button
                         type="button"
                         onClick={() => setIsConfirmCancelOpen(true)}
-                        className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-semibold transition flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
+                        className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-red-400 border border-zinc-800 rounded-lg text-xs font-medium transition flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
                       >
                         <Lock className="w-3.5 h-3.5" />
                         <span>Cancelar Suscripción</span>
@@ -721,13 +721,13 @@ export default function ProfilePage() {
 
               {/* Si es LIFETIME: Pago único permanente */}
               {profile.plan === 'LIFETIME' && (
-                <div className="pt-4 border-t border-[#1a2333] space-y-3">
-                  <div className="p-5 bg-amber-950/20 border border-amber-500/30 rounded-xl space-y-2">
-                    <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
-                      <Sparkles className="w-4 h-4 text-amber-400" />
+                <div className="pt-4 border-t border-zinc-800 space-y-3">
+                  <div className="p-5 bg-zinc-950/60 border border-zinc-800 rounded-xl space-y-2">
+                    <div className="flex items-center gap-2 text-amber-300 font-semibold text-xs">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                       <span>Licencia Vitalicia Fundador</span>
                     </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                    <p className="text-[11px] text-zinc-400 leading-relaxed">
                       Tu cuenta está cubierta por un pago único vitalicio. No existen cuotas mensuales, cargos recurrentes ni renovaciones pendientes. Todas las características PRO están activas para siempre.
                     </p>
                   </div>
@@ -736,16 +736,16 @@ export default function ProfilePage() {
 
               {/* Si es FREE: Invitación a mejorar */}
               {isFree && (
-                <div className="pt-4 border-t border-[#1a2333] flex flex-col sm:flex-row items-center justify-between gap-4 bg-emerald-500/5 p-4 rounded-xl border border-emerald-500/20">
+                <div className="pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-900/40 p-4 rounded-xl border border-zinc-800">
                   <div>
-                    <h5 className="text-xs font-bold text-white">¿Necesitas más capacidad?</h5>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <h5 className="text-xs font-semibold text-white">¿Necesitas más capacidad?</h5>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
                       Pasa a Plan PRO por $4.99/mes o adquiere Lifetime ($49) sin mensualidades.
                     </p>
                   </div>
                   <button
                     onClick={() => setIsUpgradeOpen(true)}
-                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/20 cursor-pointer flex-shrink-0"
+                    className="px-4 py-2 bg-white hover:bg-zinc-200 text-zinc-950 rounded-lg text-xs font-semibold transition cursor-pointer flex-shrink-0 shadow-sm"
                   >
                     Mejorar Ahora
                   </button>
@@ -753,8 +753,8 @@ export default function ProfilePage() {
               )}
 
               {/* Transparencia y Cumplimiento Legal Stripe / E-commerce */}
-              <div className="pt-4 border-t border-[#1a2333] flex items-start gap-3 text-[11px] text-slate-500">
-                <CreditCard className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+              <div className="pt-4 border-t border-zinc-800 flex items-start gap-3 text-[11px] text-zinc-500">
+                <CreditCard className="w-4 h-4 text-zinc-500 flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
                   <strong>Cumplimiento de pagos legales y seguros:</strong> Procesamiento bajo estándar bancario cifrado PCI-DSS Level 1. Facturas con desglose de impuestos disponibles en cada ciclo. El usuario mantiene en todo momento el control total sobre sus métodos de pago y renovaciones.
                 </p>
@@ -766,22 +766,22 @@ export default function ProfilePage() {
 
       {/* Modal de confirmación de Cancelación Legal */}
       {isConfirmCancelOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-          <div className="bg-[#121824] border border-[#1e2739] rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
-              <AlertCircle className="w-6 h-6" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center mx-auto">
+              <AlertCircle className="w-5 h-5" />
             </div>
 
-            <div className="text-center space-y-2">
-              <h3 className="text-base font-bold text-white">¿Confirmas la cancelación de tu suscripción?</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+            <div className="text-center space-y-1.5">
+              <h3 className="text-sm font-semibold text-white">¿Confirmas la cancelación de tu suscripción?</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
                 Tu suscripción mensual PRO se cancelará inmediatamente. No se te volverá a cobrar ninguna mensualidad.
               </p>
             </div>
 
-            <div className="p-3 bg-slate-950/60 border border-slate-800 rounded-xl text-[11px] text-slate-400 space-y-1">
-              <p className="text-slate-300 font-semibold">Al cancelar:</p>
-              <ul className="list-disc list-inside space-y-0.5 text-slate-400">
+            <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-lg text-[11px] text-zinc-400 space-y-1">
+              <p className="text-zinc-300 font-medium">Al cancelar:</p>
+              <ul className="list-disc list-inside space-y-0.5 text-zinc-400">
                 <li>Tu cuenta pasará al plan Gratuito (FREE).</li>
                 <li>Se mantendrán guardados tus servidores existentes.</li>
                 <li>Podrás volver a reactivar PRO en cualquier momento cuando lo desees.</li>
@@ -793,7 +793,7 @@ export default function ProfilePage() {
                 type="button"
                 disabled={cancellingSub}
                 onClick={() => setIsConfirmCancelOpen(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-xl transition"
+                className="px-3.5 py-1.5 text-xs font-medium text-zinc-400 hover:text-white rounded-lg transition"
               >
                 Mantener mi Plan PRO
               </button>
@@ -802,7 +802,7 @@ export default function ProfilePage() {
                 type="button"
                 disabled={cancellingSub}
                 onClick={handleCancelSubscription}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm"
+                className="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-medium transition flex items-center gap-2 shadow-sm"
               >
                 {cancellingSub ? (
                   <>
