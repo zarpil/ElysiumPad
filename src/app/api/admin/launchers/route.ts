@@ -62,6 +62,12 @@ export async function GET(req: NextRequest) {
             assetType: true,
           },
         },
+        _count: {
+          select: {
+            mods: true,
+            customAssets: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });

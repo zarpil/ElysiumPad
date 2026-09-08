@@ -340,7 +340,7 @@ export function AdminTabUsers({ users, loading, onRefresh }: UsersProps) {
                                   <div>
                                     <p className="font-semibold text-white text-xs">{l.name}</p>
                                     <p className="text-[10px] text-slate-400">
-                                      MC {l.mcVersion} • {l.loader} • {l._count.mods} mods
+                                      MC {l.mcVersion} • {l.loader} • {l._count?.mods ?? l.mods?.length ?? 0} mods
                                     </p>
                                   </div>
                                   <Link

@@ -346,18 +346,24 @@ export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersPr
 
                   {/* Content (Mods & Custom Assets) */}
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => setInspectLauncher(l)}
-                      className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-emerald-400 transition bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800"
-                    >
-                      <Package className="w-3.5 h-3.5 text-purple-400" />
-                      <span>{l._count.mods} mods</span>
-                      {l._count.customAssets > 0 && (
-                        <span className="text-[10px] text-amber-400 font-mono">
-                          +{l._count.customAssets} jars
-                        </span>
-                      )}
-                    </button>
+                    {(() => {
+                      const modCount = l._count?.mods ?? l.mods?.length ?? 0;
+                      const assetCount = l._count?.customAssets ?? l.customAssets?.length ?? 0;
+                      return (
+                        <button
+                          onClick={() => setInspectLauncher(l)}
+                          className="flex items-center gap-1.5 text-xs text-slate-300 hover:text-emerald-400 transition bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 cursor-pointer"
+                        >
+                          <Package className="w-3.5 h-3.5 text-purple-400" />
+                          <span>{modCount} mods</span>
+                          {assetCount > 0 && (
+                            <span className="text-[10px] text-amber-400 font-mono">
+                              +{assetCount} jars
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })()}
                   </td>
 
                   {/* Activity */}
@@ -429,7 +435,7 @@ export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersPr
                   Mods de {inspectLauncher.name}
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  MC {inspectLauncher.mcVersion} • {inspectLauncher.loader} • {inspectLauncher.mods.length} mods instalados
+                  MC {inspectLauncher.mcVersion} • {inspectLauncher.loader} • {inspectLauncher.mods?.length || 0} mods instalados
                 </p>
               </div>
               <button
@@ -441,7 +447,7 @@ export function AdminTabLaunchers({ launchers, loading, onRefresh }: LaunchersPr
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-              {inspectLauncher.mods.length > 0 ? (
+              {inspectLauncher.mods && inspectLauncher.mods.length > 0 ? (
                 inspectLauncher.mods.map((m: any) => (
                   <div
                     key={m.id}
