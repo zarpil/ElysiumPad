@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { sendVerificationEmail } from '@/lib/resend';
+import { getPublicOrigin } from '@/lib/origin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const origin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin || 'https://elysiumpad.com';
+    const origin = getPublicOrigin(req);
     const verificationUrl = `${origin}/api/auth/verify-email?token=${verificationToken}`;
 
     sendVerificationEmail({

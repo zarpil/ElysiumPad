@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getClientIp, checkRateLimit, RateLimitPolicies } from '@/lib/rate-limit';
+import { getPublicOrigin } from '@/lib/origin';
 
 function getJwtSecret(): string {
   return process.env.JWT_SECRET || 'elysiumpad-super-secret-key-change-in-prod-12345';
@@ -121,6 +122,7 @@ export async function middleware(req: NextRequest) {
   // =========================================================================
   // 2. CONTROL DE ACCESO Y AUTENTICACIÓN (RBAC)
   // =========================================================================
+  const origin = getPublicOrigin(req);
   const AUTH_COOKIE_NAME = 'elysium_token';
   const token = req.cookies.get(AUTH_COOKIE_NAME)?.value;
   const user = token ? await verifyJwt(token, getJwtSecret()) : null;
@@ -136,7 +138,7 @@ export async function middleware(req: NextRequest) {
           { status: 401 }
         );
       }
-      const loginUrl = new URL('/login', req.url);
+      const loginUrl = new URL('/login', origin);
       loginUrl.searchParams.set('redirect', pathname);
       const res = NextResponse.redirect(loginUrl);
       if (token && !isAuthenticated) {
@@ -152,7 +154,7 @@ export async function middleware(req: NextRequest) {
           { status: 403 }
         );
       }
-      return NextResponse.redirect(new URL('/dashboard', req.url));
+      return NextResponse.redirect(new URL('/dashboard', origin));
     }
   }
 
@@ -169,7 +171,7 @@ export async function middleware(req: NextRequest) {
           { status: 401 }
         );
       }
-      const loginUrl = new URL('/login', req.url);
+      const loginUrl = new URL('/login', origin);
       loginUrl.searchParams.set('redirect', pathname);
       const res = NextResponse.redirect(loginUrl);
       if (token && !isAuthenticated) {
@@ -182,7 +184,7 @@ export async function middleware(req: NextRequest) {
   // Si el usuario ya está autenticado, redirigir fuera de /login y /register
   if ((pathname === '/login' || pathname === '/register') && isAuthenticated) {
     const redirectTarget = isAdmin ? '/admin' : '/dashboard';
-    return NextResponse.redirect(new URL(redirectTarget, req.url));
+    return NextResponse.redirect(new URL(redirectTarget, origin));
   }
 
   return NextResponse.next();

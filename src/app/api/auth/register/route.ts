@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { signToken, AUTH_COOKIE_NAME } from '@/lib/auth';
 import crypto from 'crypto';
 import { sendWelcomeEmail, sendVerificationEmail } from '@/lib/resend';
+import { getPublicOrigin } from '@/lib/origin';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -94,7 +95,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const origin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin || 'https://elysiumpad.com';
+    const origin = getPublicOrigin(req);
 
     // Si requiere verificación de correo electrónico
     if (!emailVerified && verificationToken) {

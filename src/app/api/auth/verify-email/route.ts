@@ -3,13 +3,17 @@ import { prisma } from '@/lib/prisma';
 import { signToken, AUTH_COOKIE_NAME } from '@/lib/auth';
 import { sendWelcomeEmail } from '@/lib/resend';
 
+import { getPublicOrigin } from '@/lib/origin';
+
 export async function GET(req: NextRequest) {
+  const origin = getPublicOrigin(req);
+
   try {
     const { searchParams } = new URL(req.url);
     const token = searchParams.get('token');
 
     if (!token || typeof token !== 'string') {
-      return NextResponse.redirect(new URL('/login?error=token_missing', req.url));
+      return NextResponse.redirect(new URL('/login?error=token_missing', origin));
     }
 
     const user = await prisma.user.findFirst({
@@ -22,7 +26,7 @@ export async function GET(req: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.redirect(new URL('/login?error=token_invalid_or_expired', req.url));
+      return NextResponse.redirect(new URL('/login?error=token_invalid_or_expired', origin));
     }
 
     // Activar usuario
@@ -57,8 +61,9 @@ export async function GET(req: NextRequest) {
       plan: updatedUser.plan,
     });
 
-    const isHttps = req.headers.get('x-forwarded-proto') === 'https' || req.nextUrl.protocol === 'https:';
-    const redirectUrl = new URL(updatedUser.role === 'ADMIN' ? '/admin?verified=true' : '/dashboard?verified=true', req.url);
+    const isHttps = req.headers.get('x-forwarded-proto') === 'https' || req.nextUrl.protocol === 'https:' || origin.startsWith('https:');
+    const targetPath = updatedUser.role === 'ADMIN' ? '/admin?verified=true' : '/dashboard?verified=true';
+    const redirectUrl = new URL(targetPath, origin);
     const response = NextResponse.redirect(redirectUrl);
 
     response.cookies.set({
@@ -74,6 +79,6 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (error: any) {
     console.error('Error verifying email:', error);
-    return NextResponse.redirect(new URL('/login?error=server_error', req.url));
+    return NextResponse.redirect(new URL('/login?error=server_error', origin));
   }
 }

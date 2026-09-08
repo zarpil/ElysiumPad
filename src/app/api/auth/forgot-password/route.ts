@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { sendPasswordResetEmail } from '@/lib/resend';
+import { getPublicOrigin } from '@/lib/origin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const origin = req.nextUrl.origin;
+    const origin = getPublicOrigin(req);
     const resetUrl = `${origin}/reset-password?token=${token}`;
 
     // Enviar correo con Resend en segundo plano
