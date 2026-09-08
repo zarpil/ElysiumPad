@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Readable, PassThrough } from 'stream';
 import { ZipArchive } from 'archiver';
+import fs from 'fs/promises';
+import path from 'path';
+import { getPublicOrigin } from '@/lib/origin';
 
 export async function GET(
   req: NextRequest,
@@ -40,7 +43,7 @@ export async function GET(
       },
     });
 
-    const origin = req.nextUrl.origin;
+    const origin = getPublicOrigin(req);
     const manifestUrl = `${origin}/api/v1/launchers/${launcher.slug}/manifest`;
 
     // Configuración empaquetada para el software del launcher
@@ -142,6 +145,21 @@ Bienvenido al paquete oficial de conexión para **${launcher.name}**.
 
     if (os === 'windows') {
       archive.append(batScript, { name: `JUGAR-${launcher.slug}.bat` });
+
+      // Si el administrador ha subido un binario .exe al canal de actualizaciones, empaquetarlo directamente en el ZIP
+      const updatesDir = path.join(process.cwd(), 'public', 'updates');
+      try {
+        const updateFiles = await fs.readdir(updatesDir);
+        const exeName = updateFiles.find((f) => f.toLowerCase().endsWith('.exe'));
+        if (exeName) {
+          const exePath = path.join(updatesDir, exeName);
+          const exeBuffer = await fs.readFile(exePath);
+          const safeLauncherName = (launcher.name || 'ElysiumPad').replace(/[^a-zA-Z0-9_-]/g, '_');
+          archive.append(exeBuffer, { name: `${safeLauncherName}-Launcher.exe` });
+        }
+      } catch {
+        // Canal de updates sin binario aún
+      }
     } else {
       archive.append(shScript, { name: `jugar-${launcher.slug}.sh`, mode: 0o755 });
     }

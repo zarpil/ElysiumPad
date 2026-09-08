@@ -11,6 +11,7 @@ import {
   ShieldAlert,
   BarChart3,
   Tag,
+  Cpu,
 } from 'lucide-react';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminTabAnalytics } from '@/components/admin/AdminTabAnalytics';
@@ -19,10 +20,11 @@ import { AdminTabLaunchers } from '@/components/admin/AdminTabLaunchers';
 import { AdminTabCoupons } from '@/components/admin/AdminTabCoupons';
 import { AdminTabAudit } from '@/components/admin/AdminTabAudit';
 import { AdminTabSettings } from '@/components/admin/AdminTabSettings';
+import { AdminTabUpdates } from '@/components/admin/AdminTabUpdates';
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'launchers' | 'coupons' | 'audit' | 'settings'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'launchers' | 'updates' | 'coupons' | 'audit' | 'settings'>('analytics');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [launchers, setLaunchers] = useState<any[]>([]);
@@ -89,6 +91,12 @@ export default function AdminDashboard() {
       label: 'Auditoría de Launchers',
       icon: Layers,
       badge: launchers ? `${launchers.length}` : undefined,
+    },
+    {
+      id: 'updates',
+      label: 'Versiones .EXE',
+      icon: Cpu,
+      badge: undefined,
     },
     {
       id: 'coupons',
@@ -175,6 +183,10 @@ export default function AdminDashboard() {
             loading={loading}
             onRefresh={fetchAllAdminData}
           />
+        )}
+
+        {activeTab === 'updates' && (
+          <AdminTabUpdates />
         )}
 
         {activeTab === 'coupons' && (
