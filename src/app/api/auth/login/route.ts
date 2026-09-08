@@ -41,6 +41,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Comprobar verificación de email
+    if (user.emailVerified === false) {
+      return NextResponse.json(
+        {
+          success: false,
+          unverified: true,
+          email: user.email,
+          error: 'Debes verificar tu correo electrónico antes de acceder al panel. Por favor revisa tu bandeja de entrada o solicita un nuevo enlace de activación.',
+        },
+        { status: 403 }
+      );
+    }
+
     const token = signToken({
       userId: user.id,
       email: user.email,

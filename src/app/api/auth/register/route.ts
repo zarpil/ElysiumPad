@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { signToken, AUTH_COOKIE_NAME } from '@/lib/auth';
-import { sendWelcomeEmail } from '@/lib/resend';
+import crypto from 'crypto';
+import { sendWelcomeEmail, sendVerificationEmail } from '@/lib/resend';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -60,7 +61,13 @@ export async function POST(req: NextRequest) {
 
     // El primer usuario registrado en una BD vacía se convierte en ADMIN, todos los demás en USER
     const userCount = await prisma.user.count();
-    const role = userCount === 0 ? 'ADMIN' : 'USER';
+    const isFirstUser = userCount === 0;
+    const role = isFirstUser ? 'ADMIN' : 'USER';
+
+    // El primer admin se marca como verificado automáticamente; las demás cuentas nuevas requieren verificación
+    const emailVerified = isFirstUser;
+    const verificationToken = isFirstUser ? null : crypto.randomBytes(32).toString('hex');
+    const verificationExpires = isFirstUser ? null : new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
 
     const passwordHash = await bcrypt.hash(password, 10);
     const cleanName = (name ? String(name).trim() : cleanEmail.split('@')[0]).slice(0, 50);
@@ -72,6 +79,9 @@ export async function POST(req: NextRequest) {
         passwordHash,
         role,
         plan: 'FREE',
+        emailVerified,
+        emailVerificationToken: verificationToken,
+        emailVerificationExpires: verificationExpires,
       },
     });
 
@@ -79,12 +89,33 @@ export async function POST(req: NextRequest) {
     await prisma.auditLog.create({
       data: {
         action: 'USER_REGISTERED',
-        details: `Nuevo usuario registrado: ${user.email} (${user.id})`,
+        details: `Nuevo usuario registrado: ${user.email} (${user.id}) - Requiere verificación: ${!emailVerified}`,
         userId: user.id,
       },
     });
 
-    // Enviar correo transaccional de bienvenida con Resend (en segundo plano)
+    const origin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin || 'https://elysiumpad.com';
+
+    // Si requiere verificación de correo electrónico
+    if (!emailVerified && verificationToken) {
+      const verificationUrl = `${origin}/api/auth/verify-email?token=${verificationToken}`;
+      sendVerificationEmail({
+        to: user.email,
+        name: user.name || undefined,
+        verificationUrl,
+      }).catch((err) => {
+        console.error('[Resend Verification Error]', err);
+      });
+
+      return NextResponse.json({
+        success: true,
+        requireVerification: true,
+        email: user.email,
+        message: '¡Cuenta creada! Te hemos enviado un correo de verificación. Por favor revisa tu bandeja de entrada para activar tu cuenta.',
+      });
+    }
+
+    // Para el primer Admin inicial verificado automáticamente
     sendWelcomeEmail({ to: user.email, name: user.name || undefined }).catch((err) => {
       console.error('[Resend Welcome Error]', err);
     });
@@ -98,6 +129,7 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
+      requireVerification: false,
       user: {
         id: user.id,
         email: user.email,

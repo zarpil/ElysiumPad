@@ -252,3 +252,61 @@ export async function sendPasswordResetEmail({
   });
 }
 
+/**
+ * Plantilla de Verificación de Correo Electrónico
+ */
+export async function sendVerificationEmail({
+  to,
+  name,
+  verificationUrl,
+}: {
+  to: string;
+  name?: string;
+  verificationUrl: string;
+}): Promise<SendEmailResult> {
+  const displayName = name || 'Gamer';
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f17; color: #e2e8f0; margin: 0; padding: 24px; }
+    .container { max-width: 580px; margin: 0 auto; background-color: #111622; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .badge { display: inline-block; background-color: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; margin-bottom: 16px; }
+    h1 { color: #ffffff; font-size: 24px; font-weight: 800; margin-top: 0; }
+    p { font-size: 14px; line-height: 1.6; color: #94a3b8; }
+    .btn { display: inline-block; background-color: #10b981; color: #022c22; font-weight: bold; font-size: 14px; text-decoration: none; padding: 14px 28px; border-radius: 10px; margin: 20px 0; letter-spacing: 0.3px; }
+    .note { font-size: 12px; color: #64748b; background-color: #0b0f17; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; margin-top: 20px; }
+    .footer { font-size: 12px; color: #64748b; margin-top: 32px; border-top: 1px solid #1e293b; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">🛡️ Verificación de Cuenta</div>
+    <h1>Confirma tu correo electrónico</h1>
+    <p>¡Hola, <strong>${displayName}</strong>! Gracias por registrarte en <strong>ElysiumPad</strong>.</p>
+    <p>Para proteger tu cuenta y activar el acceso al panel de creación de launchers, por favor confirma que esta es tu dirección de correo electrónico pulsando el botón a continuación:</p>
+    <div style="text-align: center;">
+      <a href="${verificationUrl}" class="btn">Verificar Mi Correo</a>
+    </div>
+    <div class="note">
+      <p style="margin: 0;">Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:<br><a href="${verificationUrl}" style="color: #10b981; word-break: break-all;">${verificationUrl}</a></p>
+      <p style="margin: 8px 0 0 0; font-size: 11px; color: #475569;">Este enlace expira en 24 horas. Si no has creado esta cuenta, puedes ignorar este mensaje.</p>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} ElysiumPad • El gestor de launchers de Minecraft para servidores.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  return sendEmail({
+    to,
+    subject: '🛡️ Verifica tu correo electrónico en ElysiumPad',
+    html,
+    text: `¡Hola ${displayName}! Confirma tu correo para activar tu cuenta de ElysiumPad accediendo al siguiente enlace: ${verificationUrl}`,
+  });
+}
