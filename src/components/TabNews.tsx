@@ -20,6 +20,8 @@ import {
   Loader2,
   CheckCircle2,
   Power,
+  Upload,
+  X,
 } from 'lucide-react';
 
 interface NewsItem {
@@ -58,6 +60,11 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Delete modal state
+  const [newsToDelete, setNewsToDelete] = useState<NewsItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   // Form states for creating a new post
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
@@ -66,6 +73,43 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
   const [newBtnText, setNewBtnText] = useState('Ver Más');
   const [newImage, setNewImage] = useState('');
   const [newPinned, setNewPinned] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Por favor selecciona una imagen válida (PNG, JPG, WEBP)');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'news');
+      formData.append('slug', launcher.slug);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Error al subir la imagen');
+      }
+
+      setNewImage(data.url);
+    } catch (err: any) {
+      setError(err.message || 'Error al subir imagen');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }
 
   // Simulator index
   const [previewIndex, setPreviewIndex] = useState(0);
@@ -78,7 +122,9 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
 
   async function fetchNews() {
     try {
-      const res = await fetch(`/api/launchers/${launcher.slug}/news`);
+      const res = await fetch(`/api/launchers/${launcher.slug}/news?_t=${Date.now()}`, {
+        cache: 'no-store',
+      });
       const data = await res.json();
       if (data.success && data.news) {
         setNewsList(data.news);
@@ -166,18 +212,39 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm('¿Estás seguro de eliminar este comunicado?')) return;
+  async function handleConfirmDelete() {
+    if (!newsToDelete) return;
+    const targetId = newsToDelete.id;
+    setIsDeleting(true);
+    setDeleteError(null);
+
     try {
-      await fetch(`/api/launchers/${launcher.slug}/news?newsId=${id}`, {
+      const res = await fetch(`/api/launchers/${launcher.slug}/news?newsId=${encodeURIComponent(targetId)}`, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: targetId }),
       });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Error al eliminar el comunicado');
+      }
+
+      // Actualización inmediata optimista
+      setNewsList((prev) => prev.filter((n) => n.id !== targetId));
+      setNewsToDelete(null);
+
+      // Re-sincronizar y avisar al dashboard
       await fetchNews();
       onUpdated();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Error al eliminar comunicado:', err);
+      setDeleteError(err.message || 'Error de conexión al eliminar');
+    } finally {
+      setIsDeleting(false);
     }
   }
+
 
   // Active news for launcher simulator
   const activeNews = newsList.filter((n) => n.isActive);
@@ -363,34 +430,110 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
             </div>
           </div>
 
-          {/* Banner Image URL & Pin */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
-            <div className="sm:col-span-2 space-y-1.5">
+          {/* Banner Image URL, File Uploader, Size Recommendation & Pin */}
+          <div className="space-y-3 p-4 rounded-xl bg-[#0a0e17] border border-[#1b2333]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5 text-slate-400" /> Imagen de Cabecera (Opcional - URL PNG/JPG/WEBP)
+                <ImageIcon className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Imagen de Cabecera del Comunicado (Opcional)</span>
               </label>
-              <input
-                type="url"
-                value={newImage}
-                onChange={(e) => setNewImage(e.target.value)}
-                placeholder="https://images.unsplash.com/... o enlace directo a imagen"
-                className="w-full px-3.5 py-2.5 bg-[#0e131d] border border-[#1b2333] rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
-              />
+
+              {/* Badge de recomendación de tamaño para el launcher */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/25 text-[11px] font-semibold text-emerald-400 shadow-sm">
+                <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
+                <span>Recomendado para Launcher: <strong>640 × 360 px</strong> (Relación 16:9)</span>
+              </div>
             </div>
 
-            <div className="pt-5 flex items-center gap-2">
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              La proporción <strong>16:9</strong> asegura que la imagen no sufra recortes forzados y se vea perfectamente nítida tanto en el carrusel principal como en el panel lateral de novedades del launcher.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center pt-1">
+              <div className="md:col-span-8">
+                <input
+                  type="url"
+                  value={newImage}
+                  onChange={(e) => setNewImage(e.target.value)}
+                  placeholder="https://images.unsplash.com/... o pega una URL directa"
+                  className="w-full px-3.5 py-2.5 bg-[#0e131d] border border-[#1b2333] rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+                />
+              </div>
+
+              <div className="md:col-span-4 flex items-center gap-2">
+                <label className="flex-1 flex items-center justify-center gap-2 px-3.5 py-2.5 bg-[#141b29] hover:bg-[#1a2438] border border-[#223049] hover:border-emerald-500/40 rounded-xl text-xs font-bold text-slate-200 hover:text-white transition cursor-pointer">
+                  {isUploadingImage ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                      <span>Subiendo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Subir Foto</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="hidden"
+                    disabled={isUploadingImage}
+                    onChange={handleImageUpload}
+                  />
+                </label>
+
+                {newImage && (
+                  <button
+                    type="button"
+                    onClick={() => setNewImage('')}
+                    title="Quitar imagen"
+                    className="p-2.5 bg-slate-900 border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 rounded-xl transition cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Live Image Preview Thumbnail */}
+            {newImage && (
+              <div className="p-2.5 rounded-xl bg-[#070a10] border border-[#1a2334] flex items-center gap-3">
+                <div className="w-24 h-14 rounded-lg overflow-hidden relative border border-white/10 bg-black/60 shrink-0">
+                  <img
+                    src={newImage}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+                <div className="text-left space-y-0.5 overflow-hidden">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-emerald-400 font-mono">16:9 ENCUADRE LAUNCHER</span>
+                    <span className="text-[10px] text-slate-500 truncate max-w-[200px] font-mono">{newImage}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    Así se encuadrará en el launcher. El contenido se adapta de forma centrada (`object-cover`).
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2 flex items-center gap-2 border-t border-[#141c2a]">
               <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={newPinned}
                   onChange={(e) => setNewPinned(e.target.checked)}
-                  className="rounded bg-[#0e131d] border-[#1b2333] text-emerald-500 focus:ring-emerald-500"
+                  className="rounded bg-[#0e131d] border-[#1b2333] text-emerald-500 focus:ring-emerald-500 cursor-pointer"
                 />
                 <Pin className="w-3.5 h-3.5 text-amber-400" />
-                <span>Fijar como destacado</span>
+                <span>Fijar como comunicado destacado al inicio</span>
               </label>
             </div>
           </div>
+
 
           <div className="pt-2 flex justify-end gap-3">
             <button
@@ -445,11 +588,19 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
             <div className="space-y-3">
               {newsList.map((item) => {
                 const tagConfig = TAG_CONFIG[item.tag] || TAG_CONFIG.NOVEDAD;
+                const isSelectedInPreview = currentPreviewNews?.id === item.id;
+
                 return (
                   <div
                     key={item.id}
-                    className={`p-4 rounded-xl border transition ${
-                      item.isActive
+                    onClick={() => {
+                      const idx = activeNews.findIndex((n) => n.id === item.id);
+                      if (idx !== -1) setPreviewIndex(idx);
+                    }}
+                    className={`p-4 rounded-xl border transition cursor-pointer ${
+                      isSelectedInPreview
+                        ? 'bg-[#141d2c] border-emerald-500/60 ring-1 ring-emerald-500/25 shadow-lg shadow-emerald-950/20'
+                        : item.isActive
                         ? 'bg-[#121824] border-[#1e2739] hover:border-[#28354f]'
                         : 'bg-[#0f1420]/60 border-[#182030] opacity-60'
                     }`}
@@ -472,14 +623,20 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
                           <Calendar className="w-2.5 h-2.5" />
                           {new Date(item.createdAt).toLocaleDateString()}
                         </span>
+
+                        {isSelectedInPreview && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                            <Eye className="w-2.5 h-2.5" /> En Simulador
+                          </span>
+                        )}
                       </div>
 
                       {/* Action buttons: Toggle active, Toggle pin, Delete */}
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleTogglePin(item.id, item.isPinned)}
                           title={item.isPinned ? 'Desfijar' : 'Fijar al inicio'}
-                          className={`p-1.5 rounded-lg border text-xs transition ${
+                          className={`p-1.5 rounded-lg border text-xs transition cursor-pointer ${
                             item.isPinned
                               ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
                               : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
@@ -491,7 +648,7 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
                         <button
                           onClick={() => handleToggleActive(item.id, item.isActive)}
                           title={item.isActive ? 'Desactivar del launcher' : 'Activar en el launcher'}
-                          className={`p-1.5 rounded-lg border text-xs transition ${
+                          className={`p-1.5 rounded-lg border text-xs transition cursor-pointer ${
                             item.isActive
                               ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
                               : 'bg-slate-900 border-slate-800 text-slate-500 hover:text-slate-300'
@@ -501,18 +658,38 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
                         </button>
 
                         <button
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => {
+                            setDeleteError(null);
+                            setNewsToDelete(item);
+                          }}
                           title="Eliminar comunicado"
-                          className="p-1.5 rounded-lg border bg-slate-900 border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/30 transition"
+                          className="p-1.5 rounded-lg border bg-slate-900 border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/30 transition cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
 
-                    <div className="mt-2 text-left">
-                      <h5 className="text-xs font-bold text-white">{item.title}</h5>
-                      <p className="text-[11px] text-slate-300 mt-1 line-clamp-2 leading-relaxed">
+                    {/* Foto de Cabecera en la Tarjeta del Panel */}
+                    {item.imageUrl && (
+                      <div className="mt-3 w-full h-36 sm:h-40 rounded-xl overflow-hidden relative border border-[#1e2739] bg-black/50 shadow-inner group">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                        <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/75 border border-white/10 text-[9px] font-mono text-slate-300 backdrop-blur-sm">
+                          16:9
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-2.5 text-left">
+                      <h5 className="text-xs font-bold text-white leading-snug">{item.title}</h5>
+                      <p className="text-[11px] text-slate-300 mt-1 line-clamp-3 leading-relaxed">
                         {item.content}
                       </p>
                     </div>
@@ -524,6 +701,7 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="text-emerald-400 hover:underline flex items-center gap-1 font-mono truncate max-w-[200px]"
                         >
                           <span>{item.link}</span>
@@ -534,6 +712,7 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
                   </div>
                 );
               })}
+
             </div>
           )}
         </div>
@@ -608,7 +787,7 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
               {currentPreviewNews ? (
                 <div className="bg-[#121927] border border-[#223049] rounded-xl overflow-hidden shadow-lg transition-all animate-fadeIn">
                   {currentPreviewNews.imageUrl && (
-                    <div className="w-full h-24 overflow-hidden relative border-b border-[#1a2538]">
+                    <div className="w-full aspect-video max-h-40 overflow-hidden relative border-b border-[#1a2538] bg-black/40">
                       <img
                         src={currentPreviewNews.imageUrl}
                         alt=""
@@ -617,8 +796,11 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
                           (e.target as HTMLElement).style.display = 'none';
                         }}
                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#121927] via-transparent to-transparent opacity-70 pointer-events-none" />
                     </div>
+
                   )}
+
 
                   <div className="p-3.5 space-y-2.5 text-left">
                     <div className="flex items-center justify-between">
@@ -705,6 +887,77 @@ export function TabNews({ launcher, isFree, onUpdated, onUpgradeOpen }: TabNewsP
           </div>
         </div>
       </div>
+
+      {/* Modal de Confirmación para Eliminar Comunicado */}
+
+      {newsToDelete && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#101520] border border-[#1e2739] rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl shadow-black/80 relative">
+            {/* Header con icono de alerta */}
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-white">¿Eliminar este comunicado?</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Estás a punto de eliminar permanentemente:
+                  <span className="text-white font-semibold block mt-1.5 p-2 bg-[#0c1018] rounded-lg border border-[#1a2232] text-[11px] truncate">
+                    «{newsToDelete.title}»
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Esta acción no se puede deshacer. El comunicado desaparecerá de inmediato del panel web y del launcher de todos tus jugadores.
+            </p>
+
+            {deleteError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>{deleteError}</span>
+              </div>
+            )}
+
+            {/* Acciones */}
+            <div className="flex items-center justify-end gap-3 pt-2 border-t border-[#1a2232]">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isDeleting) {
+                    setNewsToDelete(null);
+                    setDeleteError(null);
+                  }
+                }}
+                disabled={isDeleting}
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 rounded-xl transition cursor-pointer disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white rounded-xl transition flex items-center gap-2 shadow-lg shadow-rose-950/40 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Eliminando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>Sí, eliminar comunicado</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

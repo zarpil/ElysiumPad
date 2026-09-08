@@ -36,15 +36,29 @@ export default function DashboardPage() {
   // Formulario nuevo servidor
   const [newName, setNewName] = useState('');
   const [newSlug, setNewSlug] = useState('');
-  const [newMcVersion, setNewMcVersion] = useState('1.20.1');
+  const [newMcVersion, setNewMcVersion] = useState('26.2');
   const [newLoader, setNewLoader] = useState('FABRIC');
   const [newServerIp, setNewServerIp] = useState('');
+  const [availableVersions, setAvailableVersions] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const isPremium = userPlan === 'PRO' || userPlan === 'LIFETIME' || currentUser?.role === 'ADMIN';
 
   async function loadData() {
     try {
+      // Cargar versiones oficiales de Minecraft en paralelo
+      fetch('/api/minecraft/versions')
+        .then((r) => r.json())
+        .then((vData) => {
+          if (vData.success && Array.isArray(vData.releases)) {
+            setAvailableVersions(vData.releases);
+            if (vData.latest?.release) {
+              setNewMcVersion(vData.latest.release);
+            }
+          }
+        })
+        .catch(() => {});
+
       const [launchersRes, settingsRes] = await Promise.all([
         fetch('/api/launchers'),
         fetch('/api/settings/public'),
@@ -532,14 +546,26 @@ export default function DashboardPage() {
                   <select
                     value={newMcVersion}
                     onChange={(e) => setNewMcVersion(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono text-sm"
                   >
-                    <option className="bg-[#111622] text-slate-100" value="1.20.1">1.20.1 (Recomendada)</option>
-                    <option className="bg-[#111622] text-slate-100" value="1.20.4">1.20.4</option>
-                    <option className="bg-[#111622] text-slate-100" value="1.21">1.21</option>
-                    <option className="bg-[#111622] text-slate-100" value="1.21.1">1.21.1</option>
-                    <option className="bg-[#111622] text-slate-100" value="1.19.2">1.19.2</option>
-                    <option className="bg-[#111622] text-slate-100" value="1.16.5">1.16.5</option>
+                    {availableVersions.length > 0 ? (
+                      availableVersions.slice(0, 50).map((v, i) => (
+                        <option key={v} className="bg-[#111622] text-slate-100" value={v}>
+                          {v} {i === 0 ? '★ (Última versión oficial)' : v === '1.20.1' ? '(Recomendada mods)' : ''}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option className="bg-[#111622] text-slate-100" value="26.2">26.2 ★ (Última versión oficial)</option>
+                        <option className="bg-[#111622] text-slate-100" value="26.1">26.1</option>
+                        <option className="bg-[#111622] text-slate-100" value="1.21.4">1.21.4</option>
+                        <option className="bg-[#111622] text-slate-100" value="1.21.1">1.21.1</option>
+                        <option className="bg-[#111622] text-slate-100" value="1.20.4">1.20.4</option>
+                        <option className="bg-[#111622] text-slate-100" value="1.20.1">1.20.1 (Recomendada)</option>
+                        <option className="bg-[#111622] text-slate-100" value="1.19.2">1.19.2</option>
+                        <option className="bg-[#111622] text-slate-100" value="1.16.5">1.16.5</option>
+                      </>
+                    )}
                   </select>
                 </div>
 

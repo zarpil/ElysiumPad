@@ -16,6 +16,9 @@ import {
   Mail,
   Send,
   Loader2,
+  Upload,
+  Image as ImageIcon,
+  X,
 } from 'lucide-react';
 
 interface SettingsProps {
@@ -27,11 +30,47 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
   const [settings, setSettings] = useState<any>(initialSettings || {});
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isUploadingAd, setIsUploadingAd] = useState(false);
 
   // Test email Resend state
   const [testEmail, setTestEmail] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  async function handleAdBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona una imagen válida (PNG, JPG, WEBP)');
+      return;
+    }
+
+    setIsUploadingAd(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'adbanner');
+      formData.append('slug', 'global');
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Error al subir banner publicitario');
+      }
+
+      setSettings((prev: any) => ({ ...prev, adBannerImg: data.url }));
+    } catch (err: any) {
+      alert(err.message || 'Error al subir imagen');
+    } finally {
+      setIsUploadingAd(false);
+    }
+  }
+
 
   async function handleSendTestEmail() {
     if (!testEmail || !testEmail.includes('@')) {
@@ -341,20 +380,69 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
             </p>
           </div>
 
-          <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-semibold text-slate-300">
-              Imagen Gráfica del Banner (Opcional - URL directa PNG/JPG/WEBP)
-            </label>
-            <input
-              type="url"
-              value={settings.adBannerImg || ''}
-              onChange={(e) => setSettings({ ...settings, adBannerImg: e.target.value })}
-              placeholder="https://i.imgur.com/tu-banner-728x90.png"
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
-            />
-            <p className="text-[10px] text-slate-500">
-              Si se especifica, mostrará la imagen publicitaria con enlace. Si se deja en blanco, usará el formato nativo limpio de ElysiumPad.
+          <div className="space-y-3 md:col-span-2 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                <span>Imagen Gráfica del Banner Publicitario (Opcional)</span>
+              </label>
+
+              {/* Badge de recomendación de tamaño para el Launcher */}
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/25 text-[11px] font-semibold text-amber-400 shadow-sm">
+                <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                <span>Recomendado para Launcher: <strong>728 × 90 px</strong> (Leaderboard) u <strong>800 × 100 px</strong> (Relación ~8:1)</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Esta proporción panorámica horizontal encaja con precisión en el dock inferior del launcher sin distorsionarse ni pixelarse. Se recomienda formato <strong>PNG o WebP</strong> con fondo transparente o colores oscuros.
             </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center pt-1">
+              <div className="md:col-span-8">
+                <input
+                  type="url"
+                  value={settings.adBannerImg || ''}
+                  onChange={(e) => setSettings({ ...settings, adBannerImg: e.target.value })}
+                  placeholder="https://i.imgur.com/tu-banner-728x90.png o pega una URL directa"
+                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+                />
+              </div>
+
+              <div className="md:col-span-4 flex items-center gap-2">
+                <label className="flex-1 flex items-center justify-center gap-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/40 rounded-xl text-xs font-bold text-slate-200 hover:text-white transition cursor-pointer">
+                  {isUploadingAd ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                      <span>Subiendo...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Subir Banner</span>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="hidden"
+                    disabled={isUploadingAd}
+                    onChange={handleAdBannerUpload}
+                  />
+                </label>
+
+                {settings.adBannerImg && (
+                  <button
+                    type="button"
+                    onClick={() => setSettings({ ...settings, adBannerImg: '' })}
+                    title="Quitar imagen"
+                    className="p-2.5 bg-slate-900 border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 rounded-xl transition cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -365,29 +453,33 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
               Vista previa en vivo del anuncio (Plan FREE):
             </p>
             <span className="text-[10px] text-emerald-400 font-medium">
-              {settings.adsEnabled !== false ? '● Activo en Panel y Descargas' : '○ Publicidad Desactivada'}
+              {settings.adsEnabled !== false ? '● Activo en Launcher y Panel' : '○ Publicidad Desactivada'}
             </span>
           </div>
 
           <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
             <div className="bg-[#0f1420] border border-[#1d273a] rounded-xl overflow-hidden">
               <div className="h-6 px-3 bg-[#0a0e17] border-b border-[#182030] flex items-center justify-between text-[10px] text-slate-500 font-medium">
-                <span className="uppercase tracking-wider">Publicidad</span>
+                <span className="uppercase tracking-wider font-mono text-[9px]">Dock Launcher & Panel</span>
                 <span className="text-emerald-400 flex items-center gap-1 font-semibold">
                   <Sparkles className="w-3 h-3" />
-                  <span>Eliminar anuncios con PRO</span>
+                  <span>Sin publicidad en Plan PRO</span>
                 </span>
               </div>
 
               {settings.adBannerImg ? (
-                <div className="block group relative overflow-hidden">
+                <div className="block group relative overflow-hidden bg-black/40 p-2 flex items-center justify-center min-h-[64px]">
                   <img
                     src={settings.adBannerImg}
                     alt="Anuncio patrocinado"
-                    className="w-full h-24 sm:h-28 object-cover"
+                    className="h-14 sm:h-16 w-auto max-w-full object-contain mx-auto transition-transform duration-300 group-hover:scale-[1.01]"
                   />
+                  <span className="absolute bottom-2 right-2 text-[9px] font-mono text-amber-400/80 bg-black/80 px-1.5 py-0.5 rounded border border-amber-500/20 backdrop-blur-sm">
+                    728×90 / 800×100
+                  </span>
                 </div>
               ) : (
+
                 <div className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-[#182236] border border-[#243350] flex items-center justify-center text-emerald-400 flex-shrink-0">

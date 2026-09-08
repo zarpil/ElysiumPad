@@ -116,6 +116,9 @@ export function TabOptions({
   const [pingResult, setPingResult] = useState<{ online: boolean; pingMs?: number | null } | null>(null);
 
   const [allowOffline, setAllowOffline] = useState(launcher.allowOffline ?? true);
+  const [mcVersion, setMcVersion] = useState(launcher.mcVersion || '26.2');
+  const [loader, setLoader] = useState(launcher.loader || 'FABRIC');
+  const [availableVersions, setAvailableVersions] = useState<string[]>([]);
   const [ram, setRam] = useState(launcher.recommendedRamGb || 4);
   const [jvmArgs, setJvmArgs] = useState(launcher.jvmArgs || JVM_PROFILES[0].flags);
   const [jvmProfile, setJvmProfile] = useState(() => {
@@ -128,7 +131,18 @@ export function TabOptions({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const recommendedJava = getRecommendedJava(launcher.mcVersion);
+  const recommendedJava = getRecommendedJava(mcVersion);
+
+  useEffect(() => {
+    fetch('/api/minecraft/versions')
+      .then((r) => r.json())
+      .then((vData) => {
+        if (vData.success && Array.isArray(vData.releases)) {
+          setAvailableVersions(vData.releases);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Parsear dirección unificada automáticamente
   function handleAddressChange(value: string) {
@@ -200,6 +214,8 @@ export function TabOptions({
         body: JSON.stringify({
           name,
           slug: isPremium && slug ? slug.trim() : undefined,
+          mcVersion,
+          loader,
           serverIp: serverIp.trim(),
           serverPort: Number(serverPort) || 25565,
           allowOffline,
@@ -342,6 +358,78 @@ export function TabOptions({
                 Enlace público de descarga: <span className="text-emerald-400 font-mono font-bold">/d/{slug}</span>
               </p>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Tarjeta: Versión de Minecraft & Motor (Mod Loader) */}
+      <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2">
+            <Play className="w-4 h-4 text-amber-400" />
+            <h4 className="text-sm font-bold text-white">Versión de Minecraft & Mod Loader</h4>
+          </div>
+          <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full flex items-center gap-1.5 w-fit">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Sincronizado con Mojang en vivo
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+          <div>
+            <label className="block font-semibold text-slate-300 mb-1.5">
+              Versión del Juego (Catálogo Oficial Completo)
+            </label>
+            <select
+              value={mcVersion}
+              onChange={(e) => setMcVersion(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:border-amber-500 font-mono text-xs cursor-pointer"
+            >
+              {availableVersions.length > 0 ? (
+                availableVersions.slice(0, 60).map((v, idx) => (
+                  <option key={v} className="bg-[#111622] text-slate-100" value={v}>
+                    {v} {idx === 0 ? '★ (Última versión oficial)' : v === '1.20.1' ? '(Recomendada para mods)' : ''}
+                  </option>
+                ))
+              ) : (
+                <>
+                  <option className="bg-[#111622] text-slate-100" value="26.2">26.2 ★ (Última oficial)</option>
+                  <option className="bg-[#111622] text-slate-100" value="26.1">26.1</option>
+                  <option className="bg-[#111622] text-slate-100" value="1.21.4">1.21.4</option>
+                  <option className="bg-[#111622] text-slate-100" value="1.21.1">1.21.1</option>
+                  <option className="bg-[#111622] text-slate-100" value="1.20.4">1.20.4</option>
+                  <option className="bg-[#111622] text-slate-100" value="1.20.1">1.20.1 (Recomendada)</option>
+                  <option className="bg-[#111622] text-slate-100" value="1.19.2">1.19.2</option>
+                  <option className="bg-[#111622] text-slate-100" value="1.16.5">1.16.5</option>
+                </>
+              )}
+            </select>
+            <div className="mt-2 p-2 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] flex items-center justify-between">
+              <span className="text-slate-400">Entorno Java Automático:</span>
+              <span className="text-amber-300 font-bold font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                {recommendedJava.version} ({recommendedJava.note})
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-300 mb-1.5">
+              Cargador de Mods (Mod Loader)
+            </label>
+            <select
+              value={loader}
+              onChange={(e) => setLoader(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-white focus:outline-none focus:border-amber-500 font-mono text-xs cursor-pointer"
+            >
+              <option className="bg-[#111622] text-slate-100" value="FABRIC">Fabric (Rápido, shaders y rendimiento)</option>
+              <option className="bg-[#111622] text-slate-100" value="FORGE">Forge (Ecosistema tradicional de mods)</option>
+              <option className="bg-[#111622] text-slate-100" value="NEOFORGE">NeoForge (Minecraft 1.20.2+)</option>
+              <option className="bg-[#111622] text-slate-100" value="QUILT">Quilt (Modular y compatible)</option>
+              <option className="bg-[#111622] text-slate-100" value="VANILLA">Vanilla (Sin mods / Servidor puro)</option>
+            </select>
+            <p className="text-[11px] text-slate-400 mt-2">
+              El launcher de tus jugadores detectará el motor elegido y descargará las librerías oficiales automáticamente sin que tengan que instalar nada manual.
+            </p>
           </div>
         </div>
       </div>

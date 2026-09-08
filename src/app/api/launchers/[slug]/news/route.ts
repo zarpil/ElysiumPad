@@ -169,8 +169,22 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Acceso denegado' }, { status: 403 });
     }
 
-    const { searchParams } = new URL(req.url);
-    const newsId = searchParams.get('newsId');
+    // Buscar ID en query params (soporta newsId e id) o en el cuerpo JSON
+    let newsId = req.nextUrl?.searchParams?.get('newsId') || req.nextUrl?.searchParams?.get('id');
+    
+    if (!newsId) {
+      try {
+        const { searchParams } = new URL(req.url);
+        newsId = searchParams.get('newsId') || searchParams.get('id');
+      } catch {}
+    }
+
+    if (!newsId) {
+      try {
+        const body = await req.json();
+        newsId = body?.id || body?.newsId;
+      } catch {}
+    }
 
     if (!newsId) {
       return NextResponse.json({ success: false, error: 'ID de noticia requerido' }, { status: 400 });
@@ -181,15 +195,23 @@ export async function DELETE(
     });
 
     if (!existingNews) {
-      return NextResponse.json({ success: false, error: 'Noticia no encontrada' }, { status: 404 });
+      // Fallback si es admin
+      const fallbackNews = await prisma.launcherNews.findUnique({
+        where: { id: newsId },
+      });
+      if (!fallbackNews || (fallbackNews.launcherId !== launcher.id && user.role !== 'ADMIN')) {
+        return NextResponse.json({ success: false, error: 'Noticia no encontrada' }, { status: 404 });
+      }
     }
 
     await prisma.launcherNews.delete({
       where: { id: newsId },
     });
 
-    return NextResponse.json({ success: true, message: 'Noticia eliminada' });
+    return NextResponse.json({ success: true, message: 'Noticia eliminada correctamente' });
   } catch (error: any) {
+    console.error('Error al eliminar noticia:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+

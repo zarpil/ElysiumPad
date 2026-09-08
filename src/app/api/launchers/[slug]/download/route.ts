@@ -137,6 +137,7 @@ Bienvenido al paquete oficial de conexión para **${launcher.name}**.
 
     // Añadir archivos al ZIP
     archive.append(JSON.stringify(bootstrapConfig, null, 2), { name: 'launcher-config.json' });
+    archive.append(JSON.stringify({ slug: launcher.slug, apiUrl: origin }, null, 2), { name: 'server.json' });
     archive.append(readmeText, { name: 'LEEME-INSTRUCCIONES.txt' });
 
     if (os === 'windows') {
