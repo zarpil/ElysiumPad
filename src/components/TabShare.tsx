@@ -256,10 +256,10 @@ export function TabShare({ launcher, isFree, onUpdated, onUpgradeOpen }: TabShar
 
             <button
               onClick={() => onUpgradeOpen && onUpgradeOpen()}
-              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs transition shadow-lg shadow-amber-500/20 inline-flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-semibold rounded-lg text-xs transition inline-flex items-center gap-2 cursor-pointer shadow-sm"
             >
-              <Sparkles className="w-4 h-4" />
-              <span>Mejorar a Plan PRO — $4.99 / mes</span>
+              <Crown className="w-3.5 h-3.5" />
+              <span>Mejorar a Plan PRO ($4.99/mes)</span>
             </button>
           </div>
         ) : (

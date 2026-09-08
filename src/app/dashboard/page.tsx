@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Copy, Loader2, Megaphone, X, Crown, Lock, Sparkles } from 'lucide-react';
+import { Check, Copy, Loader2, Megaphone, X, Lock } from 'lucide-react';
 import { AternosSidebar, ActiveTab } from '@/components/AternosSidebar';
 import { TabOptions } from '@/components/TabOptions';
 import { TabMods } from '@/components/TabMods';
@@ -46,7 +46,6 @@ export default function DashboardPage() {
 
   async function loadData() {
     try {
-      // Cargar versiones oficiales de Minecraft en paralelo
       fetch('/api/minecraft/versions')
         .then((r) => r.json())
         .then((vData) => {
@@ -100,22 +99,24 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  const currentLauncher = launchers.find((l) => l.slug === selectedSlug);
+  const currentLauncher = launchers.find((l) => l.slug === selectedSlug) || launchers[0];
 
   useEffect(() => {
-    if (!currentLauncher?.serverIp) {
+    if (currentLauncher?.serverIp) {
+      fetch(`/api/ping?host=${encodeURIComponent(currentLauncher.serverIp)}&port=${currentLauncher.serverPort || 25565}`)
+        .then((r) => r.json())
+        .then((d) => {
+          setServerStatus({ online: d.online, pingMs: d.pingMs });
+        })
+        .catch(() => {
+          setServerStatus({ online: false, pingMs: null });
+        });
+    } else {
       setServerStatus(null);
-      return;
     }
-    fetch(`/api/ping?host=${encodeURIComponent(currentLauncher.serverIp)}&port=${currentLauncher.serverPort || 25565}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setServerStatus({ online: d.online, pingMs: d.pingMs });
-      })
-      .catch(() => setServerStatus({ online: false, pingMs: null }));
   }, [currentLauncher?.serverIp, currentLauncher?.serverPort]);
 
-  async function handleCreateLauncher(e: React.FormEvent) {
+  async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setCreating(true);
     setCreateError(null);
@@ -126,22 +127,23 @@ export default function DashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: newName,
-          slug: newSlug,
+          slug: isPremium ? newSlug : undefined,
           mcVersion: newMcVersion,
           loader: newLoader,
-          serverIp: newServerIp.trim() || undefined,
+          serverIp: newServerIp,
         }),
       });
-
       const data = await res.json();
-      if (!data.success) throw new Error(data.error || 'Error al crear');
+      if (!data.success) {
+        throw new Error(data.error || 'Error al crear el servidor');
+      }
 
+      await loadData();
+      setSelectedSlug(data.launcher.slug);
       setIsCreateOpen(false);
       setNewName('');
       setNewSlug('');
       setNewServerIp('');
-      await loadData();
-      setSelectedSlug(data.launcher.slug);
     } catch (err: any) {
       setCreateError(err.message);
     } finally {
@@ -149,54 +151,40 @@ export default function DashboardPage() {
     }
   }
 
-  async function handleDeleteMod(modId: string) {
+  function copyShareLink() {
     if (!currentLauncher) return;
-    try {
-      await fetch(`/api/launchers/${currentLauncher.slug}/mods?modId=${modId}`, { method: 'DELETE' });
-      loadData();
-    } catch (err) {
-      console.error(err);
-    }
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const link = `${origin}/d/${currentLauncher.slug}`;
+    copyToClipboard(link);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   }
 
-  async function handleDeleteCustomAsset(assetId: string) {
-    if (!currentLauncher) return;
-    try {
-      await fetch(`/api/launchers/${currentLauncher.slug}/custom-assets?assetId=${assetId}`, {
-        method: 'DELETE',
-      });
-      loadData();
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  async function copyShareLink() {
-    if (!currentLauncher) return;
-    const url = `${window.location.origin}/d/${currentLauncher.slug}`;
-    const success = await copyToClipboard(url);
-    if (success) {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    }
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400 gap-3 text-xs">
+        <Loader2 className="w-4 h-4 animate-spin text-zinc-300" />
+        <span>Cargando tus servidores...</span>
+      </div>
+    );
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#0b0f17] text-slate-100 overflow-hidden font-sans antialiased">
+    <div className="h-screen bg-[#09090b] text-zinc-200 flex overflow-hidden font-sans">
+      {/* Sidebar de navegación */}
       <AternosSidebar
         launchers={launchers}
         selectedSlug={selectedSlug}
         activeTab={activeTab}
         currentUser={currentUser}
         userPlan={userPlan}
-        onSelectLauncher={(l) => setSelectedSlug(l.slug)}
-        onTabChange={setActiveTab}
+        onSelectLauncher={(l) => {
+          setSelectedSlug(l.slug);
+          setActiveTab('server');
+        }}
+        onTabChange={(t) => setActiveTab(t)}
         onCreateOpen={() => {
-          if (!isPremium) {
-            setNewSlug(`srv-${Math.random().toString(36).substring(2, 8)}`);
-          } else {
-            setNewSlug('');
-          }
+          setCreateError(null);
           setIsCreateOpen(true);
         }}
         onLogout={async () => {
@@ -206,58 +194,56 @@ export default function DashboardPage() {
         onUpgradeOpen={() => setIsUpgradeOpen(true)}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#0d121d]">
-        {/* Global Announcement Banner from SuperAdmin */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#09090b]">
+        {/* Banner de comunicado global */}
         {globalBanner && !bannerDismissed && (
           <div
-            className={`w-full px-6 py-2.5 flex items-center justify-between text-xs font-semibold border-b transition-all ${
+            className={`w-full px-6 py-2 flex items-center justify-between text-xs font-medium border-b ${
               globalBanner.type === 'CRITICAL'
-                ? 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+                ? 'bg-rose-950/30 border-rose-900/50 text-rose-300'
                 : globalBanner.type === 'WARNING'
-                ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
-                : globalBanner.type === 'PROMO'
-                ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-                : 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300'
+                ? 'bg-amber-950/30 border-amber-900/50 text-amber-300'
+                : 'bg-zinc-900 border-zinc-800 text-zinc-300'
             }`}
           >
-            <div className="flex items-center gap-2.5 mx-auto">
-              <Megaphone className="w-4 h-4 flex-shrink-0 animate-bounce" />
+            <div className="flex items-center gap-2 mx-auto">
+              <Megaphone className="w-3.5 h-3.5 text-zinc-400" />
               <span>{globalBanner.text}</span>
             </div>
             <button
               onClick={() => setBannerDismissed(true)}
-              className="p-1 hover:bg-white/10 rounded-lg transition"
-              title="Cerrar anuncio"
+              className="p-1 text-zinc-400 hover:text-zinc-200 rounded transition"
+              title="Cerrar"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
         {currentLauncher ? (
           <div className="p-8 max-w-5xl w-full mx-auto space-y-6">
-            {/* Header del Servidor */}
-            <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+            {/* Cabecera del Servidor */}
+            <div className="bg-[#121215] border border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl font-black text-white">{currentLauncher.name}</h1>
-                  <span className="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-bold">
+                <div className="flex items-center gap-2.5">
+                  <h1 className="text-xl font-bold text-zinc-100">{currentLauncher.name}</h1>
+                  <span className="text-xs bg-zinc-800 text-zinc-300 border border-zinc-700/60 px-2 py-0.5 rounded font-mono">
                     {currentLauncher.loader} {currentLauncher.mcVersion}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3 mt-2 text-xs font-mono text-slate-400">
+                <div className="flex items-center gap-3 mt-1.5 text-xs font-mono text-zinc-400">
                   <span className="flex items-center gap-1.5">
                     <span
-                      className={`w-2.5 h-2.5 rounded-full ${
-                        serverStatus?.online ? 'bg-emerald-400 shadow-sm shadow-emerald-400/50' : 'bg-rose-500'
+                      className={`w-2 h-2 rounded-full ${
+                        serverStatus?.online ? 'bg-emerald-500' : 'bg-zinc-600'
                       }`}
                     />
-                    {currentLauncher.serverIp ? currentLauncher.serverIp : 'Sin IP configurada'}
+                    {currentLauncher.serverIp ? currentLauncher.serverIp : 'Sin IP asignada'}
                   </span>
 
                   {serverStatus && (
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-zinc-500">
                       • {serverStatus.online ? `Online (${serverStatus.pingMs}ms)` : 'Offline'}
                     </span>
                   )}
@@ -266,14 +252,14 @@ export default function DashboardPage() {
 
               <button
                 onClick={copyShareLink}
-                className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-extrabold transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
-                {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                <span>{copiedLink ? '¡Link Copiado!' : 'Copiar Link para Amigos'}</span>
+                {copiedLink ? <Check className="w-3.5 h-3.5 text-zinc-950" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedLink ? 'Enlace copiado' : 'Compartir con jugadores'}</span>
               </button>
             </div>
 
-            {/* Ad Banner para usuarios del Plan FREE (estilo Aternos) */}
+            {/* Publicidad para Plan FREE */}
             {userPlan === 'FREE' && (adSettings?.adsEnabled ?? true) && (
               <AdBanner
                 onUpgrade={() => setIsUpgradeOpen(true)}
@@ -285,72 +271,73 @@ export default function DashboardPage() {
             {activeTab === 'server' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-[#141a29] border border-slate-800 p-5 rounded-2xl">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                  <div className="bg-[#121215] border border-zinc-800 p-5 rounded-xl">
+                    <span className="text-xs font-medium text-zinc-400 block">
                       Versión de Minecraft
                     </span>
-                    <p className="text-2xl font-black text-white mt-1">{currentLauncher.mcVersion}</p>
-                    <span className="text-[11px] text-emerald-400 mt-1 block font-medium">
+                    <p className="text-xl font-bold text-zinc-100 mt-1">{currentLauncher.mcVersion}</p>
+                    <span className="text-[11px] text-zinc-400 mt-1 block">
                       Loader: {currentLauncher.loader}
                     </span>
                   </div>
 
-                  <div className="bg-[#141a29] border border-slate-800 p-5 rounded-2xl">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                      Mods Instalados
+                  <div className="bg-[#121215] border border-zinc-800 p-5 rounded-xl">
+                    <span className="text-xs font-medium text-zinc-400 block">
+                      Mods instalados
                     </span>
-                    <p className="text-2xl font-black text-white mt-1">{currentLauncher.mods.length}</p>
+                    <p className="text-xl font-bold text-zinc-100 mt-1">{currentLauncher.mods.length}</p>
                     <button
                       onClick={() => setActiveTab('mods')}
-                      className="text-[11px] text-indigo-400 hover:underline mt-1 block font-medium"
+                      className="text-[11px] text-zinc-300 hover:text-white hover:underline mt-1 block font-medium cursor-pointer"
                     >
-                      Administrar mods →
+                      Gestionar mods →
                     </button>
                   </div>
 
-                  <div className="bg-[#141a29] border border-slate-800 p-5 rounded-2xl">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                      Acceso de Cuentas
+                  <div className="bg-[#121215] border border-zinc-800 p-5 rounded-xl">
+                    <span className="text-xs font-medium text-zinc-400 block">
+                      Tipo de acceso
                     </span>
-                    <p className="text-lg font-bold text-white mt-1">
-                      {currentLauncher.allowOffline ? 'Premium & No-Premium' : 'Solo Oficiales'}
+                    <p className="text-base font-semibold text-zinc-100 mt-1">
+                      {currentLauncher.allowOffline ? 'Premium & Offline' : 'Solo Oficiales'}
                     </p>
-                    <span className="text-[11px] text-slate-500 mt-1 block">
-                      RAM recom.: {currentLauncher.recommendedRamGb} GB
+                    <span className="text-[11px] text-zinc-400 mt-1 block">
+                      RAM recomendada: {currentLauncher.recommendedRamGb} GB
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-[#141a29] border border-slate-800 rounded-2xl p-6 space-y-4">
-                  <h3 className="text-base font-bold text-white">¿Cómo funciona para tus amigos?</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300">
-                    <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-xl space-y-1.5">
-                      <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 font-bold flex items-center justify-center mb-2">
+                {/* Guía simple */}
+                <div className="bg-[#121215] border border-zinc-800 rounded-xl p-6 space-y-4">
+                  <h3 className="text-sm font-semibold text-zinc-200">Flujo de conexión para tus jugadores</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-zinc-300">
+                    <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-lg space-y-1.5">
+                      <span className="w-5 h-5 rounded-md bg-zinc-800 text-zinc-300 font-semibold text-[11px] flex items-center justify-center mb-2">
                         1
                       </span>
-                      <p className="font-bold text-white">Configura tus mods</p>
-                      <p className="text-slate-400 leading-relaxed">
-                        Busca mods en la pestaña Mods. Se añaden con 1 clic directo desde Modrinth.
+                      <p className="font-semibold text-zinc-100">Configura tus mods</p>
+                      <p className="text-zinc-400 leading-relaxed">
+                        Añade mods compatibles desde la pestaña Mods en un clic con Modrinth.
                       </p>
                     </div>
 
-                    <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-xl space-y-1.5">
-                      <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 font-bold flex items-center justify-center mb-2">
+                    <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-lg space-y-1.5">
+                      <span className="w-5 h-5 rounded-md bg-zinc-800 text-zinc-300 font-semibold text-[11px] flex items-center justify-center mb-2">
                         2
                       </span>
-                      <p className="font-bold text-white">Pasa el link a tus amigos</p>
-                      <p className="text-slate-400 leading-relaxed">
-                        Comparte la página de descarga. Ellos solo descargan el ejecutable listo para jugar.
+                      <p className="font-semibold text-zinc-100">Comparte el enlace</p>
+                      <p className="text-zinc-400 leading-relaxed">
+                        Tus jugadores descargan el launcher preconfigurado para tu servidor.
                       </p>
                     </div>
 
-                    <div className="p-4 bg-slate-950/40 border border-slate-800/80 rounded-xl space-y-1.5">
-                      <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-400 font-bold flex items-center justify-center mb-2">
+                    <div className="p-4 bg-zinc-900/40 border border-zinc-800 rounded-lg space-y-1.5">
+                      <span className="w-5 h-5 rounded-md bg-zinc-800 text-zinc-300 font-semibold text-[11px] flex items-center justify-center mb-2">
                         3
                       </span>
-                      <p className="font-bold text-white">Sincronización automática</p>
-                      <p className="text-slate-400 leading-relaxed">
-                        Si agregas un mod mañana en la web, el launcher de tus amigos se actualiza solo.
+                      <p className="font-semibold text-zinc-100">Sincronización en vivo</p>
+                      <p className="text-zinc-400 leading-relaxed">
+                        Si cambias un mod en el panel, el launcher de los jugadores se actualiza solo.
                       </p>
                     </div>
                   </div>
@@ -363,10 +350,8 @@ export default function DashboardPage() {
               <TabOptions
                 launcher={currentLauncher}
                 userPlan={userPlan}
-                onUpdated={(newSlug?: string) => {
-                  if (newSlug && newSlug !== selectedSlug) {
-                    setSelectedSlug(newSlug);
-                  }
+                onUpdated={(newSlug) => {
+                  if (newSlug) setSelectedSlug(newSlug);
                   loadData();
                 }}
                 onDeleted={() => {
@@ -385,9 +370,15 @@ export default function DashboardPage() {
                 launcherSlug={currentLauncher.slug}
                 isFree={userPlan === 'FREE'}
                 onOpenSearch={() => setIsModSearchOpen(true)}
-                onDeleteMod={handleDeleteMod}
-                onDeleteCustomAsset={handleDeleteCustomAsset}
-                onAssetAdded={loadData}
+                onDeleteMod={async (id) => {
+                  await fetch(`/api/launchers/${currentLauncher.slug}/mods?modId=${id}`, { method: 'DELETE' });
+                  loadData();
+                }}
+                onDeleteCustomAsset={async (id) => {
+                  await fetch(`/api/launchers/${currentLauncher.slug}/custom-assets?id=${id}`, { method: 'DELETE' });
+                  loadData();
+                }}
+                onAssetAdded={() => loadData()}
                 onUpgradeOpen={() => setIsUpgradeOpen(true)}
               />
             )}
@@ -398,18 +389,18 @@ export default function DashboardPage() {
                 launcherSlug={currentLauncher.slug}
                 isFree={userPlan === 'FREE'}
                 assets={currentLauncher.customAssets || []}
-                onAssetChanged={loadData}
+                onAssetChanged={() => loadData()}
                 onUpgradeOpen={() => setIsUpgradeOpen(true)}
                 onGoToMods={() => setActiveTab('mods')}
               />
             )}
 
-            {/* PESTAÑA: NOTICIAS & ANUNCIOS (PRO) */}
+            {/* PESTAÑA: NOTICIAS */}
             {activeTab === 'news' && (
               <TabNews
                 launcher={currentLauncher}
                 isFree={userPlan === 'FREE'}
-                onUpdated={loadData}
+                onUpdated={() => loadData()}
                 onUpgradeOpen={() => setIsUpgradeOpen(true)}
               />
             )}
@@ -419,82 +410,56 @@ export default function DashboardPage() {
               <TabShare
                 launcher={currentLauncher}
                 isFree={userPlan === 'FREE'}
-                onUpdated={loadData}
+                onUpdated={() => loadData()}
                 onUpgradeOpen={() => setIsUpgradeOpen(true)}
               />
             )}
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-            {loading ? (
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
-            ) : (
-              <div className="max-w-md space-y-4">
-                <h2 className="text-xl font-bold text-white">¡No tienes servidores todavía!</h2>
-                <p className="text-xs text-slate-400">
-                  Crea tu primer servidor de Minecraft para empezar a armar tu launcher.
-                </p>
-                <button
-                  onClick={() => setIsCreateOpen(true)}
-                  className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-5 py-2.5 rounded-xl font-bold text-xs transition"
-                >
-                  Crear Mi Primer Servidor
-                </button>
-              </div>
-            )}
+            <h2 className="text-lg font-bold text-zinc-100">No tienes ningún servidor creado</h2>
+            <p className="text-xs text-zinc-400 mt-1 max-w-sm">
+              Crea tu primer servidor para generar el launcher oficial para tu comunidad.
+            </p>
+            <button
+              onClick={() => setIsCreateOpen(true)}
+              className="mt-4 px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-semibold rounded-lg text-xs transition"
+            >
+              Crear Servidor
+            </button>
           </div>
         )}
       </main>
 
-      {/* Modal Crear */}
+      {/* Modal Crear Servidor */}
       {isCreateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#141a29] border border-slate-800 rounded-3xl w-full max-w-md p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-base text-white">Crear Nuevo Servidor</h3>
-              <button onClick={() => setIsCreateOpen(false)} className="text-slate-400 hover:text-white">
-                ✕
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#121215] border border-zinc-800 rounded-xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-zinc-100">Crear Nuevo Servidor</h3>
+              <button
+                onClick={() => setIsCreateOpen(false)}
+                className="text-zinc-400 hover:text-zinc-200"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateLauncher} className="space-y-4 text-xs">
+            <form onSubmit={handleCreate} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">Nombre del Servidor</label>
+                <label className="block font-medium text-zinc-300 mb-1">Nombre del Servidor</label>
                 <input
                   type="text"
                   required
-                  placeholder="Ej: Survival Amigos T4"
+                  placeholder="Ej: Survival Privado"
                   value={newName}
-                  onChange={(e) => {
-                    setNewName(e.target.value);
-                    if (isPremium && !newSlug) {
-                      setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-'));
-                    }
-                  }}
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500"
+                  onChange={(e) => setNewName(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block font-semibold text-slate-300">
-                    Slug URL (Página de Descarga)
-                  </label>
-                  {!isPremium && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsCreateOpen(false);
-                        setIsUpgradeOpen(true);
-                      }}
-                      className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition"
-                    >
-                      <Crown className="w-3 h-3 text-amber-400" />
-                      PRO Exclusivo
-                    </button>
-                  )}
-                </div>
-
+                <label className="block font-medium text-zinc-300 mb-1">Identificador URL (Slug)</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -507,96 +472,91 @@ export default function DashboardPage() {
                         setNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'));
                       }
                     }}
-                    className={`w-full px-3.5 py-2.5 bg-slate-950 border rounded-xl text-white focus:outline-none font-mono ${
+                    className={`w-full px-3 py-2 bg-zinc-900 border rounded-lg text-zinc-100 focus:outline-none font-mono ${
                       !isPremium
-                        ? 'border-slate-800 text-slate-400 cursor-not-allowed bg-slate-950/80 pr-10'
-                        : 'border-slate-700 focus:border-emerald-500'
+                        ? 'border-zinc-800 text-zinc-500 cursor-not-allowed pr-10'
+                        : 'border-zinc-800 focus:border-zinc-500'
                     }`}
                   />
                   {!isPremium && (
-                    <Lock className="w-4 h-4 text-amber-400/80 absolute right-3 top-3 pointer-events-none" />
+                    <Lock className="w-3.5 h-3.5 text-zinc-500 absolute right-3 top-2.5 pointer-events-none" />
                   )}
                 </div>
 
                 {!isPremium ? (
-                  <p className="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
-                    <span>En el plan Free se asigna un enlace aleatorio.</span>
+                  <p className="text-[11px] text-zinc-400 mt-1 flex items-center justify-between">
+                    <span>En el plan Free se asigna un enlace automático.</span>
                     <button
                       type="button"
                       onClick={() => {
                         setIsCreateOpen(false);
                         setIsUpgradeOpen(true);
                       }}
-                      className="text-amber-400 hover:underline font-semibold flex items-center gap-1"
+                      className="text-zinc-300 hover:text-white underline font-medium cursor-pointer"
                     >
-                      <Sparkles className="w-3 h-3" />
                       Personalizar con PRO
                     </button>
                   </p>
                 ) : (
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Enlace público: <span className="text-emerald-400 font-mono">/d/{newSlug || 'tu-slug'}</span>
+                  <p className="text-[11px] text-zinc-400 mt-1">
+                    Enlace: <span className="text-zinc-300 font-mono">/d/{newSlug || 'tu-slug'}</span>
                   </p>
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Versión de Minecraft</label>
+                  <label className="block font-medium text-zinc-300 mb-1">Versión de Minecraft</label>
                   <select
                     value={newMcVersion}
                     onChange={(e) => setNewMcVersion(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 font-mono text-sm"
+                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 focus:outline-none focus:border-zinc-500 font-mono text-xs"
                   >
                     {availableVersions.length > 0 ? (
                       availableVersions.slice(0, 50).map((v, i) => (
-                        <option key={v} className="bg-[#111622] text-slate-100" value={v}>
-                          {v} {i === 0 ? '★ (Última versión oficial)' : v === '1.20.1' ? '(Recomendada mods)' : ''}
+                        <option key={v} value={v}>
+                          {v} {i === 0 ? '(Última)' : v === '1.20.1' ? '(Recomendada)' : ''}
                         </option>
                       ))
                     ) : (
                       <>
-                        <option className="bg-[#111622] text-slate-100" value="26.2">26.2 ★ (Última versión oficial)</option>
-                        <option className="bg-[#111622] text-slate-100" value="26.1">26.1</option>
-                        <option className="bg-[#111622] text-slate-100" value="1.21.4">1.21.4</option>
-                        <option className="bg-[#111622] text-slate-100" value="1.21.1">1.21.1</option>
-                        <option className="bg-[#111622] text-slate-100" value="1.20.4">1.20.4</option>
-                        <option className="bg-[#111622] text-slate-100" value="1.20.1">1.20.1 (Recomendada)</option>
-                        <option className="bg-[#111622] text-slate-100" value="1.19.2">1.19.2</option>
-                        <option className="bg-[#111622] text-slate-100" value="1.16.5">1.16.5</option>
+                        <option value="26.2">26.2 (Última)</option>
+                        <option value="1.21.4">1.21.4</option>
+                        <option value="1.20.1">1.20.1 (Recomendada)</option>
+                        <option value="1.16.5">1.16.5</option>
                       </>
                     )}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-slate-300 mb-1">Mod Loader</label>
+                  <label className="block font-medium text-zinc-300 mb-1">Mod Loader</label>
                   <select
                     value={newLoader}
                     onChange={(e) => setNewLoader(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 focus:outline-none focus:border-zinc-500 text-xs"
                   >
-                    <option className="bg-[#111622] text-slate-100" value="FABRIC">Fabric (Rápido)</option>
-                    <option className="bg-[#111622] text-slate-100" value="FORGE">Forge</option>
-                    <option className="bg-[#111622] text-slate-100" value="NEOFORGE">NeoForge</option>
-                    <option className="bg-[#111622] text-slate-100" value="QUILT">Quilt</option>
+                    <option value="FABRIC">Fabric</option>
+                    <option value="FORGE">Forge</option>
+                    <option value="NEOFORGE">NeoForge</option>
+                    <option value="QUILT">Quilt</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">IP del Servidor (Opcional)</label>
+                <label className="block font-medium text-zinc-300 mb-1">IP del Servidor (Opcional)</label>
                 <input
                   type="text"
-                  placeholder="mc.amigos.es"
+                  placeholder="mc.tudominio.com"
                   value={newServerIp}
                   onChange={(e) => setNewServerIp(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 focus:outline-none focus:border-zinc-500"
                 />
               </div>
 
               {createError && (
-                <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl">
+                <div className="p-2.5 bg-rose-950/30 border border-rose-900/50 text-rose-300 text-xs rounded-lg">
                   {createError}
                 </div>
               )}
@@ -605,16 +565,16 @@ export default function DashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsCreateOpen(false)}
-                  className="px-4 py-2 text-slate-400 hover:text-white"
+                  className="px-3.5 py-1.5 text-zinc-400 hover:text-zinc-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl font-bold transition"
+                  className="px-4 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 rounded-lg font-semibold transition disabled:opacity-50"
                 >
-                  {creating ? 'Creando...' : 'Crear'}
+                  {creating ? 'Creando...' : 'Crear Servidor'}
                 </button>
               </div>
             </form>

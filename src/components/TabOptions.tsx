@@ -37,25 +37,25 @@ function getRecommendedJava(mcVersion: string) {
 const JVM_PROFILES = [
   {
     id: 'AIKAR',
-    name: "⚡ Aikar's Flags (FPS Boost)",
+    name: "Aikar's Flags (Optimización de memoria)",
     desc: 'Optimiza el recolector G1GC para eliminar micro-tirones y congelamientos de memoria.',
     flags: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1',
   },
   {
     id: 'STANDARD',
-    name: '🎮 Estándar / Balanceado',
+    name: 'Estándar / Balanceado',
     desc: 'Flags equilibradas estándar para cualquier ordenador.',
     flags: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200',
   },
   {
     id: 'HEAVY',
-    name: '🚀 Modpacks Pesados (100+ mods)',
+    name: 'Modpacks Pesados (100+ mods)',
     desc: 'Pre-asigna memoria física y compacta cadenas de texto para evitar saturar la RAM.',
     flags: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=150 -XX:+AlwaysPreTouch -XX:+UseStringDeduplication',
   },
   {
     id: 'CUSTOM',
-    name: '✏️ Flags Manuales',
+    name: 'Argumentos Manuales',
     desc: 'Introduce tus propios argumentos de máquina virtual Java.',
     flags: '',
   },

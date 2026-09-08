@@ -28,7 +28,7 @@ export async function sendEmail({
   const apiKey = process.env.RESEND_API_KEY;
 
   if (!apiKey) {
-    console.warn('[Resend] RESEND_API_KEY no está configurada. Correo omitido en desarrollo/demo.');
+    console.warn('[Resend] RESEND_API_KEY no configurada. Correo omitido en desarrollo.');
     return {
       success: true,
       skipped: true,
@@ -36,7 +36,6 @@ export async function sendEmail({
     };
   }
 
-  // Remitente por defecto: onboarding@resend.dev (cuenta de pruebas de Resend) o remitente personalizado
   const sender = from || process.env.RESEND_FROM_EMAIL || 'ElysiumPad <onboarding@resend.dev>';
   const recipients = Array.isArray(to) ? to : [to];
 
@@ -80,180 +79,115 @@ export async function sendEmail({
 }
 
 /**
- * Plantilla de Bienvenida a ElysiumPad
+ * Plantilla Base Limpia y Profesional (Estilo Vercel / Linear / Stripe)
  */
-export async function sendWelcomeEmail({
-  to,
-  name,
+function getEmailBaseHtml({
+  title,
+  content,
 }: {
-  to: string;
-  name?: string;
-}): Promise<SendEmailResult> {
-  const displayName = name || 'Gamer';
-
-  const html = `
+  title: string;
+  content: string;
+}) {
+  return `
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f17; color: #e2e8f0; margin: 0; padding: 24px; }
-    .container { max-width: 580px; margin: 0 auto; background-color: #111622; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .badge { display: inline-block; background-color: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; margin-bottom: 16px; }
-    h1 { color: #ffffff; font-size: 24px; font-weight: 800; margin-top: 0; }
-    p { font-size: 14px; line-height: 1.6; color: #94a3b8; }
-    .btn { display: inline-block; background-color: #10b981; color: #022c22; font-weight: bold; font-size: 14px; text-decoration: none; padding: 12px 24px; border-radius: 10px; margin: 20px 0; }
-    .footer { font-size: 12px; color: #64748b; margin-top: 32px; border-top: 1px solid #1e293b; padding-top: 16px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+      color: #18181b;
+      margin: 0;
+      padding: 32px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      overflow: hidden;
+      padding: 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .logo {
+      font-size: 15px;
+      font-weight: 700;
+      color: #18181b;
+      letter-spacing: -0.3px;
+      margin-bottom: 24px;
+      display: inline-block;
+    }
+    h1 {
+      color: #18181b;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #52525b;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .btn-container {
+      margin: 28px 0;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #18181b;
+      color: #ffffff !important;
+      font-weight: 600;
+      font-size: 13px;
+      text-decoration: none;
+      padding: 12px 22px;
+      border-radius: 8px;
+    }
+    .note {
+      font-size: 12px;
+      color: #71717a;
+      line-height: 1.5;
+      background-color: #f4f4f5;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 24px;
+    }
+    .link-alt {
+      color: #18181b;
+      word-break: break-all;
+      font-size: 12px;
+    }
+    .footer {
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid #f4f4f5;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="badge">⚔️ Bienvenido a ElysiumPad</div>
-    <h1>¡Hola, ${displayName}!</h1>
-    <p>Te damos la bienvenida a <strong>ElysiumPad</strong>, la plataforma para crear, sincronizar y compartir launchers personalizados de Minecraft para tu comunidad.</p>
-    <p>Tu cuenta ha sido creada exitosamente. Ya puedes acceder al panel de control para crear tu primer launcher, seleccionar la versión de Minecraft, agregar mods de Modrinth y conectar la IP de tu servidor.</p>
-    <div style="text-align: center;">
-      <a href="https://elysiumpad.com/dashboard" class="btn">Ir al Panel de Control</a>
-    </div>
+  <div class="wrapper">
+    <div class="logo">ElysiumPad</div>
+    ${content}
     <div class="footer">
-      <p>© ${new Date().getFullYear()} ElysiumPad • El creador de launchers de Minecraft para servidores.</p>
+      © ${new Date().getFullYear()} ElysiumPad. Plataforma de launchers de Minecraft.
     </div>
   </div>
 </body>
 </html>
   `;
-
-  return sendEmail({
-    to,
-    subject: '🎮 ¡Bienvenido a ElysiumPad! Crea tu primer launcher',
-    html,
-    text: `¡Hola ${displayName}! Bienvenido a ElysiumPad. Tu cuenta ya está lista para crear y compartir tus launchers de Minecraft. Accede a tu panel en https://elysiumpad.com/dashboard`,
-  });
 }
 
 /**
- * Plantilla de Notificación de Suscripción PRO o LIFETIME
- */
-export async function sendPlanUpgradedEmail({
-  to,
-  name,
-  plan,
-}: {
-  to: string;
-  name?: string;
-  plan: string;
-}): Promise<SendEmailResult> {
-  const displayName = name || 'Gamer';
-  const isLifetime = plan === 'LIFETIME';
-
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f17; color: #e2e8f0; margin: 0; padding: 24px; }
-    .container { max-width: 580px; margin: 0 auto; background-color: #111622; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .badge { display: inline-block; background-color: ${isLifetime ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${isLifetime ? '#f59e0b' : '#10b981'}; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; border: 1px solid ${isLifetime ? 'rgba(245, 158, 11, 0.3)' : 'rgba(16, 185, 129, 0.3)'}; text-transform: uppercase; margin-bottom: 16px; }
-    h1 { color: #ffffff; font-size: 24px; font-weight: 800; margin-top: 0; }
-    p { font-size: 14px; line-height: 1.6; color: #94a3b8; }
-    ul { font-size: 13px; color: #cbd5e1; line-height: 1.8; }
-    .btn { display: inline-block; background-color: ${isLifetime ? '#f59e0b' : '#10b981'}; color: #022c22; font-weight: bold; font-size: 14px; text-decoration: none; padding: 12px 24px; border-radius: 10px; margin: 20px 0; }
-    .footer { font-size: 12px; color: #64748b; margin-top: 32px; border-top: 1px solid #1e293b; padding-top: 16px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="badge">👑 Plan ${plan} Activado</div>
-    <h1>¡Gracias por apoyar a ElysiumPad, ${displayName}!</h1>
-    <p>Tu cuenta ha sido actualizada al <strong>Plan ${plan}</strong> con éxito.</p>
-    <p>A partir de ahora dispones de todas las ventajas premium sin limitaciones:</p>
-    <ul>
-      <li>✨ Launchers ilimitados para todas tus comunidades y eventos.</li>
-      <li>✨ Subida de archivos y configuraciones .jar personalizadas.</li>
-      <li>✨ Tablón de novedades y anuncios con imágenes dentro del launcher.</li>
-      <li>✨ 100% Marca Blanca sin marcas de agua ni publicidad.</li>
-    </ul>
-    <div style="text-align: center;">
-      <a href="https://elysiumpad.com/dashboard" class="btn">Gestionar Servidores</a>
-    </div>
-    <div class="footer">
-      <p>© ${new Date().getFullYear()} ElysiumPad • Soporte garantizado para tu comunidad.</p>
-    </div>
-  </div>
-</body>
-</html>
-  `;
-
-  return sendEmail({
-    to,
-    subject: `👑 ¡Tu plan ${plan} de ElysiumPad ya está activo!`,
-    html,
-    text: `¡Hola ${displayName}! Tu cuenta de ElysiumPad ha sido actualizada al Plan ${plan}. Disfruta de launchers ilimitados, subida de configs y marca blanca completa.`,
-  });
-}
-
-/**
- * Plantilla de Recuperación de Contraseña
- */
-export async function sendPasswordResetEmail({
-  to,
-  name,
-  resetUrl,
-}: {
-  to: string;
-  name?: string;
-  resetUrl: string;
-}): Promise<SendEmailResult> {
-  const displayName = name || 'Gamer';
-
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f17; color: #e2e8f0; margin: 0; padding: 24px; }
-    .container { max-width: 580px; margin: 0 auto; background-color: #111622; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .badge { display: inline-block; background-color: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; border: 1px solid rgba(239, 68, 68, 0.3); text-transform: uppercase; margin-bottom: 16px; }
-    h1 { color: #ffffff; font-size: 22px; font-weight: 800; margin-top: 0; }
-    p { font-size: 14px; line-height: 1.6; color: #94a3b8; }
-    .btn { display: inline-block; background-color: #10b981; color: #022c22; font-weight: bold; font-size: 14px; text-decoration: none; padding: 12px 24px; border-radius: 10px; margin: 20px 0; }
-    .note { font-size: 12px; color: #64748b; background-color: #0b0f17; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; margin-top: 20px; }
-    .footer { font-size: 12px; color: #64748b; margin-top: 32px; border-top: 1px solid #1e293b; padding-top: 16px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="badge">🔒 Seguridad de la Cuenta</div>
-    <h1>Restablecer tu Contraseña</h1>
-    <p>Hola <strong>${displayName}</strong>,</p>
-    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en <strong>ElysiumPad</strong>.</p>
-    <p>Haz clic en el siguiente botón para elegir una nueva contraseña:</p>
-    <div style="text-align: center;">
-      <a href="${resetUrl}" class="btn">Restablecer Mi Contraseña</a>
-    </div>
-    <div class="note">
-      <p style="margin: 0;">Este enlace es válido durante <strong>1 hora</strong>. Si tú no solicitaste este cambio, puedes ignorar este correo; tu contraseña actual continuará siendo segura.</p>
-    </div>
-    <div class="footer">
-      <p>© ${new Date().getFullYear()} ElysiumPad • Seguridad y Protección para tu Cuenta.</p>
-    </div>
-  </div>
-</body>
-</html>
-  `;
-
-  return sendEmail({
-    to,
-    subject: '🔐 Restablecer contraseña de ElysiumPad',
-    html,
-    text: `Hola ${displayName}. Para restablecer tu contraseña de ElysiumPad, accede al siguiente enlace (válido por 1 hora): ${resetUrl}`,
-  });
-}
-
-/**
- * Plantilla de Verificación de Correo Electrónico
+ * Verificación de Correo Electrónico
  */
 export async function sendVerificationEmail({
   to,
@@ -264,49 +198,127 @@ export async function sendVerificationEmail({
   name?: string;
   verificationUrl: string;
 }): Promise<SendEmailResult> {
-  const displayName = name || 'Gamer';
+  const greeting = name ? `Hola ${name},` : 'Hola,';
 
-  const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0b0f17; color: #e2e8f0; margin: 0; padding: 24px; }
-    .container { max-width: 580px; margin: 0 auto; background-color: #111622; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-    .badge { display: inline-block; background-color: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.3); text-transform: uppercase; margin-bottom: 16px; }
-    h1 { color: #ffffff; font-size: 24px; font-weight: 800; margin-top: 0; }
-    p { font-size: 14px; line-height: 1.6; color: #94a3b8; }
-    .btn { display: inline-block; background-color: #10b981; color: #022c22; font-weight: bold; font-size: 14px; text-decoration: none; padding: 14px 28px; border-radius: 10px; margin: 20px 0; letter-spacing: 0.3px; }
-    .note { font-size: 12px; color: #64748b; background-color: #0b0f17; border: 1px solid #1e293b; border-radius: 8px; padding: 12px; margin-top: 20px; }
-    .footer { font-size: 12px; color: #64748b; margin-top: 32px; border-top: 1px solid #1e293b; padding-top: 16px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="badge">🛡️ Verificación de Cuenta</div>
-    <h1>Confirma tu correo electrónico</h1>
-    <p>¡Hola, <strong>${displayName}</strong>! Gracias por registrarte en <strong>ElysiumPad</strong>.</p>
-    <p>Para proteger tu cuenta y activar el acceso al panel de creación de launchers, por favor confirma que esta es tu dirección de correo electrónico pulsando el botón a continuación:</p>
-    <div style="text-align: center;">
-      <a href="${verificationUrl}" class="btn">Verificar Mi Correo</a>
+  const content = `
+    <h1>Verifica tu dirección de correo electrónico</h1>
+    <p>${greeting}</p>
+    <p>Gracias por crear una cuenta en ElysiumPad. Para completar tu registro y acceder a la plataforma, confirma tu dirección de correo pulsando el botón a continuación:</p>
+    <div class="btn-container">
+      <a href="${verificationUrl}" class="btn">Verificar correo electrónico</a>
     </div>
     <div class="note">
-      <p style="margin: 0;">Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:<br><a href="${verificationUrl}" style="color: #10b981; word-break: break-all;">${verificationUrl}</a></p>
-      <p style="margin: 8px 0 0 0; font-size: 11px; color: #475569;">Este enlace expira en 24 horas. Si no has creado esta cuenta, puedes ignorar este mensaje.</p>
+      <p style="margin: 0 0 6px 0;">Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
+      <a href="${verificationUrl}" class="link-alt">${verificationUrl}</a>
+      <p style="margin: 8px 0 0 0; color: #a1a1aa; font-size: 11px;">Este enlace caducará en 24 horas. Si no solicitaste esta cuenta, puedes ignorar este mensaje.</p>
     </div>
-    <div class="footer">
-      <p>© ${new Date().getFullYear()} ElysiumPad • El gestor de launchers de Minecraft para servidores.</p>
-    </div>
-  </div>
-</body>
-</html>
   `;
 
   return sendEmail({
     to,
-    subject: '🛡️ Verifica tu correo electrónico en ElysiumPad',
-    html,
-    text: `¡Hola ${displayName}! Confirma tu correo para activar tu cuenta de ElysiumPad accediendo al siguiente enlace: ${verificationUrl}`,
+    subject: 'Verifica tu correo electrónico - ElysiumPad',
+    html: getEmailBaseHtml({ title: 'Verificación de Correo', content }),
+    text: `${greeting} Para verificar tu cuenta de ElysiumPad, accede al siguiente enlace: ${verificationUrl}`,
+  });
+}
+
+/**
+ * Bienvenida a ElysiumPad
+ */
+export async function sendWelcomeEmail({
+  to,
+  name,
+}: {
+  to: string;
+  name?: string;
+}): Promise<SendEmailResult> {
+  const greeting = name ? `Hola ${name},` : 'Hola,';
+
+  const content = `
+    <h1>Bienvenido a ElysiumPad</h1>
+    <p>${greeting}</p>
+    <p>Tu cuenta ha sido activada correctamente. Ya puedes acceder al panel de control para crear tu primer servidor, seleccionar la versión de Minecraft, añadir mods desde Modrinth y generar tu launcher oficial.</p>
+    <div class="btn-container">
+      <a href="https://elysiumpad.com/dashboard" class="btn">Ir al panel de control</a>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: 'Bienvenido a ElysiumPad',
+    html: getEmailBaseHtml({ title: 'Bienvenido a ElysiumPad', content }),
+    text: `${greeting} Tu cuenta de ElysiumPad ya está activa. Accede a tu panel en https://elysiumpad.com/dashboard`,
+  });
+}
+
+/**
+ * Recuperación de Contraseña
+ */
+export async function sendPasswordResetEmail({
+  to,
+  name,
+  resetUrl,
+}: {
+  to: string;
+  name?: string;
+  resetUrl: string;
+}): Promise<SendEmailResult> {
+  const greeting = name ? `Hola ${name},` : 'Hola,';
+
+  const content = `
+    <h1>Restablecer tu contraseña</h1>
+    <p>${greeting}</p>
+    <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en ElysiumPad.</p>
+    <div class="btn-container">
+      <a href="${resetUrl}" class="btn">Restablecer contraseña</a>
+    </div>
+    <div class="note">
+      <p style="margin: 0;">Este enlace es válido durante 1 hora. Si no has solicitado este cambio, puedes ignorar este correo y tu contraseña actual seguirá siendo la misma.</p>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: 'Restablecer contraseña - ElysiumPad',
+    html: getEmailBaseHtml({ title: 'Restablecer contraseña', content }),
+    text: `${greeting} Para restablecer tu contraseña de ElysiumPad, accede al siguiente enlace (válido por 1 hora): ${resetUrl}`,
+  });
+}
+
+/**
+ * Suscripción de Plan
+ */
+export async function sendPlanUpgradedEmail({
+  to,
+  name,
+  plan,
+}: {
+  to: string;
+  name?: string;
+  plan: string;
+}): Promise<SendEmailResult> {
+  const greeting = name ? `Hola ${name},` : 'Hola,';
+
+  const content = `
+    <h1>Plan ${plan} activado</h1>
+    <p>${greeting}</p>
+    <p>Tu cuenta ha sido actualizada al <strong>Plan ${plan}</strong> con éxito.</p>
+    <p>Ya dispones de las características ampliadas:</p>
+    <ul style="font-size: 13px; color: #52525b; line-height: 1.8; padding-left: 20px;">
+      <li>Launchers ilimitados</li>
+      <li>Subida de archivos y configuraciones .jar propias</li>
+      <li>Tablón de noticias en el launcher</li>
+      <li>Cero publicidad y personalización de marca</li>
+    </ul>
+    <div class="btn-container">
+      <a href="https://elysiumpad.com/dashboard" class="btn">Ir al panel de servidores</a>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Plan ${plan} activado - ElysiumPad`,
+    html: getEmailBaseHtml({ title: `Plan ${plan} activado`, content }),
+    text: `${greeting} Tu cuenta de ElysiumPad ha sido actualizada al Plan ${plan}. Accede a tu panel en https://elysiumpad.com/dashboard`,
   });
 }

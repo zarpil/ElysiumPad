@@ -1,5 +1,5 @@
 import React from 'react';
-import { Server, Sliders, Layers, FolderArchive, Share2, Plus, ShieldAlert, LogOut, Sparkles, Megaphone, User } from 'lucide-react';
+import { Server, Sliders, Layers, FolderArchive, Share2, Plus, ShieldAlert, LogOut, Megaphone, User } from 'lucide-react';
 import Link from 'next/link';
 
 export type ActiveTab = 'server' | 'options' | 'mods' | 'files' | 'news' | 'share';
@@ -32,109 +32,115 @@ export function AternosSidebar({
   const current = launchers.find((l) => l.slug === selectedSlug);
 
   return (
-    <aside className="w-64 bg-[#111622] border-r border-slate-800/80 flex flex-col justify-between flex-shrink-0">
+    <aside className="w-64 bg-[#0e0e11] border-r border-zinc-800/80 flex flex-col justify-between flex-shrink-0 select-none">
       <div>
-        <div className="p-5 flex items-center gap-3 border-b border-slate-800/60">
+        {/* Header / Brand */}
+        <div className="p-4 flex items-center gap-2.5 border-b border-zinc-800/80">
           <img
             src="/logo.png"
             alt="ElysiumPad"
-            className="w-9 h-9 rounded-xl object-contain shadow-md shadow-emerald-500/20"
+            className="w-8 h-8 rounded-lg object-contain"
           />
           <div>
-            <span className="font-extrabold text-sm tracking-tight text-white block">ElysiumPad</span>
-            <span className="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase block">
-              Launcher Manager
+            <span className="font-bold text-sm tracking-tight text-zinc-100 block leading-tight">ElysiumPad</span>
+            <span className="text-[11px] text-zinc-400 block leading-tight">
+              Gestor de Servidores
             </span>
           </div>
         </div>
 
-        <div className="p-3 border-b border-slate-800/60 bg-slate-950/40">
-          <div className="flex items-center justify-between px-2 mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            <span>Mis Servidores</span>
+        {/* Lista de Servidores */}
+        <div className="p-3 border-b border-zinc-800/80 bg-zinc-900/20">
+          <div className="flex items-center justify-between px-2 mb-1.5 text-[11px] font-semibold text-zinc-400">
+            <span>Tus Servidores</span>
             <button
               onClick={onCreateOpen}
-              className="text-emerald-400 hover:text-emerald-300 p-0.5 rounded hover:bg-slate-800 transition"
+              className="text-zinc-400 hover:text-zinc-100 p-1 rounded-md hover:bg-zinc-800 transition"
               title="Crear Servidor"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
 
           <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
-            {launchers.map((l) => (
-              <button
-                key={l.id}
-                onClick={() => onSelectLauncher(l)}
-                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition ${
-                  l.slug === selectedSlug
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                    : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent'
-                }`}
-              >
-                <span className="truncate">{l.name}</span>
-                <span className="text-[10px] font-mono opacity-60 flex-shrink-0">{l.mcVersion}</span>
-              </button>
-            ))}
+            {launchers.map((l) => {
+              const isSelected = l.slug === selectedSlug;
+              return (
+                <button
+                  key={l.id}
+                  onClick={() => onSelectLauncher(l)}
+                  className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition ${
+                    isSelected
+                      ? 'bg-zinc-800 text-white font-semibold'
+                      : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'
+                  }`}
+                >
+                  <span className="truncate">{l.name}</span>
+                  <span className="text-[10px] font-mono text-zinc-400 flex-shrink-0 ml-2">{l.mcVersion}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
+        {/* Pestañas de Navegación del Servidor Seleccionado */}
         {current && (
           <nav className="p-3 space-y-1">
             <button
               onClick={() => onTabChange('server')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition ${
                 activeTab === 'server'
-                  ? 'bg-slate-800 text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                  ? 'bg-zinc-800 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
               }`}
             >
-              <Server className="w-4 h-4 text-emerald-400" />
+              <Server className="w-4 h-4 text-zinc-400" />
               <span>Servidor</span>
             </button>
 
             <button
               onClick={() => onTabChange('options')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition ${
                 activeTab === 'options'
-                  ? 'bg-slate-800 text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                  ? 'bg-zinc-800 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
               }`}
             >
-              <Sliders className="w-4 h-4 text-indigo-400" />
+              <Sliders className="w-4 h-4 text-zinc-400" />
               <span>Opciones</span>
             </button>
 
             <button
               onClick={() => onTabChange('mods')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                 activeTab === 'mods'
-                  ? 'bg-slate-800 text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                  ? 'bg-zinc-800 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <Layers className="w-4 h-4 text-teal-400" />
+              <div className="flex items-center gap-2.5">
+                <Layers className="w-4 h-4 text-zinc-400" />
                 <span>Mods</span>
               </div>
-              <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">
+              <span className="text-[11px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded font-mono">
                 {current.mods.length}
               </span>
             </button>
 
             <button
               onClick={() => onTabChange('files')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                 activeTab === 'files'
-                  ? 'bg-slate-800 text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                  ? 'bg-zinc-800 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <FolderArchive className="w-4 h-4 text-amber-400" />
+              <div className="flex items-center gap-2.5">
+                <FolderArchive className="w-4 h-4 text-zinc-400" />
                 <span>Archivos & Configs</span>
               </div>
               {userPlan === 'FREE' && (
-                <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded font-bold">
+                <span className="text-[10px] bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded font-medium">
                   PRO
                 </span>
               )}
@@ -142,18 +148,18 @@ export function AternosSidebar({
 
             <button
               onClick={() => onTabChange('news')}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition ${
                 activeTab === 'news'
-                  ? 'bg-slate-800 text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                  ? 'bg-zinc-800 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
               }`}
             >
-              <div className="flex items-center gap-3">
-                <Megaphone className="w-4 h-4 text-cyan-400" />
-                <span>Noticias & Anuncios</span>
+              <div className="flex items-center gap-2.5">
+                <Megaphone className="w-4 h-4 text-zinc-400" />
+                <span>Noticias</span>
               </div>
               {userPlan === 'FREE' && (
-                <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded font-bold">
+                <span className="text-[10px] bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded font-medium">
                   PRO
                 </span>
               )}
@@ -161,35 +167,34 @@ export function AternosSidebar({
 
             <button
               onClick={() => onTabChange('share')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition ${
                 activeTab === 'share'
-                  ? 'bg-slate-800 text-white shadow-sm'
-                  : 'text-slate-400 hover:bg-slate-800/40 hover:text-slate-200'
+                  ? 'bg-zinc-800 text-white'
+                  : 'text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200'
               }`}
             >
-              <Share2 className="w-4 h-4 text-rose-400" />
+              <Share2 className="w-4 h-4 text-zinc-400" />
               <span>Compartir Launcher</span>
             </button>
           </nav>
         )}
       </div>
 
-      <div className="p-4 border-t border-slate-800/60 space-y-2.5">
+      {/* Pie del Sidebar */}
+      <div className="p-3 border-t border-zinc-800/80 space-y-2">
         {userPlan === 'FREE' && onUpgradeOpen && (
           <button
             onClick={onUpgradeOpen}
-            className="w-full p-3 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-teal-950/40 border border-emerald-500/30 rounded-xl text-left hover:border-emerald-500/60 transition group shadow-sm"
+            className="w-full p-2.5 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 rounded-lg text-left transition"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Plan FREE
-              </span>
-              <span className="text-[9px] font-black text-slate-950 bg-emerald-400 px-1.5 py-0.5 rounded shadow-sm">
-                MEJORAR
+              <span className="text-xs font-semibold text-zinc-200">Plan Free</span>
+              <span className="text-[10px] font-semibold text-emerald-400 hover:underline">
+                Mejorar
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 mt-1 leading-snug">
-              Desbloquea subida de .jar propios y marca blanca.
+            <p className="text-[11px] text-zinc-400 mt-0.5 leading-snug">
+              Desbloquea subida de archivos propios y marca blanca.
             </p>
           </button>
         )}
@@ -197,50 +202,43 @@ export function AternosSidebar({
         {currentUser?.role === 'ADMIN' && (
           <Link
             href="/admin"
-            className="w-full flex items-center justify-between px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 rounded-xl text-xs font-bold text-amber-300 transition"
+            className="w-full flex items-center justify-between px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-xs font-medium text-zinc-300 transition"
           >
             <span className="flex items-center gap-2">
-              <ShieldAlert className="w-3.5 h-3.5" />
+              <ShieldAlert className="w-3.5 h-3.5 text-zinc-400" />
               SuperAdmin
             </span>
-            <span className="text-[10px] bg-amber-500/20 px-1.5 py-0.5 rounded font-mono">CRM</span>
+            <span className="text-[10px] bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded font-mono">CRM</span>
           </Link>
         )}
 
-        {/* Mi Perfil y Cuenta */}
+        {/* Mi Perfil */}
         <Link
           href="/profile"
-          className="w-full flex items-center justify-between px-3 py-2 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition group"
+          className="w-full flex items-center justify-between px-3 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-xs font-medium text-zinc-300 transition"
         >
           <span className="flex items-center gap-2">
-            <User className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+            <User className="w-3.5 h-3.5 text-zinc-400" />
             <span>Mi Perfil</span>
           </span>
-          <span className="text-[10px] text-slate-500 font-mono">Ajustes →</span>
+          <span className="text-[11px] text-zinc-400 font-mono">Ajustes</span>
         </Link>
 
+        {/* Usuario y Logout */}
         <div className="flex items-center justify-between px-2 pt-1 text-xs">
           <Link
             href="/profile"
             className="flex items-center gap-1.5 min-w-0 max-w-[150px] hover:text-white transition"
             title="Ver mi perfil"
           >
-            <span className="text-slate-400 truncate font-medium hover:underline">
+            <span className="text-zinc-400 truncate font-medium hover:underline">
               {currentUser?.email || 'Usuario'}
             </span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                if (onUpgradeOpen) onUpgradeOpen();
-              }}
-              className="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition cursor-pointer flex-shrink-0"
-              title="Ver o mejorar plan"
-            >
-              {userPlan} ⚡
-            </button>
+            <span className="text-[10px] px-1.5 py-0.5 rounded font-medium bg-zinc-800 text-zinc-300 flex-shrink-0">
+              {userPlan}
+            </span>
           </Link>
-          <button onClick={onLogout} className="text-slate-500 hover:text-rose-400 p-1" title="Cerrar sesión">
+          <button onClick={onLogout} className="text-zinc-400 hover:text-red-400 p-1 transition" title="Cerrar sesión">
             <LogOut className="w-3.5 h-3.5" />
           </button>
         </div>

@@ -5,19 +5,11 @@ import Link from 'next/link';
 import {
   ArrowRight,
   Check,
-  Download,
   Server,
   Package,
-  Layers,
-  Shield,
-  Zap,
   Globe,
-  Users,
   ChevronDown,
   ChevronUp,
-  Cpu,
-  Terminal,
-  ExternalLink,
   SlidersHorizontal,
 } from 'lucide-react';
 
@@ -37,7 +29,7 @@ export default function LandingPage() {
   const faqs = [
     {
       q: '¿Mis jugadores necesitan instalar Java o el modloader por su cuenta?',
-      a: 'No. El launcher detecta la versión exacta de Minecraft (1.20.1, 1.21, etc.) y su cargador (Fabric, Forge, NeoForge) y gestiona los componentes necesarios automáticamente en el equipo del jugador.',
+      a: 'No. El launcher detecta la versión exacta de Minecraft (1.20.1, 26.2, etc.) y su cargador (Fabric, Forge, NeoForge, Quilt) y gestiona los componentes necesarios automáticamente en el equipo del jugador.',
     },
     {
       q: '¿Qué ocurre cuando añado o elimino un mod en el panel?',
@@ -53,45 +45,45 @@ export default function LandingPage() {
     },
     {
       q: '¿Qué diferencia hay entre el Plan Free y los planes de pago?',
-      a: 'El Plan Free permite crear 1 launcher activo y sincronizar mods directamente desde Modrinth, financiado de forma sostenible mediante anuncios discretos en el panel y launcher (al estilo Aternos). Los planes PRO y Lifetime son 100% libres de publicidad (Ad-free), admiten launchers ilimitados, subida de archivos .jar propios y personalización completa de marca.',
+      a: 'El Plan Free permite crear 1 launcher activo y sincronizar mods directamente desde Modrinth, financiado mediante anuncios discretos. Los planes PRO y Lifetime son 100% libres de publicidad, admiten launchers ilimitados, subida de archivos .jar propios y personalización completa de marca.',
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0c1017] text-slate-200 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#09090b] text-zinc-200 flex flex-col font-sans">
       {/* Header / Navbar */}
-      <header className="h-16 border-b border-[#1b2333] bg-[#0f141f] sticky top-0 z-50 px-6 lg:px-12 flex items-center justify-between">
+      <header className="h-16 border-b border-zinc-800/80 bg-[#0e0e11] sticky top-0 z-50 px-6 lg:px-12 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-2.5 text-white group">
             <img
               src="/logo.png"
               alt="ElysiumPad"
-              className="w-8 h-8 rounded-lg object-contain shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform"
+              className="w-7 h-7 rounded-lg object-contain"
             />
             <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight text-white leading-none group-hover:text-emerald-400 transition">
+              <span className="font-bold text-sm tracking-tight text-zinc-100 leading-none">
                 ElysiumPad
               </span>
-              <span className="text-[10px] text-slate-400 font-medium leading-none mt-1">
+              <span className="text-[10px] text-zinc-400 font-medium leading-none mt-1">
                 Minecraft Launcher Studio
               </span>
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-slate-300">
-            <a href="#como-funciona" className="hover:text-white transition">
+          <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-zinc-400">
+            <a href="#como-funciona" className="hover:text-zinc-100 transition">
               Cómo funciona
             </a>
-            <a href="#caracteristicas" className="hover:text-white transition">
+            <a href="#caracteristicas" className="hover:text-zinc-100 transition">
               Características
             </a>
-            <a href="#comparativa" className="hover:text-white transition">
+            <a href="#comparativa" className="hover:text-zinc-100 transition">
               Comparativa
             </a>
-            <a href="#precios" className="hover:text-white transition">
+            <a href="#precios" className="hover:text-zinc-100 transition">
               Planes
             </a>
-            <a href="#faq" className="hover:text-white transition">
+            <a href="#faq" className="hover:text-zinc-100 transition">
               Preguntas frecuentes
             </a>
           </nav>
@@ -103,20 +95,20 @@ export default function LandingPage() {
               {user.role === 'ADMIN' && (
                 <Link
                   href="/admin"
-                  className="text-xs text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-3 py-1.5 rounded-lg transition font-medium"
+                  className="text-xs text-zinc-300 bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg transition font-medium"
                 >
                   Admin
                 </Link>
               )}
               <Link
                 href="/profile"
-                className="text-xs text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700/60 transition font-medium"
+                className="text-xs text-zinc-300 hover:text-white bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-lg border border-zinc-800 transition font-medium"
               >
                 Mi Perfil
               </Link>
               <Link
                 href="/dashboard"
-                className="flex items-center gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg transition shadow-sm"
+                className="flex items-center gap-1.5 text-xs font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-950 px-3.5 py-1.5 rounded-lg transition shadow-sm"
               >
                 <span>Panel de Control</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -126,206 +118,158 @@ export default function LandingPage() {
             <div className="flex items-center gap-2.5">
               <Link
                 href="/login"
-                className="text-xs font-medium text-slate-300 hover:text-white px-3 py-1.5 rounded-lg transition"
+                className="text-xs font-medium text-zinc-400 hover:text-white px-3 py-1.5 rounded-lg transition"
               >
                 Iniciar Sesión
               </Link>
               <Link
                 href="/register"
-                className="flex items-center gap-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg transition shadow-sm"
+                className="flex items-center gap-1.5 text-xs font-semibold bg-zinc-100 hover:bg-zinc-200 text-zinc-950 px-3.5 py-1.5 rounded-lg transition shadow-sm"
               >
-                <span>Crear Launcher Gratis</span>
+                <span>Crear Launcher</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Contenido Principal */}
       <main className="flex-1">
         {/* HERO SECTION */}
-        <section className="pt-16 pb-20 px-6 lg:px-12 max-w-6xl mx-auto text-center space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-[#131a27] border border-[#1f2a3f] text-slate-300 text-xs font-medium">
+        <section className="pt-20 pb-20 px-6 lg:px-12 max-w-5xl mx-auto text-center space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>Gestor de Launchers para Comunidades de Minecraft</span>
+            <span>Gestor y creador de launchers de Minecraft</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight max-w-4xl mx-auto leading-tight">
-            Launchers de Minecraft personalizados para tu servidor.
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-zinc-100 tracking-tight max-w-3xl mx-auto leading-tight">
+            Launchers personalizados para tu comunidad de Minecraft.
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Configura tu servidor, sincroniza mods directamente desde Modrinth y comparte con tus amigos un launcher que se actualiza solo. Sin instalaciones manuales ni carpetas de mods complejas.
+          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+            Configura tu servidor, sincroniza mods directamente desde Modrinth y entrega a tus jugadores un ejecutable que se actualiza solo. Sin descargas manuales de ZIPs ni tutoriales de carpetas.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link
               href="/register"
-              className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg transition flex items-center justify-center gap-2 shadow-sm"
+              className="w-full sm:w-auto px-6 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-semibold text-xs rounded-lg transition flex items-center justify-center gap-2 shadow-sm"
             >
-              <span>Empezar con Plan Gratuito</span>
+              <span>Comenzar gratis</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
             <a
               href="#vista-previa"
-              className="w-full sm:w-auto px-6 py-3 bg-[#131a27] hover:bg-[#1a2335] text-slate-300 hover:text-white font-semibold text-xs rounded-lg border border-[#1f2a3f] transition flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white font-medium text-xs rounded-lg border border-zinc-800 transition flex items-center justify-center gap-2"
             >
-              <span>Ver Panel de Demostración</span>
+              <span>Ver demostración</span>
             </a>
           </div>
 
-          {/* Quick specs pill */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
+          {/* Características rápidas */}
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-400">
             <div className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500" />
-              <span>Compatible con Fabric, Forge y NeoForge</span>
+              <Check className="w-3.5 h-3.5 text-zinc-300" />
+              <span>Fabric, Forge, NeoForge y Quilt</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500" />
-              <span>Instalación de mods en 1 clic</span>
+              <Check className="w-3.5 h-3.5 text-zinc-300" />
+              <span>Sincronizador diferencial SHA-1</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-emerald-500" />
-              <span>Cuentas oficiales y modo offline</span>
+              <Check className="w-3.5 h-3.5 text-zinc-300" />
+              <span>Modo online y offline</span>
             </div>
           </div>
 
-          {/* REALISTIC UI SHOWCASE: ElysiumPad Dashboard Preview */}
-          <div id="vista-previa" className="pt-8 text-left">
-            <div className="bg-[#111722] border border-[#1e2739] rounded-xl overflow-hidden shadow-2xl">
-              {/* Fake Dashboard Top Bar */}
-              <div className="h-10 bg-[#0d121c] border-b border-[#1b2333] px-4 flex items-center justify-between text-xs text-slate-400">
-                <div className="flex items-center gap-3 font-medium">
-                  <span className="text-white font-semibold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    Panel de Control — ElysiumPad
-                  </span>
-                  <span className="text-slate-600">/</span>
-                  <span>Servidor: Survival Amigos</span>
+          {/* VISTA PREVIA DEL PANEL */}
+          <div id="vista-previa" className="pt-10 text-left">
+            <div className="bg-[#121215] border border-zinc-800 rounded-xl overflow-hidden shadow-2xl">
+              <div className="h-10 bg-[#0e0e11] border-b border-zinc-800 px-4 flex items-center justify-between text-xs text-zinc-400">
+                <div className="flex items-center gap-2.5 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-zinc-200 font-semibold">ElysiumPad</span>
+                  <span className="text-zinc-600">/</span>
+                  <span>Survival Comunidad</span>
                 </div>
                 <div className="flex items-center gap-3 font-mono text-[11px]">
-                  <span className="text-emerald-400">mc.amigoscraft.es:25565</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    Online (19ms)
+                  <span className="text-zinc-300">mc.comunidad.es:25565</span>
+                  <span className="px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">
+                    Online (18ms)
                   </span>
                 </div>
               </div>
 
-              {/* Realistic Inner Panel Layout */}
-              <div className="grid grid-cols-1 md:grid-cols-4 bg-[#111722]">
-                {/* Fake Left Sidebar */}
-                <div className="p-4 border-r border-[#1b2333] bg-[#0f1420] space-y-4 hidden md:block">
+              <div className="grid grid-cols-1 md:grid-cols-4 bg-[#121215]">
+                {/* Sidebar Mockup */}
+                <div className="p-4 border-r border-zinc-800 bg-[#0e0e11] space-y-4 hidden md:block">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
-                      Servidor Activo
+                    <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block mb-1.5">
+                      Servidor
                     </span>
-                    <div className="p-2.5 bg-[#171f30] border border-[#222d44] rounded-lg">
-                      <p className="text-xs font-semibold text-white truncate">Survival Amigos</p>
-                      <p className="text-[10px] text-slate-400">1.20.1 Fabric</p>
+                    <div className="p-2.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+                      <p className="text-xs font-semibold text-zinc-100 truncate">Survival Comunidad</p>
+                      <p className="text-[10px] font-mono text-zinc-400">1.20.1 Fabric</p>
                     </div>
                   </div>
 
                   <div className="space-y-1 text-xs">
-                    <div className="px-3 py-2 bg-slate-800/60 rounded-lg text-white font-medium flex items-center gap-2">
-                      <Server className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="px-2.5 py-1.5 bg-zinc-800 rounded-md text-white font-medium flex items-center gap-2">
+                      <Server className="w-3.5 h-3.5 text-zinc-400" />
                       <span>Servidor</span>
                     </div>
-                    <div className="px-3 py-2 text-slate-400 hover:text-slate-200 rounded-lg flex items-center gap-2">
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
+                    <div className="px-2.5 py-1.5 text-zinc-400 hover:text-zinc-200 rounded-md flex items-center gap-2">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-zinc-400" />
                       <span>Opciones</span>
                     </div>
-                    <div className="px-3 py-2 text-slate-400 hover:text-slate-200 rounded-lg flex items-center justify-between">
+                    <div className="px-2.5 py-1.5 text-zinc-400 hover:text-zinc-200 rounded-md flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Package className="w-3.5 h-3.5 text-slate-500" />
+                        <Package className="w-3.5 h-3.5 text-zinc-400" />
                         <span>Mods</span>
                       </div>
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 bg-slate-800 rounded text-slate-300">
-                        4
-                      </span>
+                      <span className="text-[10px] font-mono px-1.5 bg-zinc-800 rounded text-zinc-300">4</span>
                     </div>
-                    <div className="px-3 py-2 text-slate-400 hover:text-slate-200 rounded-lg flex items-center gap-2">
-                      <Globe className="w-3.5 h-3.5 text-slate-500" />
+                    <div className="px-2.5 py-1.5 text-zinc-400 hover:text-zinc-200 rounded-md flex items-center gap-2">
+                      <Globe className="w-3.5 h-3.5 text-zinc-400" />
                       <span>Compartir</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Fake Content Area */}
-                <div className="p-6 md:col-span-3 space-y-6">
-                  {/* Status Card */}
-                  <div className="p-5 bg-[#141b29] border border-[#1f2a3f] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-white">Survival Amigos</h3>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                          Fabric 1.20.1
-                        </span>
+                {/* Main Content Mockup */}
+                <div className="md:col-span-3 p-6 space-y-4">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+                      <span className="text-[11px] text-zinc-400 block">Versión</span>
+                      <span className="text-base font-bold text-zinc-100">1.20.1</span>
+                    </div>
+                    <div className="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+                      <span className="text-[11px] text-zinc-400 block">Mods</span>
+                      <span className="text-base font-bold text-zinc-100">4 activos</span>
+                    </div>
+                    <div className="p-3.5 bg-zinc-900 border border-zinc-800 rounded-lg">
+                      <span className="text-[11px] text-zinc-400 block">Acceso</span>
+                      <span className="text-base font-bold text-zinc-100">Premium & Offline</span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-lg space-y-2">
+                    <p className="text-xs font-semibold text-zinc-200">Mods preconfigurados para tus jugadores</p>
+                    <div className="space-y-1.5 font-mono text-[11px] text-zinc-400">
+                      <div className="flex items-center justify-between p-2 bg-zinc-950/60 rounded border border-zinc-800/80">
+                        <span>Sodium (Optimización gráfica)</span>
+                        <span className="text-emerald-400 text-[10px]">Sincronizado</span>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1">
-                        IP del servidor: <strong className="text-slate-200 font-mono">mc.amigoscraft.es:25565</strong>
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="px-3 py-1.5 bg-emerald-600 text-white font-semibold text-xs rounded-lg shadow-sm">
-                        Listo para Compartir
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 3 Metric Cards */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-4 bg-[#141b29] border border-[#1f2a3f] rounded-xl">
-                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
-                        Versión Minecraft
-                      </span>
-                      <p className="text-lg font-bold text-white mt-1">1.20.1</p>
-                      <span className="text-[11px] text-emerald-400">Fabric Loader</span>
-                    </div>
-
-                    <div className="p-4 bg-[#141b29] border border-[#1f2a3f] rounded-xl">
-                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
-                        Mods Instalados
-                      </span>
-                      <p className="text-lg font-bold text-white mt-1">4 mods activos</p>
-                      <span className="text-[11px] text-slate-400">Sincronizados con Modrinth</span>
-                    </div>
-
-                    <div className="p-4 bg-[#141b29] border border-[#1f2a3f] rounded-xl">
-                      <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
-                        Modo de Cuentas
-                      </span>
-                      <p className="text-lg font-bold text-white mt-1">Premium & Offline</p>
-                      <span className="text-[11px] text-slate-400">RAM recomendada: 4 GB</span>
-                    </div>
-                  </div>
-
-                  {/* Mods preview list inside showcase */}
-                  <div className="p-4 bg-[#141b29] border border-[#1f2a3f] rounded-xl space-y-2.5">
-                    <span className="text-xs font-bold text-white block">
-                      Mods Sincronizados en este Servidor
-                    </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      {[
-                        { name: 'Sodium', file: 'sodium-fabric-0.5.8+mc1.20.1.jar', desc: 'Optimización de FPS' },
-                        { name: 'Iris Shaders', file: 'iris-mc1.20.1-1.7.0.jar', desc: 'Soporte para Shaders' },
-                        { name: 'Create', file: 'create-fabric-0.5.1-1.20.1.jar', desc: 'Maquinaria y automatización' },
-                        { name: 'Simple Voice Chat', file: 'voicechat-fabric-1.20.1-2.4.28.jar', desc: 'Chat de voz por proximidad' },
-                      ].map((m) => (
-                        <div
-                          key={m.name}
-                          className="p-2.5 bg-[#0f1420] border border-[#1b2333] rounded-lg flex items-center justify-between"
-                        >
-                          <div>
-                            <p className="font-semibold text-white text-xs">{m.name}</p>
-                            <p className="text-[10px] text-slate-400">{m.desc}</p>
-                          </div>
-                          <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-mono">
-                            Modrinth
-                          </span>
-                        </div>
-                      ))}
+                      <div className="flex items-center justify-between p-2 bg-zinc-950/60 rounded border border-zinc-800/80">
+                        <span>Iris Shaders</span>
+                        <span className="text-emerald-400 text-[10px]">Sincronizado</span>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-zinc-950/60 rounded border border-zinc-800/80">
+                        <span>Xaero's Minimap</span>
+                        <span className="text-emerald-400 text-[10px]">Sincronizado</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -334,114 +278,93 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* SECTION: HOW IT WORKS */}
-        <section id="como-funciona" className="py-16 border-t border-[#1b2333] bg-[#0e131d] px-6 lg:px-12">
-          <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                Flujo de Trabajo
+        {/* CÓMO FUNCIONA */}
+        <section id="como-funciona" className="py-16 border-t border-zinc-800/80 px-6 lg:px-12 bg-[#0e0e11]">
+          <div className="max-w-5xl mx-auto space-y-10">
+            <div className="text-center space-y-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                Flujo de trabajo
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Cómo funciona para ti y para tus jugadores
+              <h2 className="text-2xl sm:text-3xl font-bold text-zinc-100 tracking-tight">
+                Cómo funciona ElysiumPad
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
-                Sin necesidad de configurar servidores de descarga manuales ni escribir scripts complejos.
-              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 bg-[#121824] border border-[#1d2638] rounded-xl space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600/10 text-emerald-400 border border-emerald-600/20 flex items-center justify-center font-bold text-xs">
+              <div className="p-5 bg-[#121215] border border-zinc-800 rounded-xl space-y-2.5">
+                <span className="w-7 h-7 rounded-md bg-zinc-800 text-zinc-300 flex items-center justify-center font-semibold text-xs">
                   1
-                </div>
-                <h3 className="text-sm font-bold text-white">Configura tu servidor</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Indica la versión de Minecraft, el cargador de mods (Fabric o Forge) y la IP de tu servidor.
+                </span>
+                <h3 className="text-sm font-semibold text-zinc-100">Configura tu servidor</h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Indica la versión de Minecraft, el cargador de mods y la dirección IP de tu servidor.
                 </p>
               </div>
 
-              <div className="p-6 bg-[#121824] border border-[#1d2638] rounded-xl space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600/10 text-emerald-400 border border-emerald-600/20 flex items-center justify-center font-bold text-xs">
+              <div className="p-5 bg-[#121215] border border-zinc-800 rounded-xl space-y-2.5">
+                <span className="w-7 h-7 rounded-md bg-zinc-800 text-zinc-300 flex items-center justify-center font-semibold text-xs">
                   2
-                </div>
-                <h3 className="text-sm font-bold text-white">Elige tus mods en 1 clic</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Busca directamente en el catálogo de Modrinth o añade tus archivos .jar propios. Los hashes y versiones se verifican automáticamente.
+                </span>
+                <h3 className="text-sm font-semibold text-zinc-100">Añade mods con un clic</h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Busca directamente en Modrinth. Los hashes SHA-1 y versiones compatibles se calculan solos.
                 </p>
               </div>
 
-              <div className="p-6 bg-[#121824] border border-[#1d2638] rounded-xl space-y-3">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600/10 text-emerald-400 border border-emerald-600/20 flex items-center justify-center font-bold text-xs">
+              <div className="p-5 bg-[#121215] border border-zinc-800 rounded-xl space-y-2.5">
+                <span className="w-7 h-7 rounded-md bg-zinc-800 text-zinc-300 flex items-center justify-center font-semibold text-xs">
                   3
-                </div>
-                <h3 className="text-sm font-bold text-white">Comparte tu enlace</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Tus amigos descargan el launcher preconfigurado. Al abrirlo, sincroniza los mods y se conecta a tu IP al pulsar "Jugar".
+                </span>
+                <h3 className="text-sm font-semibold text-zinc-100">Tus jugadores juegan</h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Compartes el enlace. Ellos descargan el launcher, se descargan los mods automáticamente y juegan.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* SECTION: COMPARATIVE TABLE */}
-        <section id="comparativa" className="py-16 border-t border-[#1b2333] px-6 lg:px-12">
-          <div className="max-w-5xl mx-auto space-y-10">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+        {/* COMPARATIVA */}
+        <section id="comparativa" className="py-16 border-t border-zinc-800/80 px-6 lg:px-12">
+          <div className="max-w-5xl mx-auto space-y-8">
+            <div className="text-center space-y-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                 Comparativa
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Distribución manual vs ElysiumPad
+              <h2 className="text-2xl sm:text-3xl font-bold text-zinc-100 tracking-tight">
+                Método tradicional vs ElysiumPad
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
-                Compara el proceso tradicional de compartir mods frente a un launcher automatizado.
-              </p>
             </div>
 
-            <div className="bg-[#111722] border border-[#1d2638] rounded-xl overflow-hidden shadow-lg">
+            <div className="bg-[#121215] border border-zinc-800 rounded-xl overflow-hidden">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#0f1420] border-b border-[#1d2638] text-slate-400 font-semibold uppercase tracking-wider">
+                <thead className="bg-[#0e0e11] border-b border-zinc-800 text-zinc-400 font-semibold uppercase tracking-wider">
                   <tr>
                     <th className="px-6 py-3.5">Funcionalidad</th>
-                    <th className="px-6 py-3.5 text-slate-500">Distribución Manual (ZIP / Drive)</th>
-                    <th className="px-6 py-3.5 text-emerald-400 font-bold">Con ElysiumPad</th>
+                    <th className="px-6 py-3.5 text-zinc-500">Distribución Manual (Drive / Mediafire)</th>
+                    <th className="px-6 py-3.5 text-zinc-200">Con ElysiumPad</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1b2333] text-slate-300">
+                <tbody className="divide-y divide-zinc-800/80 text-zinc-300">
                   <tr>
-                    <td className="px-6 py-3.5 font-medium text-white">Actualización de mods</td>
-                    <td className="px-6 py-3.5 text-slate-400">Volver a subir y descargar el ZIP completo</td>
-                    <td className="px-6 py-3.5 text-emerald-400 font-semibold">Automática en segundo plano</td>
+                    <td className="px-6 py-3.5 font-medium text-zinc-200">Actualización de mods</td>
+                    <td className="px-6 py-3.5 text-zinc-500">Reenviar un archivo ZIP completo</td>
+                    <td className="px-6 py-3.5 text-zinc-200 font-medium">Sincronización diferencial automática</td>
                   </tr>
                   <tr>
-                    <td className="px-6 py-3.5 font-medium text-white">Gestión de Java y Loader</td>
-                    <td className="px-6 py-3.5 text-slate-400">Instalación manual por cada jugador</td>
-                    <td className="px-6 py-3.5 text-emerald-400 font-semibold">Integrada en el launcher</td>
+                    <td className="px-6 py-3.5 font-medium text-zinc-200">Gestión de Java</td>
+                    <td className="px-6 py-3.5 text-zinc-500">Cada jugador debe instalar el JRE correcto</td>
+                    <td className="px-6 py-3.5 text-zinc-200 font-medium">Descarga e inicio portable transparente</td>
                   </tr>
                   <tr>
-                    <td className="px-6 py-3.5 font-medium text-white">Conexión al Servidor</td>
-                    <td className="px-6 py-3.5 text-slate-400">Copiar y pegar IP manualmente</td>
-                    <td className="px-6 py-3.5 text-emerald-400 font-semibold">Conexión directa con un clic</td>
+                    <td className="px-6 py-3.5 font-medium text-zinc-200">Conexión al servidor</td>
+                    <td className="px-6 py-3.5 text-zinc-500">Copiar IP y puerto en la lista multijugador</td>
+                    <td className="px-6 py-3.5 text-zinc-200 font-medium">Conexión directa con 1 clic</td>
                   </tr>
                   <tr>
-                    <td className="px-6 py-3.5 font-medium text-white">Compatibilidad de Cuentas</td>
-                    <td className="px-6 py-3.5 text-slate-400">Depende de launchers de terceros</td>
-                    <td className="px-6 py-3.5 text-emerald-400 font-semibold">Microsoft y modo offline configurables</td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-3.5 font-medium text-white">Página de Descarga para la Comunidad</td>
-                    <td className="px-6 py-3.5 text-slate-400">Links de Google Drive / Mediafire</td>
-                    <td className="px-6 py-3.5 text-emerald-400 font-semibold">Página dedicada con estado del servidor</td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-3.5 font-medium text-white">Publicidad y Patrocinios</td>
-                    <td className="px-6 py-3.5 text-slate-400">Acortadores con malware y captchas</td>
-                    <td className="px-6 py-3.5 text-emerald-400 font-semibold">Anuncios limpios y seguros (Free) / Cero anuncios (PRO)</td>
-                  </tr>
-                  <tr>
-                    <td className="px-6 py-3.5 font-medium text-white">Anuncios y Noticias a Jugadores</td>
-                    <td className="px-6 py-3.5 text-slate-400">Canales de Discord ignorados por jugadores</td>
-                    <td className="px-6 py-3.5 text-emerald-400 font-semibold">Tablón de noticias y eventos directos en el launcher (PRO)</td>
+                    <td className="px-6 py-3.5 font-medium text-zinc-200">Tipos de cuenta</td>
+                    <td className="px-6 py-3.5 text-zinc-500">Depende del cliente de cada usuario</td>
+                    <td className="px-6 py-3.5 text-zinc-200 font-medium">Microsoft y offline integrados</td>
                   </tr>
                 </tbody>
               </table>
@@ -449,197 +372,173 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* SECTION: PRICING */}
-        <section id="precios" className="py-16 border-t border-[#1b2333] bg-[#0e131d] px-6 lg:px-12">
-          <div className="max-w-5xl mx-auto space-y-10">
-            <div className="text-center space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-                Planes y Precios
+        {/* PLANES Y PRECIOS */}
+        <section id="precios" className="py-16 border-t border-zinc-800/80 bg-[#0e0e11] px-6 lg:px-12">
+          <div className="max-w-5xl mx-auto space-y-8">
+            <div className="text-center space-y-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                Planes
               </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Precios claros, sin costes ocultos
+              <h2 className="text-2xl sm:text-3xl font-bold text-zinc-100 tracking-tight">
+                Precios sencillos y transparentes
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
-                Comienza sin coste con tu primer servidor o amplía cuando necesites subir archivos personalizados.
-              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
               {/* FREE */}
-              <div className="p-6 bg-[#121824] border border-[#1d2638] rounded-xl flex flex-col justify-between space-y-6">
+              <div className="p-6 bg-[#121215] border border-zinc-800 rounded-xl flex flex-col justify-between space-y-6">
                 <div className="space-y-3">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Plan Free</span>
+                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Plan Free</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-white">$0</span>
-                    <span className="text-xs text-slate-400">/ siempre</span>
+                    <span className="text-3xl font-bold text-zinc-100">$0</span>
+                    <span className="text-xs text-zinc-500">/ siempre</span>
                   </div>
-                  <p className="text-xs text-slate-400">Para servidores pequeños entre amigos.</p>
+                  <p className="text-xs text-zinc-400">Ideal para comunidades pequeñas entre amigos.</p>
 
-                  <ul className="space-y-2.5 pt-4 border-t border-[#1d2638] text-xs text-slate-300">
+                  <ul className="space-y-2 pt-4 border-t border-zinc-800 text-xs text-zinc-300">
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>1 Launcher activo</span>
+                      <Check className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>1 Servidor / Launcher activo</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Catálogo completo de Modrinth</span>
+                      <Check className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>Catálogo de Modrinth completo</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 text-zinc-400" />
                       <span>Página pública de descarga</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Soporte Premium y No-Premium</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-slate-400">
-                      <span className="w-3.5 h-3.5 flex items-center justify-center text-[10px] font-bold text-amber-400">⚡</span>
-                      <span>Con anuncios (Panel y Launcher)</span>
+                    <li className="flex items-center gap-2 text-zinc-400">
+                      <span>• Anuncios discretos en panel</span>
                     </li>
                   </ul>
                 </div>
 
                 <Link
                   href="/register"
-                  className="w-full py-2.5 bg-[#172030] hover:bg-[#1f2a3f] text-slate-200 hover:text-white rounded-lg text-xs font-semibold transition text-center border border-[#222d42]"
+                  className="w-full py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 rounded-lg text-xs font-semibold transition text-center border border-zinc-800"
                 >
-                  Comenzar Gratis
+                  Comenzar gratis
                 </Link>
               </div>
 
               {/* PRO */}
-              <div className="p-6 bg-[#141d2d] border-2 border-emerald-500/80 rounded-xl flex flex-col justify-between space-y-6 shadow-xl relative">
+              <div className="p-6 bg-[#121215] border-2 border-emerald-500 rounded-xl flex flex-col justify-between space-y-6 relative shadow-lg">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Plan PRO</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      Popular
+                    <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Plan PRO</span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                      Recomendado
                     </span>
                   </div>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-white">$4.99</span>
-                    <span className="text-xs text-slate-400">/ mes</span>
+                    <span className="text-3xl font-bold text-zinc-100">$4.99</span>
+                    <span className="text-xs text-zinc-400">/ mes</span>
                   </div>
-                  <p className="text-xs text-slate-400">Para servidores activos y comunidades que requieren mods propios.</p>
+                  <p className="text-xs text-zinc-400">Para servidores activos con mods personalizados.</p>
 
-                  <ul className="space-y-2.5 pt-4 border-t border-[#1f2a3f] text-xs text-slate-200">
+                  <ul className="space-y-2 pt-4 border-t border-zinc-800 text-xs text-zinc-200">
                     <li className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="font-semibold text-emerald-300">100% Sin anuncios (Ad-free)</span>
+                      <span className="font-semibold text-zinc-100">Cero anuncios (Ad-free)</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="font-semibold text-white">Tablón de noticias propio en el launcher</span>
+                      <span>Launchers ilimitados</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="font-semibold text-white">Launchers ilimitados</span>
+                      <span>Subida de archivos .jar propios</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="font-semibold text-white">Subida de archivos .jar propios</span>
+                      <span>Tablón de noticias en el launcher</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Carpetas de configuración personalizadas</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Marca blanca (sin marca de agua)</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Personalización de banner y logos</span>
+                      <span>Marca blanca y personalización</span>
                     </li>
                   </ul>
                 </div>
 
                 <Link
                   href="/register"
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition text-center shadow-sm"
+                  className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition text-center shadow-sm"
                 >
                   Elegir Plan PRO
                 </Link>
               </div>
 
               {/* LIFETIME */}
-              <div className="p-6 bg-[#121824] border border-[#1d2638] rounded-xl flex flex-col justify-between space-y-6">
+              <div className="p-6 bg-[#121215] border border-zinc-800 rounded-xl flex flex-col justify-between space-y-6">
                 <div className="space-y-3">
-                  <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Plan Lifetime</span>
+                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Plan Lifetime</span>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-extrabold text-white">$49</span>
-                    <span className="text-xs text-slate-400">/ pago único</span>
+                    <span className="text-3xl font-bold text-zinc-100">$29.99</span>
+                    <span className="text-xs text-zinc-500">/ pago único</span>
                   </div>
-                  <p className="text-xs text-slate-400">Pago único sin mensualidades recurrentes.</p>
+                  <p className="text-xs text-zinc-400">Acceso completo permanente sin renovaciones.</p>
 
-                  <ul className="space-y-2.5 pt-4 border-t border-[#1d2638] text-xs text-slate-300">
+                  <ul className="space-y-2 pt-4 border-t border-zinc-800 text-xs text-zinc-300">
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-amber-400" />
-                      <span className="font-semibold text-amber-300">100% Sin anuncios para siempre</span>
+                      <Check className="w-3.5 h-3.5 text-zinc-400" />
+                      <span className="font-semibold text-zinc-100">Sin anuncios permanente</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-amber-400" />
-                      <span className="font-semibold text-white">Tablón de noticias y eventos ilimitado</span>
+                      <Check className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>Todas las funciones del Plan PRO</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-amber-400" />
-                      <span className="font-semibold text-white">Todas las funciones PRO para siempre</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Sin renovaciones ni cobros futuros</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Soporte prioritario</span>
+                      <Check className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>Sin cobros mensuales futuros</span>
                     </li>
                   </ul>
                 </div>
 
                 <Link
                   href="/register"
-                  className="w-full py-2.5 bg-[#172030] hover:bg-[#1f2a3f] text-slate-200 hover:text-white rounded-lg text-xs font-semibold transition text-center border border-[#222d42]"
+                  className="w-full py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 rounded-lg text-xs font-semibold transition text-center border border-zinc-800"
                 >
-                  Adquirir Licencia Lifetime
+                  Comprar Lifetime
                 </Link>
               </div>
             </div>
           </div>
         </section>
 
-        {/* SECTION: FAQ */}
-        <section id="faq" className="py-16 border-t border-[#1b2333] px-6 lg:px-12 max-w-4xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-              Preguntas Frecuentes
+        {/* PREGUNTAS FRECUENTES */}
+        <section id="faq" className="py-16 border-t border-zinc-800/80 px-6 lg:px-12 max-w-4xl mx-auto space-y-8">
+          <div className="text-center space-y-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              FAQ
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Respuestas a dudas comunes
+            <h2 className="text-2xl sm:text-3xl font-bold text-zinc-100 tracking-tight">
+              Preguntas frecuentes
             </h2>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {faqs.map((faq, index) => {
               const isOpen = activeFaq === index;
               return (
                 <div
                   key={index}
-                  className="bg-[#121824] border border-[#1d2638] rounded-xl overflow-hidden transition"
+                  className="bg-[#121215] border border-zinc-800 rounded-lg overflow-hidden transition"
                 >
                   <button
                     onClick={() => setActiveFaq(isOpen ? null : index)}
-                    className="w-full p-4 text-left flex items-center justify-between gap-4 text-xs sm:text-sm font-semibold text-white hover:text-emerald-400 transition"
+                    className="w-full p-4 text-left flex items-center justify-between gap-4 text-xs sm:text-sm font-medium text-zinc-200 hover:text-white transition cursor-pointer"
                   >
                     <span>{faq.q}</span>
                     {isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <ChevronUp className="w-4 h-4 text-zinc-400 flex-shrink-0" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                      <ChevronDown className="w-4 h-4 text-zinc-500 flex-shrink-0" />
                     )}
                   </button>
 
                   {isOpen && (
-                    <div className="px-4 pb-4 text-xs text-slate-300 leading-relaxed border-t border-[#1d2638] pt-3">
+                    <div className="px-4 pb-4 text-xs text-zinc-400 leading-relaxed border-t border-zinc-800/80 pt-3">
                       {faq.a}
                     </div>
                   )}
@@ -651,39 +550,23 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#1b2333] bg-[#0b0e15] py-10 px-6 lg:px-12 text-xs text-slate-400">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="ElysiumPad"
-              className="w-7 h-7 rounded-lg object-contain shadow-md shadow-emerald-500/20"
-            />
-            <div>
-              <p className="font-bold text-white text-xs">ElysiumPad</p>
-              <p className="text-[11px] text-slate-500">Gestión y distribución de launchers para servidores de Minecraft</p>
-            </div>
+      <footer className="border-t border-zinc-800/80 bg-[#0e0e11] py-8 px-6 lg:px-12 text-xs text-zinc-500">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo.png" alt="ElysiumPad" className="w-6 h-6 rounded object-contain" />
+            <span className="font-semibold text-zinc-300">ElysiumPad</span>
+            <span className="text-zinc-600">•</span>
+            <span>Gestor de launchers para Minecraft</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400">
-            <Link href="/dashboard" className="hover:text-white transition">
-              Panel de Servidores
-            </Link>
-            <Link href="/admin" className="hover:text-white transition">
-              Consola Admin
-            </Link>
-            <Link href="/login" className="hover:text-white transition">
-              Iniciar Sesión
-            </Link>
-            <Link href="/terms" className="hover:text-white transition text-slate-500 hover:text-slate-300">
-              Términos de Servicio
-            </Link>
-            <Link href="/privacy" className="hover:text-white transition text-slate-500 hover:text-slate-300">
-              Privacidad y Cookies
-            </Link>
+          <div className="flex items-center gap-4 text-zinc-400">
+            <Link href="/dashboard" className="hover:text-zinc-200 transition">Panel</Link>
+            <Link href="/login" className="hover:text-zinc-200 transition">Entrar</Link>
+            <Link href="/terms" className="hover:text-zinc-200 transition">Términos</Link>
+            <Link href="/privacy" className="hover:text-zinc-200 transition">Privacidad</Link>
           </div>
 
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-zinc-600">
             © {new Date().getFullYear()} ElysiumPad. No afiliado con Mojang ni Microsoft.
           </p>
         </div>
