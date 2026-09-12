@@ -8,9 +8,11 @@ interface AdBannerProps {
   upgradeUrl?: string;
   adData?: {
     enabled?: boolean;
+    provider?: string | null;
     bannerImg?: string | null;
     link?: string | null;
     text?: string | null;
+    bannerHtml?: string | null;
   } | null;
   className?: string;
   variant?: 'panel' | 'download';
@@ -20,6 +22,7 @@ export function AdBanner({ onUpgrade, upgradeUrl, adData, className = '', varian
   const bannerLink = adData?.link || 'https://elysiumpad.com/pricing';
   const bannerText = adData?.text || 'Alojamiento de servidores de Minecraft de alto rendimiento • Servidores NVMe y Protección DDoS';
   const bannerImg = adData?.bannerImg;
+  const bannerHtml = adData?.bannerHtml;
 
   return (
     <div className={`bg-[#0f1420] border border-[#1d273a] rounded-xl overflow-hidden ${className}`}>
@@ -46,7 +49,16 @@ export function AdBanner({ onUpgrade, upgradeUrl, adData, className = '', varian
       </div>
 
       {/* Ad content / sponsor display */}
-      {bannerImg ? (
+      {bannerHtml ? (
+        <div className="w-full flex items-center justify-center p-1 bg-[#0a0e17] overflow-hidden min-h-[90px]">
+          <iframe
+            srcDoc={`<!DOCTYPE html><html><head><base target="_blank"><style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;overflow:hidden;font-family:sans-serif;}</style></head><body>${bannerHtml}</body></html>`}
+            title="Anuncio Publicitario"
+            className="w-full h-24 sm:h-28 border-0"
+            sandbox="allow-scripts allow-popups allow-same-origin allow-forms allow-top-navigation-by-user-activation"
+          />
+        </div>
+      ) : bannerImg ? (
         <a
           href={bannerLink}
           target="_blank"

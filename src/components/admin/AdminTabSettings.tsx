@@ -19,6 +19,11 @@ import {
   Upload,
   Image as ImageIcon,
   X,
+  ExternalLink,
+  Code,
+  Globe,
+  Monitor,
+  HelpCircle,
 } from 'lucide-react';
 
 interface SettingsProps {
@@ -324,15 +329,15 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
         </div>
       </div>
 
-      {/* Publicidad y Patrocinadores (Plan FREE - Estilo Aternos) */}
-      <div className="p-6 bg-slate-900/40 border border-slate-800/80 rounded-2xl space-y-5">
+      {/* Publicidad y Redes de Anuncios (AdMaven, Sponsors, Scripts - Plan FREE) */}
+      <div className="p-6 bg-slate-900/40 border border-slate-800/80 rounded-2xl space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-emerald-400" /> Publicidad y Sponsors en Plan FREE (Estilo Aternos)
+              <Sparkles className="w-4 h-4 text-emerald-400" /> Monetización y Redes de Anuncios (Plan FREE)
             </h4>
             <p className="text-xs text-slate-400 mt-1">
-              Monetiza a los usuarios del plan gratuito en el panel web, páginas de descarga pública y en el launcher.
+              Monetiza a los usuarios del plan gratuito en el panel web, en las páginas de descarga pública y en el launcher con AdMaven, patrocinadores directos o scripts de terceros.
             </p>
           </div>
 
@@ -347,127 +352,389 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
           </label>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">
-              URL de Destino del Sponsor / Afiliado
-            </label>
-            <input
-              type="url"
-              value={settings.adBannerLink || ''}
-              onChange={(e) => setSettings({ ...settings, adBannerLink: e.target.value })}
-              placeholder="https://apexminecrafthosting.com/?aff=tu_id"
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
-            />
-            <p className="text-[10px] text-slate-500">
-              Enlace al que se redirige al hacer clic en el anuncio.
-            </p>
+        {/* Selector de Red / Proveedor de Publicidad */}
+        <div className="space-y-2 pt-1">
+          <label className="text-xs font-semibold text-slate-300">
+            Proveedor o Red Publicitaria
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button
+              type="button"
+              onClick={() => setSettings({ ...settings, adProvider: 'ADMAVEN' })}
+              className={`p-3.5 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                settings.adProvider === 'ADMAVEN'
+                  ? 'bg-emerald-950/40 border-emerald-500/60 text-white shadow-sm'
+                  : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5" /> AdMaven
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">
+                  Recomendado
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-tight">
+                Red publicitaria de alto eCPM. Soporta banners display, In-Page Push y popunders.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSettings({ ...settings, adProvider: 'CUSTOM' })}
+              className={`p-3.5 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                (!settings.adProvider || settings.adProvider === 'CUSTOM')
+                  ? 'bg-emerald-950/40 border-emerald-500/60 text-white shadow-sm'
+                  : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-amber-400" /> Sponsor Directo
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">
+                  Afiliados
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-tight">
+                Banner gráfico personalizado (728x90) con tu enlace de afiliado o patrocinador.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSettings({ ...settings, adProvider: 'SCRIPT' })}
+              className={`p-3.5 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                settings.adProvider === 'SCRIPT'
+                  ? 'bg-emerald-950/40 border-emerald-500/60 text-white shadow-sm'
+                  : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Code className="w-3.5 h-3.5 text-cyan-400" /> Script / AdSense
+                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">
+                  HTML / JS
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-tight">
+                Incrusta cualquier código HTML o JavaScript de Google AdSense u otras redes publicitarias.
+              </p>
+            </button>
           </div>
+        </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">
-              Texto del Banner / Subtítulo
-            </label>
-            <input
-              type="text"
-              value={settings.adBannerText || ''}
-              onChange={(e) => setSettings({ ...settings, adBannerText: e.target.value })}
-              placeholder="Alojamiento NVMe de alto rendimiento • Cupón ELYSIUM 20% OFF"
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"
-            />
-            <p className="text-[10px] text-slate-500">
-              Descripción de la oferta o sponsor mostrado en el banner.
-            </p>
-          </div>
+        {/* Guía y Configuración de AdMaven */}
+        {settings.adProvider === 'ADMAVEN' && (
+          <div className="space-y-4 pt-1">
+            {/* Tarjeta de Guía de Registro en AdMaven */}
+            <div className="p-4 bg-emerald-950/20 border border-emerald-800/40 rounded-xl space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 bg-emerald-900/40 border border-emerald-700/50 text-emerald-300 rounded-lg">
+                    <Globe className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-bold text-white">
+                      ¿Cómo registrarte y obtener tus códigos de AdMaven?
+                    </h5>
+                    <p className="text-[11px] text-emerald-300/80">
+                      AdMaven te paga por cada impresión y clic que generen los usuarios de tus launchers y web.
+                    </p>
+                  </div>
+                </div>
 
-          <div className="space-y-3 md:col-span-2 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
-                <span>Imagen Gráfica del Banner Publicitario (Opcional)</span>
-              </label>
+                <a
+                  href="https://publishers.ad-maven.com/register"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold rounded-lg transition shadow-sm self-start sm:self-auto shrink-0"
+                >
+                  <span>Registrarse en AdMaven</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
 
-              {/* Badge de recomendación de tamaño para el Launcher */}
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/25 text-[11px] font-semibold text-amber-400 shadow-sm">
-                <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
-                <span>Recomendado para Launcher: <strong>728 × 90 px</strong> (Leaderboard) u <strong>800 × 100 px</strong> (Relación ~8:1)</span>
+              <div className="text-[11px] text-slate-300 space-y-1.5 border-t border-emerald-800/30 pt-2.5">
+                <p className="font-semibold text-emerald-200">Pasos para activar tus anuncios:</p>
+                <ol className="list-decimal list-inside space-y-1 text-slate-400 pl-1">
+                  <li>Crea tu cuenta de publisher en <strong>publishers.ad-maven.com</strong> y añade tu dominio (ej: <code className="text-slate-200 bg-slate-900 px-1 rounded">elysiumpad.com</code>).</li>
+                  <li>En el panel de AdMaven, ve a <strong>Ad Units</strong> y crea un <strong>Banner (728×90 o Native Widget)</strong>. Copia el código y pégalo abajo en <em>"Código de Banner AdMaven"</em>.</li>
+                  <li>(Opcional) Crea un formato <strong>In-Page Push</strong> o <strong>Popunder</strong> y pega el script en <em>"Script Global de AdMaven"</em> para monetizar visitas en la web.</li>
+                  <li>(Opcional) Crea un <strong>Direct Link / SmartLink</strong> y pégalo en <em>"SmartLink de AdMaven"</em>.</li>
+                </ol>
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Esta proporción panorámica horizontal encaja con precisión en el dock inferior del launcher sin distorsionarse ni pixelarse. Se recomienda formato <strong>PNG o WebP</strong> con fondo transparente o colores oscuros.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center pt-1">
-              <div className="md:col-span-8">
-                <input
-                  type="url"
-                  value={settings.adBannerImg || ''}
-                  onChange={(e) => setSettings({ ...settings, adBannerImg: e.target.value })}
-                  placeholder="https://i.imgur.com/tu-banner-728x90.png o pega una URL directa"
-                  className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+            {/* Campos de AdMaven */}
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Código de Banner AdMaven (HTML / Script / Iframe para Web y Launcher)</span>
+                  <span className="text-[10px] text-slate-500 font-mono">Recomendado: 728×90 px</span>
+                </label>
+                <textarea
+                  rows={4}
+                  value={settings.adMavenBannerHtml || ''}
+                  onChange={(e) => setSettings({ ...settings, adMavenBannerHtml: e.target.value })}
+                  placeholder={'<!-- Código de AdMaven Banner aquí -->\n<script data-cfasync="false" type="text/javascript" src="//..."></script>\n<div id="admaven-banner-zone"></div>'}
+                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono leading-relaxed"
                 />
+                <p className="text-[10px] text-slate-500">
+                  Este código se renderiza dentro del dock inferior del launcher de los servidores FREE y en los contenedores publicitarios de la web.
+                </p>
               </div>
 
-              <div className="md:col-span-4 flex items-center gap-2">
-                <label className="flex-1 flex items-center justify-center gap-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/40 rounded-xl text-xs font-bold text-slate-200 hover:text-white transition cursor-pointer">
-                  {isUploadingAd ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
-                      <span>Subiendo...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Subir Banner</span>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/gif"
-                    className="hidden"
-                    disabled={isUploadingAd}
-                    onChange={handleAdBannerUpload}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">
+                    Script Global de AdMaven (In-Page Push / Anti-Adblock)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={settings.adMavenTagScript || ''}
+                    onChange={(e) => setSettings({ ...settings, adMavenTagScript: e.target.value })}
+                    placeholder={'<script data-cfasync="false" src="//tag.ad-maven.com/..."></script>'}
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
                   />
+                  <p className="text-[10px] text-slate-500">
+                    Se inyecta en el panel web y en la página de descarga pública para usuarios del plan FREE.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">
+                    SmartLink / Direct Link de AdMaven (Opcional)
+                  </label>
+                  <input
+                    type="url"
+                    value={settings.adMavenPopunderUrl || ''}
+                    onChange={(e) => setSettings({ ...settings, adMavenPopunderUrl: e.target.value })}
+                    placeholder="https://ad-maven.com/link?zone=123456"
+                    className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+                  />
+                  <p className="text-[10px] text-slate-500">
+                    Enlace de monetización al hacer clic en el botón de sponsor o al iniciar la descarga.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Configuración de Sponsor Directo (CUSTOM) */}
+        {(!settings.adProvider || settings.adProvider === 'CUSTOM') && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300">
+                URL de Destino del Sponsor / Afiliado
+              </label>
+              <input
+                type="url"
+                value={settings.adBannerLink || ''}
+                onChange={(e) => setSettings({ ...settings, adBannerLink: e.target.value })}
+                placeholder="https://apexminecrafthosting.com/?aff=tu_id"
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+              />
+              <p className="text-[10px] text-slate-500">
+                Enlace al que se redirige al hacer clic en el anuncio.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-300">
+                Texto del Banner / Subtítulo
+              </label>
+              <input
+                type="text"
+                value={settings.adBannerText || ''}
+                onChange={(e) => setSettings({ ...settings, adBannerText: e.target.value })}
+                placeholder="Alojamiento NVMe de alto rendimiento • Cupón ELYSIUM 20% OFF"
+                className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition"
+              />
+              <p className="text-[10px] text-slate-500">
+                Descripción de la oferta o sponsor mostrado en el banner.
+              </p>
+            </div>
+
+            <div className="space-y-3 md:col-span-2 p-4 rounded-xl bg-slate-950/80 border border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Imagen Gráfica del Banner Publicitario (Opcional)</span>
                 </label>
 
-                {settings.adBannerImg && (
-                  <button
-                    type="button"
-                    onClick={() => setSettings({ ...settings, adBannerImg: '' })}
-                    title="Quitar imagen"
-                    className="p-2.5 bg-slate-900 border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 rounded-xl transition cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/25 text-[11px] font-semibold text-amber-400 shadow-sm">
+                  <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+                  <span>Recomendado para Launcher: <strong>728 × 90 px</strong> (Leaderboard) u <strong>800 × 100 px</strong></span>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Esta proporción horizontal encaja en el dock inferior del launcher sin distorsionarse.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center pt-1">
+                <div className="md:col-span-8">
+                  <input
+                    type="url"
+                    value={settings.adBannerImg || ''}
+                    onChange={(e) => setSettings({ ...settings, adBannerImg: e.target.value })}
+                    placeholder="https://i.imgur.com/tu-banner-728x90.png o sube una imagen"
+                    className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+                  />
+                </div>
+
+                <div className="md:col-span-4 flex items-center gap-2">
+                  <label className="flex-1 flex items-center justify-center gap-2 px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/40 rounded-xl text-xs font-bold text-slate-200 hover:text-white transition cursor-pointer">
+                    {isUploadingAd ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                        <span>Subiendo...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Subir Banner</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      className="hidden"
+                      disabled={isUploadingAd}
+                      onChange={handleAdBannerUpload}
+                    />
+                  </label>
+
+                  {settings.adBannerImg && (
+                    <button
+                      type="button"
+                      onClick={() => setSettings({ ...settings, adBannerImg: '' })}
+                      title="Quitar imagen"
+                      className="p-2.5 bg-slate-900 border border-slate-800 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 rounded-xl transition cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Configuración de Script Personalizado (SCRIPT) */}
+        {settings.adProvider === 'SCRIPT' && (
+          <div className="space-y-2 pt-1">
+            <label className="text-xs font-semibold text-slate-300">
+              Código HTML / JavaScript del Anuncio
+            </label>
+            <textarea
+              rows={5}
+              value={settings.adCustomScript || ''}
+              onChange={(e) => setSettings({ ...settings, adCustomScript: e.target.value })}
+              placeholder={'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>\n<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" ...></ins>'}
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition font-mono leading-relaxed"
+            />
+            <p className="text-[10px] text-slate-500">
+              Se renderizará de forma aislada y segura en los contenedores de anuncios tanto de la web como del launcher.
+            </p>
+          </div>
+        )}
+
+        {/* Ubicaciones de los Anuncios (Placements) */}
+        <div className="pt-3 border-t border-slate-800/80 space-y-3">
+          <h5 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <Monitor className="w-3.5 h-3.5 text-emerald-400" />
+            Ubicaciones Activas para Usuarios en Plan FREE
+          </h5>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between gap-3 cursor-pointer hover:border-slate-700 transition">
+              <div>
+                <p className="text-xs font-semibold text-white">Panel Web (Dashboard)</p>
+                <p className="text-[10px] text-slate-500">Banner en el panel de control</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={settings.adsWebDashboard !== false}
+                onChange={(e) => setSettings({ ...settings, adsWebDashboard: e.target.checked })}
+                className="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500"
+              />
+            </label>
+
+            <label className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between gap-3 cursor-pointer hover:border-slate-700 transition">
+              <div>
+                <p className="text-xs font-semibold text-white">Página de Descarga</p>
+                <p className="text-[10px] text-slate-500">En /d/[slug] de servidores free</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={settings.adsWebDownload !== false}
+                onChange={(e) => setSettings({ ...settings, adsWebDownload: e.target.checked })}
+                className="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500"
+              />
+            </label>
+
+            <label className="p-3 bg-slate-950/80 border border-slate-800 rounded-xl flex items-center justify-between gap-3 cursor-pointer hover:border-slate-700 transition">
+              <div>
+                <p className="text-xs font-semibold text-white">Launcher Comercial</p>
+                <p className="text-[10px] text-slate-500">Dock inferior del juego</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={settings.adsLauncher !== false}
+                onChange={(e) => setSettings({ ...settings, adsLauncher: e.target.checked })}
+                className="rounded border-slate-700 text-emerald-500 focus:ring-emerald-500"
+              />
+            </label>
           </div>
         </div>
 
         {/* Vista previa en vivo del banner */}
-        <div className="pt-3">
+        <div className="pt-2">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               Vista previa en vivo del anuncio (Plan FREE):
             </p>
             <span className="text-[10px] text-emerald-400 font-medium">
-              {settings.adsEnabled !== false ? '● Activo en Launcher y Panel' : '○ Publicidad Desactivada'}
+              {settings.adsEnabled !== false ? '● Activo en ubicaciones seleccionadas' : '○ Publicidad Desactivada'}
             </span>
           </div>
 
           <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
             <div className="bg-[#0f1420] border border-[#1d273a] rounded-xl overflow-hidden">
               <div className="h-6 px-3 bg-[#0a0e17] border-b border-[#182030] flex items-center justify-between text-[10px] text-slate-500 font-medium">
-                <span className="uppercase tracking-wider font-mono text-[9px]">Dock Launcher & Panel</span>
+                <span className="uppercase tracking-wider font-mono text-[9px]">
+                  {settings.adProvider === 'ADMAVEN' ? 'AdMaven Banner Widget' : settings.adProvider === 'SCRIPT' ? 'Script Banner' : 'Sponsor Directo'}
+                </span>
                 <span className="text-emerald-400 flex items-center gap-1 font-semibold">
                   <Sparkles className="w-3 h-3" />
                   <span>Sin publicidad en Plan PRO</span>
                 </span>
               </div>
 
-              {settings.adBannerImg ? (
+              {settings.adProvider === 'ADMAVEN' && settings.adMavenBannerHtml ? (
+                <div className="w-full flex items-center justify-center p-1 bg-[#0a0e17] overflow-hidden min-h-[80px]">
+                  <iframe
+                    srcDoc={`<!DOCTYPE html><html><head><base target="_blank"><style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;overflow:hidden;font-family:sans-serif;color:#94a3b8;font-size:12px;}</style></head><body>${settings.adMavenBannerHtml}</body></html>`}
+                    title="AdMaven Preview"
+                    className="w-full h-24 sm:h-28 border-0"
+                    sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
+                  />
+                </div>
+              ) : settings.adProvider === 'SCRIPT' && settings.adCustomScript ? (
+                <div className="w-full flex items-center justify-center p-1 bg-[#0a0e17] overflow-hidden min-h-[80px]">
+                  <iframe
+                    srcDoc={`<!DOCTYPE html><html><head><base target="_blank"><style>body{margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;overflow:hidden;font-family:sans-serif;color:#94a3b8;font-size:12px;}</style></head><body>${settings.adCustomScript}</body></html>`}
+                    title="Script Preview"
+                    className="w-full h-24 sm:h-28 border-0"
+                    sandbox="allow-scripts allow-popups allow-same-origin allow-forms"
+                  />
+                </div>
+              ) : settings.adBannerImg ? (
                 <div className="block group relative overflow-hidden bg-black/40 p-2 flex items-center justify-center min-h-[64px]">
                   <img
                     src={settings.adBannerImg}
@@ -479,7 +746,6 @@ export function AdminTabSettings({ initialSettings, onRefresh }: SettingsProps) 
                   </span>
                 </div>
               ) : (
-
                 <div className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-[#182236] border border-[#243350] flex items-center justify-center text-emerald-400 flex-shrink-0">

@@ -94,7 +94,7 @@ export default async function DownloadLauncherPage({ params }: PageProps) {
   }
 
   const isFree = launcher.user.plan === 'FREE';
-  const adsEnabled = isFree && (globalSettings?.adsEnabled ?? true);
+  const adsEnabled = isFree && (globalSettings?.adsEnabled ?? true) && (globalSettings?.adsWebDownload ?? true);
 
   // Opciones de personalización PRO
   const heroTitle = (!isFree && launcher.windowTitle) ? launcher.windowTitle : launcher.name;
@@ -312,17 +312,28 @@ export default async function DownloadLauncherPage({ params }: PageProps) {
 
         {/* Ad Banner for FREE tier */}
         {adsEnabled && (
-          <AdBanner
-            variant="download"
-            upgradeUrl="/#planes"
-            className="mt-6 shadow-lg"
-            adData={{
-              enabled: true,
-              bannerImg: globalSettings?.adBannerImg,
-              link: globalSettings?.adBannerLink,
-              text: globalSettings?.adBannerText,
-            }}
-          />
+          <>
+            <AdBanner
+              variant="download"
+              upgradeUrl="/#planes"
+              className="mt-6 shadow-lg"
+              adData={{
+                enabled: true,
+                provider: globalSettings?.adProvider,
+                bannerImg: globalSettings?.adBannerImg,
+                link: globalSettings?.adProvider === 'ADMAVEN' && globalSettings?.adMavenPopunderUrl
+                  ? globalSettings.adMavenPopunderUrl
+                  : globalSettings?.adBannerLink,
+                text: globalSettings?.adBannerText,
+                bannerHtml: globalSettings?.adProvider === 'ADMAVEN'
+                  ? globalSettings?.adMavenBannerHtml
+                  : (globalSettings?.adProvider === 'SCRIPT' ? globalSettings?.adCustomScript : null),
+              }}
+            />
+            {globalSettings?.adProvider === 'ADMAVEN' && globalSettings?.adMavenTagScript && (
+              <div dangerouslySetInnerHTML={{ __html: globalSettings.adMavenTagScript }} />
+            )}
+          </>
         )}
       </main>
 

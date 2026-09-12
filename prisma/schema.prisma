@@ -147,11 +147,27 @@ model GlobalSettings {
   bannerType        String   @default("INFO") // "INFO" | "WARNING" | "CRITICAL"
   freePlanMaxLaunchers Int   @default(1)
   
-  // Publicidad para Plan FREE (estilo Aternos)
+  // Publicidad y Redes de Anuncios para Plan FREE (AdMaven, Sponsors, Scripts)
   adsEnabled        Boolean  @default(true)
+  adProvider        String   @default("CUSTOM") // "CUSTOM" | "ADMAVEN" | "SCRIPT"
+  
+  // AdMaven
+  adMavenTagScript  String?  @db.Text // Script general de AdMaven (In-Page Push / Anti-Adblock / Popunder)
+  adMavenBannerHtml String?  @db.Text // Código de Banner / Widget AdMaven (728x90 o nativo)
+  adMavenPopunderUrl String? // SmartLink / Direct Link de AdMaven
+
+  // Scripts de Terceros / AdSense
+  adCustomScript    String?  @db.Text
+
+  // Sponsor Directo (Imagen y Enlace)
   adBannerImg       String?  // Imagen del anuncio / sponsor
   adBannerLink      String?  // Link de destino del sponsor
   adBannerText      String?  @db.Text @default("Alojamiento de Minecraft de alto rendimiento • Patrocinado")
+
+  // Ubicaciones de los anuncios
+  adsWebDashboard   Boolean  @default(true) // Panel de usuario FREE
+  adsWebDownload    Boolean  @default(true) // Página de descarga pública /d/[slug] de servidores FREE
+  adsLauncher       Boolean  @default(true) // Launcher comercial de Minecraft para servidores FREE
 
   updatedAt         DateTime @updatedAt
 }

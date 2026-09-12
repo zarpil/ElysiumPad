@@ -259,12 +259,28 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {/* Publicidad para Plan FREE */}
-            {userPlan === 'FREE' && (adSettings?.adsEnabled ?? true) && (
-              <AdBanner
-                onUpgrade={() => setIsUpgradeOpen(true)}
-                adData={adSettings}
-              />
+            {/* Publicidad para Plan FREE (Estilo Aternos / AdMaven) */}
+            {userPlan === 'FREE' && (adSettings?.adsEnabled ?? true) && (adSettings?.adsWebDashboard !== false) && (
+              <>
+                <AdBanner
+                  onUpgrade={() => setIsUpgradeOpen(true)}
+                  adData={{
+                    enabled: true,
+                    provider: adSettings?.adProvider,
+                    bannerImg: adSettings?.adBannerImg,
+                    link: adSettings?.adProvider === 'ADMAVEN' && adSettings?.adMavenPopunderUrl
+                      ? adSettings.adMavenPopunderUrl
+                      : adSettings?.adBannerLink,
+                    text: adSettings?.adBannerText,
+                    bannerHtml: adSettings?.adProvider === 'ADMAVEN'
+                      ? adSettings?.adMavenBannerHtml
+                      : (adSettings?.adProvider === 'SCRIPT' ? adSettings?.adCustomScript : null),
+                  }}
+                />
+                {adSettings?.adProvider === 'ADMAVEN' && adSettings?.adMavenTagScript && (
+                  <div dangerouslySetInnerHTML={{ __html: adSettings.adMavenTagScript }} />
+                )}
+              </>
             )}
 
             {/* PESTAÑA: SERVIDOR */}

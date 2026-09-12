@@ -53,10 +53,16 @@ export async function GET(
 
       // Publicidad en Launcher (Estilo Aternos: solo en servidores Plan FREE)
       ads: {
-        enabled: isFree && (globalSettings?.adsEnabled ?? true),
+        enabled: isFree && (globalSettings?.adsEnabled ?? true) && (globalSettings?.adsLauncher ?? true),
+        provider: globalSettings?.adProvider || 'CUSTOM',
         bannerImg: globalSettings?.adBannerImg || null,
-        link: globalSettings?.adBannerLink || null,
+        link: globalSettings?.adProvider === 'ADMAVEN' && globalSettings?.adMavenPopunderUrl
+          ? globalSettings.adMavenPopunderUrl
+          : (globalSettings?.adBannerLink || null),
         text: globalSettings?.adBannerText || 'Servidores de Minecraft de alto rendimiento • Patrocinado',
+        bannerHtml: globalSettings?.adProvider === 'ADMAVEN'
+          ? (globalSettings?.adMavenBannerHtml || null)
+          : (globalSettings?.adProvider === 'SCRIPT' ? (globalSettings?.adCustomScript || null) : null),
       },
 
       // Novedades y Anuncios Comunitarios del Servidor (Exclusivo PRO / LIFETIME)
