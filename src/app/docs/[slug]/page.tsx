@@ -200,6 +200,32 @@ export default async function BlogPostPage({ params }: PageProps) {
           </div>
         </div>
 
+        {/* Caja de Autoría y Verificación Técnica E-E-A-T */}
+        <div className="bg-[#121824] border border-[#1e2739] p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm flex-shrink-0">
+              EP
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-bold text-white">Equipo Técnico de ElysiumPad</h4>
+                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold">
+                  Especialistas en Infraestructura
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
+                Artículo redactado y validado técnicamente por el equipo de ingeniería de ElysiumPad. Investigamos y probamos entornos JVM, cargadores Fabric/Forge y optimización de servidores para que tu comunidad funcione con máxima estabilidad.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/about"
+            className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 hover:underline whitespace-nowrap self-end sm:self-center"
+          >
+            Conocer al equipo →
+          </Link>
+        </div>
+
         {/* Related Posts */}
         {relatedPosts.length > 0 && (
           <div className="pt-10 border-t border-[#1b2333] space-y-6">

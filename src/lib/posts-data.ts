@@ -213,4 +213,169 @@ Si tu comunidad desea disfrutar de shaders fotorrealistas con sombras dinámicas
 
 Desde el panel de control de tu launcher en ElysiumPad, puedes buscar cada uno de estos módulos en la pestaña de **Mods** y añadirlos con un solo clic directamente desde el repositorio oficial de Modrinth. Tus jugadores los recibirán de forma sincronizada y validada.`,
   },
+  {
+    id: 'post-5',
+    slug: 'solucionar-error-internal-exception-java-io-exception-minecraft',
+    title: 'Cómo Solucionar el Error "Internal Exception: Java.io.IOException" en Minecraft',
+    excerpt: 'Diagnóstico exhaustivo del fallo de conexión más común en servidores de Minecraft: problemas de MTU de red, firewall, time-out de paquetes y cómo repararlo.',
+    category: 'Servidores',
+    readingTime: '5 min de lectura',
+    views: 3120,
+    createdAt: '2026-03-11T11:00:00.000Z',
+    updatedAt: '2026-03-11T11:00:00.000Z',
+    published: true,
+    content: `El mensaje de desconexión *"Internal Exception: java.io.IOException: An existing connection was forcibly closed by the remote host"* es uno de los dolores de cabeza más habituales para jugadores y administradores.
+
+A menudo se confunde con una caída del servidor, pero en el 90% de los casos se debe a una **desincronización en el flujo de paquetes de red** o a fragmentación en la capa de transporte TCP.
+
+---
+
+### 1. Causas principales del fallo
+
+1. **Tamaño del paquete superior al MTU (Maximum Transmission Unit):** Cuando un jugador entra a un servidor con muchos mods o entidades concentradas, el servidor envía un paquete inicial masivo. Si el router del usuario fragmenta el paquete y pierde fragmentos, la JVM aborta la conexión.
+2. **Mods cliente/servidor incompatibles:** El cliente envía un identificador de paquete que el servidor no reconoce, forzando un cierre inmediato del socket.
+3. **Firewalls y software antivirus invasivo:** Ciertos antivirus analizan el tráfico en tiempo real e interceptan los sockets de Java causando un time-out artificial.
+
+---
+
+### 2. Pasos para solucionarlo desde el lado del Jugador
+
+- **Aumentar el tiempo de espera de red con mods:** Mods como **Connectivity** o **Packet Fixer** extienden el límite de tiempo que la JVM espera antes de declarar la desconexión.
+- **Restablecer la pila TCP/IP de Windows:**
+\`\`\`bash
+netsh int ip reset
+ipconfig /flushdns
+\`\`\`
+- **Utilizar DNS fiables:** Configurar los servidores DNS públicos de Cloudflare (1.1.1.1) o Google (8.8.8.8) para evitar resolución errónea de registros SRV del servidor.
+
+---
+
+### 3. Recomendaciones para el Administrador
+
+- Configura un plugin o mod de compresión de red adecuado en \`server.properties\`: establece \`network-compression-threshold=256\` o \`512\`.
+- Distribuye el cliente preconfigurado a través de ElysiumPad para garantizar que ningún jugador ingrese con versiones desfasadas de librerías de red.`,
+  },
+  {
+    id: 'post-6',
+    slug: 'seguridad-servidores-minecraft-proteccion-ddos-puertos',
+    title: 'Guía de Seguridad para Servidores de Minecraft: Protección Anti-DDoS y Puertos',
+    excerpt: 'Mejores prácticas para proteger la dirección IP de tu servidor, evitar ataques de denegación de servicio y blindar los puertos RCON y Query.',
+    category: 'Servidores',
+    readingTime: '6 min de lectura',
+    views: 1640,
+    createdAt: '2026-03-12T14:20:00.000Z',
+    updatedAt: '2026-03-12T14:20:00.000Z',
+    published: true,
+    content: `Abrir un servidor de Minecraft al público sin las medidas de seguridad adecuadas expone la infraestructura a ataques de saturación volumétrica (UDP Flood), escaneo de puertos y explotación de contraseñas débiles en puertos administrativos.
+
+A continuación detallamos las medidas técnicas obligatorias para cualquier comunidad que busque estabilidad profesional.
+
+---
+
+### 1. Ocultar la IP real mediante Proxies Reverse (TCP Shields / BungeeCord)
+
+Nunca compartas la dirección IP numérica directa del nodo donde corre tu mundo de Minecraft si este no cuenta con filtrado volumétrico a nivel de centro de datos.
+- Utiliza servicios de túnel TCP o una red proxy intermedia (Velocity o Waterfall) con mitigación DDoS dedicada.
+- Configura el cortafuegos de tu nodo de juego (\`iptables\` o \`ufw\` en Linux) para que **únicamente acepte conexiones provenientes de la IP de tu proxy**:
+\`\`\`bash
+sudo ufw allow from IP_DEL_PROXY to any port 25565 proto tcp
+sudo ufw deny 25565/tcp
+\`\`\`
+
+---
+
+### 2. Blindaje del protocolo RCON
+
+El puerto RCON permite enviar comandos de consola remota al servidor. Si está habilitado con contraseñas débiles o por defecto:
+- Cambia siempre el puerto predeterminado (no uses 25575).
+- Usa contraseñas de al menos 24 caracteres aleatorios.
+- Bloquea el acceso externo a RCON permitiendo exclusivamente \`localhost\` (127.0.0.1) si utilizas paneles web locales.
+
+---
+
+### 3. Rate Limiting de conexiones nuevas
+
+Para mitigar bots de spam que intentan colapsar el hilo principal de autenticación conectándose cientos de veces por segundo, instala plugins o mods de antibot basados en reputación de IP o filtrado de geolocalización.`,
+  },
+  {
+    id: 'post-7',
+    slug: 'configurar-simple-voice-chat-minecraft-guia',
+    title: 'Cómo Configurar Simple Voice Chat: Chat de Voz por Proximidad en Servidores',
+    excerpt: 'Aprende a abrir el puerto UDP necesario, ajustar los códecs de audio Opus y sincronizar el cliente para que tus jugadores hablen en tiempo real.',
+    category: 'Mods',
+    readingTime: '5 min de lectura',
+    views: 2890,
+    createdAt: '2026-03-13T16:00:00.000Z',
+    updatedAt: '2026-03-13T16:00:00.000Z',
+    published: true,
+    content: `El chat de voz posicional se ha convertido en una característica imprescindible para cualquier servidor moderno de supervivencia, rol (RP) o eventos comunitarios. **Simple Voice Chat** es el estándar de la industria gracias a su soporte nativo para Fabric, Forge, NeoForge, Paper y Purpur.
+
+Sin embargo, a menudo los administradores cometen errores al configurar el puerto UDP de comunicación de voz.
+
+---
+
+### 1. Comprender la diferencia entre TCP y UDP
+
+- El juego de Minecraft funciona principalmente mediante **TCP** (puerto predeterminado 25565).
+- La voz en tiempo real requiere **UDP** (baja latencia, sin confirmación de paquetes para evitar retrasos en el audio).
+- Si solo abres el puerto TCP en tu hosting o router, el jugador entrará al mundo pero el icono del micrófono aparecerá tachado en rojo con el error *"No conectado"*.
+
+---
+
+### 2. Configuración paso a paso en el Servidor
+
+1. Accede a la carpeta \`config/voicechat/voicechat-server.properties\`.
+2. Localiza la línea \`port=24454\`.
+3. Si estás en un VPS o servidor dedicado, abre el puerto en el firewall:
+\`\`\`bash
+sudo ufw allow 24454/udp
+\`\`\`
+4. Si utilizas un hosting compartido con puertos limitados, cambia \`24454\` por el puerto secundario asignado por tu proveedor y reinicia el servidor.
+
+---
+
+### 3. Distribución simplificada en el Launcher
+
+Uno de los problemas de Simple Voice Chat es que si el cliente no tiene exactamente la versión de protocolo compatible con el servidor, no se establecerá la conexión de audio.
+Con ElysiumPad, basta con fijar la versión exacta en tu panel de mods: cuando el usuario inicie su launcher, tendrá el mod de voz instalado y listo para presionar la tecla de hablar (Push-to-Talk) sin configuraciones adicionales.`,
+  },
+  {
+    id: 'post-8',
+    slug: 'optimizar-distancia-renderizado-simulacion-minecraft',
+    title: 'Distancia de Renderizado vs Simulación: Cómo Ganar el Doble de Rendimiento',
+    excerpt: 'Diferencias clave entre View Distance y Simulation Distance en Minecraft moderno para mantener 20 TPS estables en tu servidor.',
+    category: 'Rendimiento',
+    readingTime: '4 min de lectura',
+    views: 2150,
+    createdAt: '2026-03-14T09:30:00.000Z',
+    updatedAt: '2026-03-14T09:30:00.000Z',
+    published: true,
+    content: `Desde la actualización 1.18 (Caves & Cliffs), el mundo de Minecraft aumentó drásticamente su altura y profundidad (de Y -64 a Y 320), lo que supuso un **50% más de bloques por cada chunk cargado**.
+
+Para equilibrar esto, Mojang dividió la distancia en dos parámetros independientes: **View Distance** y **Simulation Distance**.
+
+---
+
+### 1. ¿Qué hace cada ajuste?
+
+- **View Distance (Distancia visual):** Determina qué tan lejos puede ver el jugador. El servidor envía los paquetes gráficos del terreno, pero las entidades alejadas no consumen ciclos de cálculo de IA.
+- **Simulation Distance (Distancia de simulación):** Es el radio real en el que ocurren los eventos lógicos: crecimiento de cultivos, movimiento de aldeanos, activación de redstone y desove de mobs.
+
+---
+
+### 2. Configuración óptima para Servidores Comunitarios
+
+En \`server.properties\`:
+- \`simulation-distance=6\` o \`8\`: Más que suficiente para que las granjas y la redstone funcionen de manera natural sin asfixiar la CPU del servidor.
+- \`view-distance=10\` a \`12\`: Permite una vista panorámica amplia del paisaje.
+
+---
+
+### 3. Mods complementarios de visualización infinita
+
+Si deseas que los jugadores aprecien cordilleras y construcciones a distancias increíbles (32 a 64 chunks) sin sobrecargar el servidor ni el cliente:
+- Añade el mod **Distant Horizons** o **Bobby**.
+- Estos mods almacenan en caché el terreno previamente visitado y generan niveles de detalle (LOD) simplificados, permitiendo vistas impresionantes a más de 100 FPS.`,
+  },
 ];
+

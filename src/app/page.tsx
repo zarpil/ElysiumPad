@@ -560,6 +560,7 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-zinc-400">
+            <Link href="/about" className="hover:text-zinc-200 transition">Sobre Nosotros</Link>
             <Link href="/docs" className="hover:text-zinc-200 transition">Guías</Link>
             <Link href="/dashboard" className="hover:text-zinc-200 transition">Panel</Link>
             <Link href="/contact" className="hover:text-zinc-200 transition">Contacto</Link>
