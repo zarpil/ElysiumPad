@@ -12,6 +12,7 @@ import {
   BarChart3,
   Tag,
   Cpu,
+  BookOpen,
 } from 'lucide-react';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AdminTabAnalytics } from '@/components/admin/AdminTabAnalytics';
@@ -21,10 +22,11 @@ import { AdminTabCoupons } from '@/components/admin/AdminTabCoupons';
 import { AdminTabAudit } from '@/components/admin/AdminTabAudit';
 import { AdminTabSettings } from '@/components/admin/AdminTabSettings';
 import { AdminTabUpdates } from '@/components/admin/AdminTabUpdates';
+import { AdminTabBlog } from '@/components/admin/AdminTabBlog';
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'launchers' | 'updates' | 'coupons' | 'audit' | 'settings'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'launchers' | 'updates' | 'blog' | 'coupons' | 'audit' | 'settings'>('analytics');
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [launchers, setLaunchers] = useState<any[]>([]);
@@ -97,6 +99,12 @@ export default function AdminDashboard() {
       label: 'Versiones .EXE',
       icon: Cpu,
       badge: undefined,
+    },
+    {
+      id: 'blog',
+      label: 'Artículos & SEO',
+      icon: BookOpen,
+      badge: 'Blog',
     },
     {
       id: 'coupons',
@@ -187,6 +195,10 @@ export default function AdminDashboard() {
 
         {activeTab === 'updates' && (
           <AdminTabUpdates />
+        )}
+
+        {activeTab === 'blog' && (
+          <AdminTabBlog />
         )}
 
         {activeTab === 'coupons' && (

@@ -559,9 +559,10 @@ export default function LandingPage() {
             <span>Gestor de launchers para Minecraft</span>
           </div>
 
-          <div className="flex items-center gap-4 text-zinc-400">
+          <div className="flex flex-wrap items-center gap-4 text-zinc-400">
+            <Link href="/docs" className="hover:text-zinc-200 transition">Guías</Link>
             <Link href="/dashboard" className="hover:text-zinc-200 transition">Panel</Link>
-            <Link href="/login" className="hover:text-zinc-200 transition">Entrar</Link>
+            <Link href="/contact" className="hover:text-zinc-200 transition">Contacto</Link>
             <Link href="/terms" className="hover:text-zinc-200 transition">Términos</Link>
             <Link href="/privacy" className="hover:text-zinc-200 transition">Privacidad</Link>
           </div>

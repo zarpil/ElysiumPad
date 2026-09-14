@@ -97,21 +97,36 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* 4. Política de Cookies */}
+          {/* 4. Política de Cookies y Publicidad */}
           <section className="space-y-4 bg-[#121824] border border-[#1e2739] p-6 rounded-2xl">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="text-emerald-400 font-mono">04.</span> Política de Cookies y Tecnologías Similares
+              <span className="text-emerald-400 font-mono">04.</span> Política de Cookies y Publicidad de Terceros (Google AdSense)
             </h2>
             <p>
-              ElysiumPad utiliza únicamente <strong>cookies técnicas estrictamente esenciales</strong> para el funcionamiento de la plataforma:
+              ElysiumPad utiliza cookies técnicas estrictamente esenciales y herramientas de publicidad digital externa:
             </p>
-            <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-              <div className="flex items-center gap-2 text-white font-semibold text-xs">
-                <Cookie className="w-4 h-4 text-emerald-400" /> Cookie de Autenticación: <code className="text-emerald-400 font-mono text-[11px]">elysium_token</code>
+            
+            <div className="space-y-3">
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                <div className="flex items-center gap-2 text-white font-semibold text-xs">
+                  <Cookie className="w-4 h-4 text-emerald-400" /> Cookie de Autenticación Técnica: <code className="text-emerald-400 font-mono text-[11px]">elysium_token</code>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Cookie HTTP-Only protegida con SameSite=Lax. Se utiliza exclusivamente para mantener tu sesión activa de forma segura en tu navegador y prevenir ataques de suplantación de identidad (CSRF).
+                </p>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Cookie HTTP-Only protegida con SameSite=Lax. Se utiliza exclusivamente para mantener tu sesión activa de forma segura en tu navegador y prevenir ataques de suplantación de identidad (CSRF). No utilizamos cookies de rastreo de terceros ni venta de perfiles publicitarios.
-              </p>
+
+              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                <div className="flex items-center gap-2 text-white font-semibold text-xs">
+                  <Shield className="w-4 h-4 text-emerald-400" /> Publicidad de Terceros y Cookies de Google AdSense
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Google, como proveedor asociado externo, utiliza cookies para publicar anuncios en nuestro sitio web. El uso de cookies de publicidad (como la cookie de DoubleClick) permite a Google y a sus socios mostrar anuncios basados en las visitas realizadas a este y a otros sitios web de Internet.
+                </p>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Los usuarios pueden inhabilitar la publicidad personalizada consultando las <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">Preferencias de Anuncios de Google</a> o a través del portal de la <a href="https://www.aboutads.info" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">Digital Advertising Alliance</a>.
+                </p>
+              </div>
             </div>
           </section>
 
