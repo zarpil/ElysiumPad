@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Clock, Calendar, Share2, Tag, ChevronRight, BookOpen, Layers, Sparkles } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, ChevronRight, BookOpen } from 'lucide-react';
 import { getPostBySlug, getAllPublishedPosts } from '@/lib/blog-service';
 
 interface PageProps {
@@ -49,20 +49,20 @@ export default async function BlogPostPage({ params }: PageProps) {
   const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-[#0c1017] text-slate-300 font-sans selection:bg-emerald-500 selection:text-slate-950 flex flex-col">
+    <div className="min-h-screen bg-[#09090b] text-zinc-200 font-sans selection:bg-emerald-500 selection:text-slate-950 flex flex-col">
       {/* Header */}
-      <header className="h-16 border-b border-[#1b2333] bg-[#0f141f] sticky top-0 z-50 px-6 lg:px-12 flex items-center justify-between">
+      <header className="h-16 border-b border-zinc-800/80 bg-[#0e0e11] sticky top-0 z-50 px-6 lg:px-12 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 text-white group">
           <img
             src="/logo.png"
             alt="ElysiumPad"
-            className="w-8 h-8 rounded-lg object-contain shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform"
+            className="w-7 h-7 rounded-lg object-contain"
           />
           <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-tight text-white leading-none group-hover:text-emerald-400 transition">
+            <span className="font-bold text-sm tracking-tight text-zinc-100 leading-none">
               ElysiumPad
             </span>
-            <span className="text-[10px] text-slate-400 font-medium leading-none mt-1">
+            <span className="text-[10px] text-zinc-400 font-medium leading-none mt-1">
               Recursos y Guías
             </span>
           </div>
@@ -70,7 +70,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
         <Link
           href="/docs"
-          className="flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition"
+          className="flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Ver todos los artículos</span>
@@ -80,47 +80,46 @@ export default async function BlogPostPage({ params }: PageProps) {
       {/* Main Container */}
       <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-12 space-y-10">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500">
-          <Link href="/" className="hover:text-slate-300 transition">Inicio</Link>
+        <nav className="flex items-center gap-2 text-xs text-zinc-500">
+          <Link href="/" className="hover:text-zinc-300 transition">Inicio</Link>
           <ChevronRight className="w-3 h-3" />
-          <Link href="/docs" className="hover:text-slate-300 transition">Recursos</Link>
+          <Link href="/docs" className="hover:text-zinc-300 transition">Recursos</Link>
           <ChevronRight className="w-3 h-3" />
           <span className="text-emerald-400 truncate max-w-xs">{post.category}</span>
         </nav>
 
         {/* Article Header */}
-        <div className="space-y-4 border-b border-[#1b2333] pb-8">
+        <div className="space-y-4 border-b border-zinc-800/80 pb-8">
           <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider text-[11px]">
+            <span className="px-2.5 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-emerald-400 font-semibold uppercase tracking-wider text-[11px]">
               {post.category}
             </span>
-            <div className="flex items-center gap-1.5 text-slate-400">
+            <div className="flex items-center gap-1.5 text-zinc-400">
               <Clock className="w-3.5 h-3.5" />
               <span>{post.readingTime}</span>
             </div>
-            <span className="text-slate-600">•</span>
-            <div className="flex items-center gap-1.5 text-slate-400">
+            <span className="text-zinc-600">•</span>
+            <div className="flex items-center gap-1.5 text-zinc-400">
               <Calendar className="w-3.5 h-3.5" />
               <span>{new Date(post.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-zinc-100 tracking-tight leading-tight">
             {post.title}
           </h1>
 
           {post.excerpt && (
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-3xl">
+            <p className="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-3xl">
               {post.excerpt}
             </p>
           )}
         </div>
 
         {/* Espacio reservado publicitario / AdSense banner */}
-        <div className="p-3 bg-[#0f1420] border border-[#1b2538] rounded-xl text-center">
-          <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2 font-medium">Publicidad</div>
-          <div className="min-h-[90px] flex items-center justify-center text-xs text-slate-500 font-mono">
-            {/* Contenedor adaptativo de anuncios AdSense */}
+        <div className="p-3 bg-[#121215] border border-zinc-800 rounded-xl text-center">
+          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 font-medium">Publicidad</div>
+          <div className="min-h-[90px] flex items-center justify-center text-xs text-zinc-500 font-mono">
             <ins
               className="adsbygoogle block w-full text-center"
               style={{ display: 'block' }}
@@ -133,22 +132,22 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
 
         {/* Content Body */}
-        <article className="prose prose-invert max-w-none space-y-6 text-sm sm:text-base text-slate-300 leading-relaxed">
+        <article className="prose prose-invert max-w-none space-y-6 text-sm sm:text-base text-zinc-300 leading-relaxed">
           {post.content.split('\n\n').map((paragraph, index) => {
             if (paragraph.startsWith('### ')) {
               return (
-                <h3 key={index} className="text-xl sm:text-2xl font-bold text-white pt-6 pb-2 tracking-tight border-b border-[#1b2333]/80">
+                <h3 key={index} className="text-xl sm:text-2xl font-bold text-zinc-100 pt-6 pb-2 tracking-tight border-b border-zinc-800/80">
                   {paragraph.replace('### ', '')}
                 </h3>
               );
             }
             if (paragraph.startsWith('---')) {
-              return <hr key={index} className="border-t border-[#1b2333] my-6" />;
+              return <hr key={index} className="border-t border-zinc-800 my-6" />;
             }
             if (paragraph.startsWith('- ')) {
               const items = paragraph.split('\n');
               return (
-                <ul key={index} className="space-y-2 list-disc list-inside pl-2 text-slate-300">
+                <ul key={index} className="space-y-2 list-disc list-inside pl-2 text-zinc-300">
                   {items.map((item, itemIdx) => (
                     <li key={itemIdx} className="leading-relaxed">
                       {item.replace(/^- /, '')}
@@ -160,7 +159,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             if (paragraph.startsWith('1. ') || paragraph.startsWith('2. ')) {
               const items = paragraph.split('\n');
               return (
-                <ol key={index} className="space-y-2.5 list-decimal list-inside pl-2 text-slate-300">
+                <ol key={index} className="space-y-2.5 list-decimal list-inside pl-2 text-zinc-300">
                   {items.map((item, itemIdx) => (
                     <li key={itemIdx} className="leading-relaxed">
                       {item.replace(/^\d+\.\s/, '')}
@@ -172,13 +171,13 @@ export default async function BlogPostPage({ params }: PageProps) {
             if (paragraph.startsWith('```')) {
               const cleanedCode = paragraph.replace(/```[a-z]*\n?/g, '');
               return (
-                <pre key={index} className="p-4 rounded-xl bg-slate-950 border border-slate-800 text-emerald-400 font-mono text-xs overflow-x-auto">
+                <pre key={index} className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 text-emerald-400 font-mono text-xs overflow-x-auto">
                   <code>{cleanedCode}</code>
                 </pre>
               );
             }
             return (
-              <p key={index} className="text-slate-300 leading-relaxed">
+              <p key={index} className="text-zinc-300 leading-relaxed">
                 {paragraph}
               </p>
             );
@@ -186,9 +185,9 @@ export default async function BlogPostPage({ params }: PageProps) {
         </article>
 
         {/* Publicidad Inferior */}
-        <div className="p-3 bg-[#0f1420] border border-[#1b2538] rounded-xl text-center">
-          <div className="text-[10px] text-slate-600 uppercase tracking-wider mb-2 font-medium">Publicidad Patrocinada</div>
-          <div className="min-h-[90px] flex items-center justify-center text-xs text-slate-500 font-mono">
+        <div className="p-3 bg-[#121215] border border-zinc-800 rounded-xl text-center">
+          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2 font-medium">Publicidad Patrocinada</div>
+          <div className="min-h-[90px] flex items-center justify-center text-xs text-zinc-500 font-mono">
             <ins
               className="adsbygoogle block w-full text-center"
               style={{ display: 'block' }}
@@ -201,19 +200,19 @@ export default async function BlogPostPage({ params }: PageProps) {
         </div>
 
         {/* Caja de Autoría y Verificación Técnica E-E-A-T */}
-        <div className="bg-[#121824] border border-[#1e2739] p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-[#121215] border border-zinc-800 p-6 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm flex-shrink-0">
+            <div className="w-11 h-11 rounded-lg bg-zinc-900 border border-zinc-800 text-emerald-400 flex items-center justify-center font-bold text-sm flex-shrink-0">
               EP
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <h4 className="text-sm font-bold text-white">Equipo Técnico de ElysiumPad</h4>
-                <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-semibold">
+                <h4 className="text-sm font-bold text-zinc-100">Equipo Técnico de ElysiumPad</h4>
+                <span className="text-[10px] bg-zinc-900 text-emerald-400 border border-zinc-800 px-2 py-0.5 rounded font-semibold">
                   Especialistas en Infraestructura
                 </span>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
+              <p className="text-xs text-zinc-400 leading-relaxed max-w-xl">
                 Artículo redactado y validado técnicamente por el equipo de ingeniería de ElysiumPad. Investigamos y probamos entornos JVM, cargadores Fabric/Forge y optimización de servidores para que tu comunidad funcione con máxima estabilidad.
               </p>
             </div>
@@ -228,8 +227,8 @@ export default async function BlogPostPage({ params }: PageProps) {
 
         {/* Related Posts */}
         {relatedPosts.length > 0 && (
-          <div className="pt-10 border-t border-[#1b2333] space-y-6">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+          <div className="pt-8 border-t border-zinc-800/80 space-y-4">
+            <h3 className="text-base font-bold text-zinc-100 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-emerald-400" /> Otros artículos recomendados
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -237,17 +236,17 @@ export default async function BlogPostPage({ params }: PageProps) {
                 <Link
                   key={related.id}
                   href={`/docs/${related.slug}`}
-                  className="p-5 bg-[#121824] border border-[#1e2739] rounded-xl hover:border-slate-700 transition flex flex-col justify-between group"
+                  className="p-5 bg-[#121215] border border-zinc-800 rounded-xl hover:border-zinc-700 transition flex flex-col justify-between group"
                 >
                   <div className="space-y-1.5">
                     <span className="text-[10px] uppercase font-bold text-emerald-400">
                       {related.category}
                     </span>
-                    <h4 className="text-sm font-bold text-white group-hover:text-emerald-300 transition line-clamp-2">
+                    <h4 className="text-sm font-bold text-zinc-100 group-hover:text-emerald-300 transition line-clamp-2">
                       {related.title}
                     </h4>
                   </div>
-                  <span className="text-[11px] text-slate-500 mt-4 block">
+                  <span className="text-[11px] text-zinc-500 mt-4 block">
                     {related.readingTime}
                   </span>
                 </Link>
@@ -258,7 +257,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#1b2333] bg-[#0b0e15] py-8 px-6 text-xs text-slate-500 text-center">
+      <footer className="border-t border-zinc-800/80 bg-[#0e0e11] py-8 px-6 lg:px-12 text-xs text-zinc-500 text-center">
         <p>© {new Date().getFullYear()} ElysiumPad. Todos los derechos reservados.</p>
       </footer>
     </div>
