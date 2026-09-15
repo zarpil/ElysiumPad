@@ -2,8 +2,9 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Clock, Calendar, ChevronRight, BookOpen } from 'lucide-react';
+import { Clock, Calendar, ChevronRight, BookOpen } from 'lucide-react';
 import { getPostBySlug, getAllPublishedPosts } from '@/lib/blog-service';
+import { PublicNavbar } from '@/components/PublicNavbar';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -50,32 +51,8 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-200 font-sans selection:bg-emerald-500 selection:text-slate-950 flex flex-col">
-      {/* Header */}
-      <header className="h-16 border-b border-zinc-800/80 bg-[#0e0e11] sticky top-0 z-50 px-6 lg:px-12 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 text-white group">
-          <img
-            src="/logo.png"
-            alt="ElysiumPad"
-            className="w-7 h-7 rounded-lg object-contain"
-          />
-          <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-tight text-zinc-100 leading-none">
-              ElysiumPad
-            </span>
-            <span className="text-[10px] text-zinc-400 font-medium leading-none mt-1">
-              Recursos y Guías
-            </span>
-          </div>
-        </Link>
-
-        <Link
-          href="/docs"
-          className="flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Ver todos los artículos</span>
-        </Link>
-      </header>
+      {/* Header unificado */}
+      <PublicNavbar />
 
       {/* Main Container */}
       <main className="flex-1 max-w-4xl w-full mx-auto px-6 py-12 space-y-10">
