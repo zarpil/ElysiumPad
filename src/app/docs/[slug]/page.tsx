@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { Clock, Calendar, ChevronRight, BookOpen } from 'lucide-react';
 import { getPostBySlug, getAllPublishedPosts } from '@/lib/blog-service';
 import { PublicNavbar } from '@/components/PublicNavbar';
+import { PublicFooter } from '@/components/PublicFooter';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -233,10 +234,8 @@ export default async function BlogPostPage({ params }: PageProps) {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800/80 bg-[#0e0e11] py-8 px-6 lg:px-12 text-xs text-zinc-500 text-center">
-        <p>© {new Date().getFullYear()} ElysiumPad. Todos los derechos reservados.</p>
-      </footer>
+      {/* Footer unificado */}
+      <PublicFooter />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Shield, Cookie } from 'lucide-react';
 import { PublicNavbar } from '@/components/PublicNavbar';
+import { PublicFooter } from '@/components/PublicFooter';
 
 export const metadata = {
   title: 'Política de Privacidad y Cookies — ElysiumPad',
@@ -32,43 +33,43 @@ export default function PrivacyPage() {
         <div className="space-y-6 text-xs leading-relaxed text-zinc-300">
           {/* 1. Responsable */}
           <section className="space-y-3 bg-[#121215] border border-zinc-800 p-6 rounded-xl shadow-sm">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
               <span className="text-emerald-400 font-mono">01.</span> Compromiso con tu Privacidad
             </h2>
             <p>
-              En <strong>ElysiumPad</strong> valoramos y respetamos la confidencialidad de nuestros usuarios. Esta Política de Privacidad describe qué información personal recopilamos, con qué fines se utiliza, cómo la protegemos y los derechos que te asisten bajo el Reglamento General de Protección de Datos (RGPD / GDPR) y normativas afines.
+              En <strong className="text-zinc-100">ElysiumPad</strong> valoramos y respetamos la confidencialidad de nuestros usuarios. Esta Política de Privacidad describe qué información personal recopilamos, con qué fines se utiliza, cómo la protegemos y los derechos que te asisten bajo el Reglamento General de Protección de Datos (RGPD / GDPR) y normativas afines.
             </p>
           </section>
 
           {/* 2. Datos recopilados */}
-          <section className="space-y-4 bg-[#121824] border border-[#1e2739] p-6 rounded-2xl">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <section className="space-y-4 bg-[#121215] border border-zinc-800 p-6 rounded-xl shadow-sm">
+            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
               <span className="text-emerald-400 font-mono">02.</span> Datos que Recopilamos
             </h2>
             <p>Únicamente recopilamos los datos estrictamente necesarios para la prestación de nuestros servicios:</p>
-            <ul className="space-y-2 list-disc list-inside text-slate-300 pl-2">
+            <ul className="space-y-2 list-disc list-inside text-zinc-300 pl-2">
               <li>
-                <strong>Datos de Registro:</strong> Correo electrónico y nombre o apodo que elijas.
+                <strong className="text-zinc-100">Datos de Registro:</strong> Correo electrónico y nombre o apodo que elijas.
               </li>
               <li>
-                <strong>Credenciales de Acceso:</strong> Tu contraseña, la cual <strong>siempre se almacena encriptada mediante algoritmo hash irreversible bcrypt</strong> con factor de coste de seguridad. Nadie, ni siquiera nuestro equipo técnico, puede ver tu contraseña original.
+                <strong className="text-zinc-100">Credenciales de Acceso:</strong> Tu contraseña, la cual <strong>siempre se almacena encriptada mediante algoritmo hash irreversible bcrypt</strong> con factor de coste de seguridad. Nadie, ni siquiera nuestro equipo técnico, puede ver tu contraseña original.
               </li>
               <li>
-                <strong>Datos de Seguridad y Conexión:</strong> Dirección IP anónima y cabeceras de red requeridas exclusivamente para la prevención de ataques DoS, sistemas de rate limiting y auditoría de accesos.
+                <strong className="text-zinc-100">Datos de Seguridad y Conexión:</strong> Dirección IP anónima y cabeceras de red requeridas exclusivamente para la prevención de ataques DoS, sistemas de rate limiting y auditoría de accesos.
               </li>
               <li>
-                <strong>Configuración de Servidores:</strong> Nombre de tus launchers, versiones de juego y listas de mods que configuras voluntariamente.
+                <strong className="text-zinc-100">Configuración de Servidores:</strong> Nombre de tus launchers, versiones de juego y listas de mods que configuras voluntariamente.
               </li>
             </ul>
           </section>
 
           {/* 3. Pagos seguros */}
-          <section className="space-y-3 bg-[#121824] border border-[#1e2739] p-6 rounded-2xl">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <section className="space-y-3 bg-[#121215] border border-zinc-800 p-6 rounded-xl shadow-sm">
+            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
               <span className="text-emerald-400 font-mono">03.</span> Tratamiento de Información de Pago
             </h2>
             <p>
-              Cuando realizas un pago para el <strong>Plan PRO</strong> o <strong>Plan LIFETIME</strong>, la transacción se efectúa directamente a través de pasarelas de pago seguras y certificadas (como Stripe).
+              Cuando realizas un pago para el <strong className="text-zinc-100">Plan PRO</strong> o <strong className="text-zinc-100">Plan LIFETIME</strong>, la transacción se efectúa directamente a través de pasarelas de pago seguras y certificadas (como Stripe).
             </p>
             <p>
               ElysiumPad <strong>NO recopila, no procesa y no almacena datos de tarjetas bancarias</strong> en sus propios servidores. Solo recibimos confirmaciones cifradas de pago (tokens de transacción) para activar tu suscripción.
@@ -76,8 +77,8 @@ export default function PrivacyPage() {
           </section>
 
           {/* 4. Política de Cookies y Publicidad */}
-          <section className="space-y-4 bg-[#121824] border border-[#1e2739] p-6 rounded-2xl">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <section className="space-y-4 bg-[#121215] border border-zinc-800 p-6 rounded-xl shadow-sm">
+            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
               <span className="text-emerald-400 font-mono">04.</span> Política de Cookies y Publicidad de Terceros (Google AdSense)
             </h2>
             <p>
@@ -85,23 +86,23 @@ export default function PrivacyPage() {
             </p>
             
             <div className="space-y-3">
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 text-white font-semibold text-xs">
+              <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-lg space-y-2">
+                <div className="flex items-center gap-2 text-zinc-100 font-semibold text-xs">
                   <Cookie className="w-4 h-4 text-emerald-400" /> Cookie de Autenticación Técnica: <code className="text-emerald-400 font-mono text-[11px]">elysium_token</code>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Cookie HTTP-Only protegida con SameSite=Lax. Se utiliza exclusivamente para mantener tu sesión activa de forma segura en tu navegador y prevenir ataques de suplantación de identidad (CSRF).
                 </p>
               </div>
 
-              <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 text-white font-semibold text-xs">
+              <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-lg space-y-2">
+                <div className="flex items-center gap-2 text-zinc-100 font-semibold text-xs">
                   <Shield className="w-4 h-4 text-emerald-400" /> Publicidad de Terceros y Cookies de Google AdSense
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Google, como proveedor asociado externo, utiliza cookies para publicar anuncios en nuestro sitio web. El uso de cookies de publicidad (como la cookie de DoubleClick) permite a Google y a sus socios mostrar anuncios basados en las visitas realizadas a este y a otros sitios web de Internet.
                 </p>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
                   Los usuarios pueden inhabilitar la publicidad personalizada consultando las <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">Preferencias de Anuncios de Google</a> o a través del portal de la <a href="https://www.aboutads.info" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline">Digital Advertising Alliance</a>.
                 </p>
               </div>
@@ -109,14 +110,14 @@ export default function PrivacyPage() {
           </section>
 
           {/* 5. Derechos de Usuario */}
-          <section className="space-y-3 bg-[#121824] border border-[#1e2739] p-6 rounded-2xl">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <section className="space-y-3 bg-[#121215] border border-zinc-800 p-6 rounded-xl shadow-sm">
+            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
               <span className="text-emerald-400 font-mono">05.</span> Tus Derechos sobre tus Datos
             </h2>
             <p>
               Conforme a la legislación vigente, tienes derecho a:
             </p>
-            <ul className="space-y-1.5 list-disc list-inside text-slate-300 pl-2">
+            <ul className="space-y-1.5 list-disc list-inside text-zinc-300 pl-2">
               <li>Acceder en cualquier momento a tus datos personales desde la pestaña de Perfil.</li>
               <li>Rectificar o actualizar tu correo electrónico, contraseña o nombre visible.</li>
               <li>Eliminar o cancelar tu cuenta de usuario y todos los launchers asociados.</li>
@@ -125,8 +126,8 @@ export default function PrivacyPage() {
           </section>
 
           {/* 6. Seguridad */}
-          <section className="space-y-3 bg-[#121824] border border-[#1e2739] p-6 rounded-2xl">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
+          <section className="space-y-3 bg-[#121215] border border-zinc-800 p-6 rounded-xl shadow-sm">
+            <h2 className="text-base font-bold text-zinc-100 flex items-center gap-2">
               <span className="text-emerald-400 font-mono">06.</span> Medidas de Seguridad Técnicas
             </h2>
             <p>
@@ -136,10 +137,8 @@ export default function PrivacyPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800/80 bg-[#0e0e11] py-8 px-6 lg:px-12 text-xs text-zinc-500 text-center">
-        <p>© {new Date().getFullYear()} ElysiumPad. Todos los derechos reservados.</p>
-      </footer>
+      {/* Footer unificado */}
+      <PublicFooter />
     </div>
   );
 }

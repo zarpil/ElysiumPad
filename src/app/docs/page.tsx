@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { BookOpen, Clock, ArrowRight } from 'lucide-react';
 import { getAllPublishedPosts } from '@/lib/blog-service';
 import { PublicNavbar } from '@/components/PublicNavbar';
+import { PublicFooter } from '@/components/PublicFooter';
 
 export const metadata: Metadata = {
   title: 'Guías y Recursos sobre Servidores de Minecraft — ElysiumPad',
@@ -102,10 +103,8 @@ export default async function DocsPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800/80 bg-[#0e0e11] py-8 px-6 lg:px-12 text-xs text-zinc-500 text-center">
-        <p>© {new Date().getFullYear()} ElysiumPad. Todos los derechos reservados. No afiliado con Mojang ni Microsoft.</p>
-      </footer>
+      {/* Footer unificado */}
+      <PublicFooter />
     </div>
   );
 }

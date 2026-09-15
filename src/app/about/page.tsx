@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Users, Shield, Rocket, Heart, Code2, CheckCircle2 } from 'lucide-react';
 import { PublicNavbar } from '@/components/PublicNavbar';
+import { PublicFooter } from '@/components/PublicFooter';
 
 export const metadata = {
   title: 'Sobre Nosotros — Quiénes somos y Nuestra Misión | ElysiumPad',
@@ -181,10 +182,8 @@ export default function AboutPage() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-800/80 bg-[#0e0e11] py-8 px-6 lg:px-12 text-xs text-zinc-500 text-center">
-        <p>© {new Date().getFullYear()} ElysiumPad. Todos los derechos reservados.</p>
-      </footer>
+      {/* Footer unificado */}
+      <PublicFooter />
     </div>
   );
 }
